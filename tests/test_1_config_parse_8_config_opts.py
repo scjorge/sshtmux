@@ -5,7 +5,7 @@ from sshtmux.sshtmux import SSH_Config, SSH_Group, SSH_Host
 # And nested hosts with parameters
 #------------------------------------------------------------------------------
 config1 = """
-#<<<<< SSH Config file managed by sshmux >>>>>
+#<<<<< SSH Config file managed by sshtmux >>>>>
 #@config: host-style=simple
 #@config: something=nice
 """

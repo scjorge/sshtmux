@@ -6,7 +6,7 @@ from sshtmux.sshtmux import SSH_Config, SSH_Group
 #------------------------------------------------------------------------------
 config1=""
 config1_modified_lines=[
-    "#<<<<< SSH Config file managed by sshmux >>>>>\n",
+    "#<<<<< SSH Config file managed by sshtmux >>>>>\n",
     "\n",
     "\n",
     "#-------------------------------------------------------------------------------\n",
@@ -39,7 +39,7 @@ Host defaulthost
     hostname 2.2.3.3
 """
 config2_modified_lines=[
-    "#<<<<< SSH Config file managed by sshmux >>>>>\n",
+    "#<<<<< SSH Config file managed by sshtmux >>>>>\n",
     "\n",
     "#@host: some-host-info\n",
     "Host defaulthost\n",

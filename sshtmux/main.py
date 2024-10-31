@@ -18,7 +18,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 # COMMAND: sshm
 # ------------------------------------------------------------------------------
 MAIN_HELP = f"""
-SSHMux - Powerful SSH terminal TUI manager. version {VERSION}
+SSHTMux - Powerful SSH terminal TUI manager. version {VERSION}
 
 NOTE: As this will change your SSH config files, make backups before
 using this software, as you might accidentally lose some configuration.

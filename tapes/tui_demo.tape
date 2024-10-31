@@ -7,7 +7,7 @@ Set Width 900
 Set Height 600
 Set Theme "Elementary"
 
-# Show comment and run sshmux TUI
+# Show comment and run sshtmux TUI
 Sleep 200ms
 Type "# Start interactive TUI for sshm"
 Enter

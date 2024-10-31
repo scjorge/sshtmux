@@ -8,7 +8,7 @@ from sshtmux.sshtmux import SSH_Config, SSH_Group, SSH_Host
 config1=""
 
 config2="""
-#<<<<< SSH Config file managed by sshmux >>>>>
+#<<<<< SSH Config file managed by sshtmux >>>>>
 #@host: testinfo
 host test
     hostname 1.2.3.4

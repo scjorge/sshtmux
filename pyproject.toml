@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sshtmux"
-homepage = "https://github.com/scjorge/sshmux"
+homepage = "https://github.com/scjorge/sshtmux"
 version = "0.0.1"
 description = "SSH Config manager"
 authors = ["Jorge Silva <jorgesilva.ti@hotmail.com>"]
@@ -32,8 +32,8 @@ pytest = "^7.3"
 
 
 [tool.poetry.scripts]
-sshm = "sshmux.main:cli"
-ssht = "sshmux.main_tui:tui"
+sshm = "sshtmux.main:cli"
+ssht = "sshtmux.main_tui:tui"
 
 
 [build-system]

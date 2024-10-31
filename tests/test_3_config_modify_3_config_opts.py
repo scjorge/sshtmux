@@ -6,7 +6,7 @@ from sshtmux.sshtmux import SSH_Config, SSH_Group
 #------------------------------------------------------------------------------
 config1=""
 config1_modified_lines=[
-    "#<<<<< SSH Config file managed by sshmux >>>>>\n",
+    "#<<<<< SSH Config file managed by sshtmux >>>>>\n",
     "#@config: host-style=simple\n",
     "#@config: something=nice\n",
     "\n",
