@@ -3,16 +3,20 @@ from dataclasses import dataclass, field
 import importlib
 import socket
 
+from rich.console import Console
+
 from ..globals import DEFAULT_HOST_STYLE
 
-from rich.console import Console
+
 console = Console()
 
 DEBUG_STYLES = False
 
+
 @dataclass
 class SSH_Host:
-    """ Class for SSH host config structure """
+    """Class for SSH host config structure"""
+
     name: str
     group: str
     password: str = ""
@@ -23,7 +27,6 @@ class SSH_Host:
     inherited_params: list = field(default_factory=list)
     print_style: str = DEFAULT_HOST_STYLE
 
-
     def get_all_params(self) -> Dict[str, str]:
         """
         Method combines configured host parameters with all
@@ -31,9 +34,8 @@ class SSH_Host:
         """
         return {
             **self.params,
-            **{ k: v for d in self.inherited_params for k, v in d[1].items()}
+            **{k: v for d in self.inherited_params for k, v in d[1].items()},
         }
-    
 
     def get_target(self) -> str:
         """
@@ -41,8 +43,7 @@ class SSH_Host:
         If name is just alias, and host has defined "hostname" then hostname will be returned
         When there is no hostname, only host name is returned
         """
-        return self.name if not "hostname" in self.params else self.params["hostname"]
-
+        return self.name if "hostname" not in self.params else self.params["hostname"]
 
     def resolve_target(self) -> Tuple[str, bool]:
         """
@@ -56,7 +57,6 @@ class SSH_Host:
         except socket.error:
             return ("", True)
 
-
     # Method for interaction with printing the object via Rich library
     # Each supported style should be located in defined folder (by default under "host_styles")
     # Each module must have "render" function, and return "rich renderable" object
@@ -64,11 +64,15 @@ class SSH_Host:
         try:
             # If current host "print_style" is set to "panels", we will try
             # to import module from "./host_styles/panels.py"
-            style = importlib.import_module(f'sshclick.sshc.host_styles.{self.print_style}')
+            style = importlib.import_module(
+                f"sshclick.sshc.host_styles.{self.print_style}"
+            )
             return style.render(self)
         except ModuleNotFoundError:
             return f"SSH_Host style [bright_red]'{self.print_style}'[/] is not implemented!"
         except Exception:
             if DEBUG_STYLES:
-                console.print_exception(show_locals=False, max_frames=1, suppress=[importlib])
+                console.print_exception(
+                    show_locals=False, max_frames=1, suppress=[importlib]
+                )
             return f"SSH_Host style [bright_red]'{self.print_style}'[/] is broken!"

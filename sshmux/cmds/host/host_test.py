@@ -45,14 +45,13 @@ def cmd(ctx: click.core.Context, name: str, timeout: int):
     # ------------------------------------------------------------
     # Based internally on get_target(), also tries to resolve to IP
     target = found_host.get_target()
-    target_ip, err = found_host.resolve_target()
+    _, err = found_host.resolve_target()
     if err:
         print(f"Test host failed: {name} ({target}) is not resolvable!")
         ctx.exit(1)
 
     # SSH Command method via subprocess
     #------------------------------------------------
-    # ssh_command = f"ssh -q -o PasswordAuthentication=no StrictHostKeyChecking=no -o ConnectTimeout={timeout} {name} 'exit'"
     ssh_command = f"ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout={timeout} {name} 'exit'"
     response = subprocess.run(ssh_command, shell=True, capture_output=True)
     pprint(response)

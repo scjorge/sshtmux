@@ -64,11 +64,11 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
         # parametar keyword will be lowercased as they are case insensitive
         param = param.lower()
         if not value or value.isspace():
-            print(f"Cannot define empty value for parameter during host creation!")
+            print("Cannot define empty value for parameter during host creation!")
             ctx.exit(1)
         if param in PARAMS_WITH_ALLOWED_MULTIPLE_VALUES:
             # We need to handle host parameter as "list"
-            if not param in new_host.params:
+            if param not in new_host.params:
                 new_host.params[param] = [ value ]
             else:
                 new_host.params[param].append(value)

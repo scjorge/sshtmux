@@ -163,7 +163,7 @@ class SSH_Config:
                     logging.debug(f"Config keyword for host '{self.current_host}': {keyword} -> {value}")
                     # Save any specific info...
                     if keyword in PARAMS_WITH_ALLOWED_MULTIPLE_VALUES:
-                        if not keyword in self.current_host.params:
+                        if keyword not in self.current_host.params:
                             self.current_host.params[keyword] = [value]
                         else:
                             self.current_host.params[keyword].append(value)

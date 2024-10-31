@@ -1,9 +1,10 @@
-from ..ssh_host import SSH_Host
-
 from rich.table import Table
 from rich.panel import Panel
 from rich.console import Group
 from rich import box
+
+from ..ssh_host import SSH_Host
+
 
 #------------------------------------------------------------------------------
 # Render host data in panel without borders and minimal decorations
@@ -24,7 +25,7 @@ def render(host: SSH_Host):
     if host.info:
         out_info = "\n".join(host.info)
         panel_data = panel_data + [
-            f"",
+            "",
             f"[gray50]{out_info}[/]",
         ]
     host_panel = Panel("\n".join(panel_data), box=box.SIMPLE, border_style="grey35", padding=(0,0))
@@ -44,7 +45,7 @@ def render(host: SSH_Host):
     # Add rows for inherited SSH Config parameters
     for pattern, pattern_params in host.inherited_params:
         for param, value in pattern_params.items():
-            if not param in host.params:
+            if param not in host.params:
                 output_value = value if not isinstance(value, list) else "\n".join(value)
                 param_table.add_row(param, output_value, pattern, style="yellow")
 

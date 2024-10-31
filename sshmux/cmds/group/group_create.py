@@ -1,4 +1,5 @@
 import click
+
 from sshmux.sshm import SSH_Config, SSH_Group
 
 #------------------------------------------------------------------------------

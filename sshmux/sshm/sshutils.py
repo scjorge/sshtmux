@@ -7,6 +7,7 @@ from .ssh_parameters import ALL_PARAM_LC_NAMES
 from .ssh_config import SSH_Config, SSH_Host
 
 from rich.console import Console
+
 err = Console(stderr=True)
 
 
@@ -24,15 +25,18 @@ def build_context_config(ctx) -> None:
             while True:
                 if "sshconfig" in current_obj.params:
                     full_path = os.path.expanduser(current_obj.params["sshconfig"])
-                    ctx.obj = SSH_Config(
-                        file=full_path,
-                        stdout=current_obj.params["stdout"]
-                    ).read().parse()
+                    ctx.obj = (
+                        SSH_Config(file=full_path, stdout=current_obj.params["stdout"])
+                        .read()
+                        .parse()
+                    )
                     break
                 else:
                     current_obj = current_obj.parent
-        except:
-            err.print("INTERNAL ERROR: Could not reconstruct context for SSH configuration!")
+        except Exception as e:
+            err.print(
+                f"INTERNAL ERROR: Could not reconstruct context for SSH configuration!. Detail: {e}"
+            )
             ctx.exit(1)
 
 
@@ -84,7 +88,6 @@ def expand_names(names: tuple, all_names: list) -> List[str]:
 # For target host, return a list of hosts in order of connections to reach the target host
 # In case host is directly reachable (no "proxyjump" param), it will return list of single (target) host
 def trace_jumphosts(name: str, config: SSH_Config, ctx, style: str) -> List[SSH_Host]:
-
     # Keep list of linked hosts via proxyjump option
     traced_hosts: List[SSH_Host] = []
 
@@ -93,8 +96,10 @@ def trace_jumphosts(name: str, config: SSH_Config, ctx, style: str) -> List[SSH_
     # can trace full connection path for later graph processing
     while True:
         # Search for host in current configuration
-        if (not config.check_host_by_name(name)):
-            print(f"Cannot get info for used host '{name}' as it is not defined in configuration!")
+        if not config.check_host_by_name(name):
+            print(
+                f"Cannot get info for used host '{name}' as it is not defined in configuration!"
+            )
             ctx.exit(1)
 
         found_host = config.get_host_by_name(name)[0]
@@ -121,5 +126,5 @@ def trace_jumphosts(name: str, config: SSH_Config, ctx, style: str) -> List[SSH_
             name = proxyjump
         else:
             break
-    
+
     return traced_hosts

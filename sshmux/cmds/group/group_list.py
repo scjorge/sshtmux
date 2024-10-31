@@ -1,17 +1,19 @@
 import click
-from sshmux.sshm import SSH_Config
 from rich.console import Console
 from rich.table import Table
 from rich import box
 
-#------------------------------------------------------------------------------
+from sshmux.sshm import SSH_Config
+
+# ------------------------------------------------------------------------------
 # COMMAND: group list
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Lists all groups"
-LONG_HELP  = SHORT_HELP
+LONG_HELP = SHORT_HELP
 
 # Parameters help:
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 @click.command(name="list", short_help=SHORT_HELP, help=LONG_HELP)
 @click.pass_context
@@ -25,7 +27,9 @@ def cmd(ctx):
     table.add_column("Desc", style="grey50")
 
     for group in config.groups:
-        table.add_row(group.name, str(len(group.hosts)), str(len(group.patterns)), group.desc)
+        table.add_row(
+            group.name, str(len(group.hosts)), str(len(group.patterns)), group.desc
+        )
 
     console = Console()
     console.print(table)

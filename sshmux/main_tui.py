@@ -81,7 +81,7 @@ class SSHHostDataInfo(Static):
         # Add rows for inherited SSH Config parameters
         for pattern, pattern_params in host.inherited_params:
             for param, value in pattern_params.items():
-                if not param in host.params:
+                if param not in host.params:
                     output_value = value if not isinstance(value, list) else "\n".join(value)
                     param_table.add_row(param, output_value, pattern, style="yellow")
 

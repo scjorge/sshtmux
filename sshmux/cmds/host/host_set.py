@@ -1,5 +1,5 @@
 import click
-from sshmux.sshm import SSH_Config, SSH_Group, SSH_Host
+from sshmux.sshm import SSH_Config, SSH_Group
 from sshmux.sshm import complete_ssh_host_names, complete_ssh_group_names, complete_params, expand_names
 from sshmux.sshm import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
 
@@ -108,7 +108,7 @@ def cmd(ctx, names, info, parameter, target_group_name, force, yes):
             param = param.lower()            # lowercase keyword/param as they are case insensitive
             if value:
                 if param in PARAMS_WITH_ALLOWED_MULTIPLE_VALUES:
-                    if not param in found_host.params:
+                    if param not in found_host.params:
                         found_host.params[param] = [value]
                     else:
                         if value in found_host.params[param]:
@@ -121,7 +121,7 @@ def cmd(ctx, names, info, parameter, target_group_name, force, yes):
                 if param in found_host.params:
                     found_host.params.pop(param)
                 else:
-                    print(f"Cannot unset parameter that is not defined!")
+                    print("Cannot unset parameter that is not defined!")
 
         if not config.stdout:
             print(f"Modified host: {name}")

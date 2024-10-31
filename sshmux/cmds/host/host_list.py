@@ -59,7 +59,7 @@ def cmd(ctx, group_filter, name_filter, verbose):
                 flat_config.append(h)
         for host in flat_config:
             for i_params in host.params:
-                if (not i_params in params):
+                if (i_params not in params):
                     params.append(i_params)
     
     header = host_props + ([f"param:{p}" for p in params])
