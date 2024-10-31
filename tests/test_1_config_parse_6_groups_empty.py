@@ -1,4 +1,4 @@
-from sshmux.sshm import SSH_Config, SSH_Group
+from sshtmux.sshtmux import SSH_Config, SSH_Group
 
 #------------------------------------------------------------------------------
 # Test parsing groups

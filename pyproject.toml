@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sshmux"
+name = "sshtmux"
 homepage = "https://github.com/scjorge/sshmux"
 version = "0.0.1"
 description = "SSH Config manager"
@@ -10,7 +10,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",

@@ -1,7 +1,7 @@
 import click
-from sshmux.sshm import SSH_Config, SSH_Group
-from sshmux.sshm import complete_ssh_host_names, complete_ssh_group_names, complete_params, expand_names
-from sshmux.sshm import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
+from sshtmux.sshtmux import SSH_Config, SSH_Group
+from sshtmux.sshtmux import complete_ssh_host_names, complete_ssh_group_names, complete_params, expand_names
+from sshtmux.sshtmux import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
 
 #------------------------------------------------------------------------------
 # COMMAND: host set

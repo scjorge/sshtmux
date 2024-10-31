@@ -1,7 +1,7 @@
 import click
 
-from sshmux.sshm import SSH_Config
-from sshmux.sshm import complete_ssh_group_names, expand_names
+from sshtmux.sshtmux import SSH_Config
+from sshtmux.sshtmux import complete_ssh_group_names, expand_names
 
 #------------------------------------------------------------------------------
 # COMMAND: group delete

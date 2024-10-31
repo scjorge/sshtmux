@@ -1,6 +1,6 @@
 import click
-from sshmux.sshm import SSH_Config
-from sshmux.sshm import complete_ssh_host_names, expand_names
+from sshtmux.sshtmux import SSH_Config
+from sshtmux.sshtmux import complete_ssh_host_names, expand_names
 
 #------------------------------------------------------------------------------
 # COMMAND: host delete

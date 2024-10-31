@@ -3,7 +3,7 @@ import os.path
 import click
 
 from .version import VERSION
-from .sshm import SSH_Config
+from .sshtmux import SSH_Config
 from .main_tui import SSHTui
 from .cmds import cmd_group, cmd_host, cmd_config
 from .cmds.cmd_group import group_list
