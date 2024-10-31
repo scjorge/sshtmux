@@ -133,6 +133,8 @@ class SSHTui(App):
         ("d", "toggle_dark", "Toggle dark mode"),
         ("c", "connect_ssh", "SSH to host"),
         ("f", "connect_sftp", "SFTP to host"),
+        ("j", "cursor_down"),
+        ("k", "cursor_up"),
     ]
 
     CSS = """
@@ -159,6 +161,7 @@ class SSHTui(App):
     """
 
     def __init__(self, sshmonf=None):
+        self.ssh_tree = None
         if isinstance(sshmonf, SSH_Config):
             self.sshmonf = sshmonf
         else:
@@ -169,15 +172,15 @@ class SSHTui(App):
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
         with Container():
-            ssh_tree = Tree(f"SSH Configuration ({len(self.sshmonf.groups)} groups)", id="sshtree", data=None)
-            ssh_tree.root.expand()
+            self.ssh_tree = Tree(f"SSH Configuration ({len(self.sshmonf.groups)} groups)", id="sshtree", data=None)
+            self.ssh_tree.root.expand()
 
             for group in self.sshmonf.groups:
-                g = ssh_tree.root.add(f":file_folder: {group.name}", data=group, expand=False)
+                g = self.ssh_tree.root.add(f":file_folder: {group.name}", data=group, expand=False)
                 for host in group.hosts + group.patterns:
                     g.add_leaf(host.name, data=host)
 
-            yield ssh_tree
+            yield self.ssh_tree
             yield SSHDataView()
         yield Footer()
 
@@ -199,6 +202,20 @@ class SSHTui(App):
         if isinstance(self.current_node, SSH_Host) and self.current_node.type == "normal":
             # TODO: remove hardcoded timeout option, and load it from config or global "default"
             self._run_external_cmd_with_args(f"ssh -o ConnectTimeout=5 {self.current_node.name}")
+
+    def action_cursor_down(self) -> None:
+        if self.ssh_tree.cursor_line == -1:
+            self.ssh_tree.cursor_line = 0
+        else:
+            self.ssh_tree.cursor_line += 1
+        self.ssh_tree.scroll_to_line(self.ssh_tree.cursor_line)
+
+    def action_cursor_up(self) -> None:
+        if self.ssh_tree.cursor_line == -1:
+            self.ssh_tree.cursor_line = self.ssh_tree.last_line
+        else:
+            self.ssh_tree.cursor_line -= 1
+        self.ssh_tree.scroll_to_line(self.ssh_tree.cursor_line)
 
     def action_connect_sftp(self) -> None:
         # "Connect to" only works on normal hosts
