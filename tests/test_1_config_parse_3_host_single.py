@@ -1,4 +1,4 @@
-from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
+from sshmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
 #------------------------------------------------------------------------------
 # Parsing single host

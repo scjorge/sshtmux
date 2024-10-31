@@ -29,7 +29,7 @@
 - Fixing poor design on exceptions when getting host/group from config
 - Added aliases for `hosts` and `groups` top level commands
 - Move inherited parameters processing from `trace_jumphosts`, now done during Config parsing
-- Add parsing/generation option to save SSHClick config trough SSH Config file notation (host-style)
+- Add parsing/generation option to save sshmux config trough SSH Config file notation (host-style)
 - Add command to allow setting/deleting configuration options in SSH config file (`sshc config set/get`)
 - Dependencies updated
 - Added Changelog and TODO

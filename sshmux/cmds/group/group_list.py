@@ -1,5 +1,5 @@
 import click
-from sshclick.sshc import SSH_Config
+from sshmux.sshm import SSH_Config
 from rich.console import Console
 from rich.table import Table
 from rich import box

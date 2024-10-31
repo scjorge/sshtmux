@@ -1,9 +1,9 @@
-#<<<<< SSH Config file managed by sshclick >>>>>
+#<<<<< SSH Config file managed by sshmux >>>>>
 
 #-------------------------------------------------------------------------------
 #@group: network
 #@desc: Network devices in my lab
-#@info: user='admin' password='password'
+#@info: user='admin'
 #@info: Not really, but for demo its ok :)
 #-------------------------------------------------------------------------------
 Host net-switch1
@@ -47,7 +47,7 @@ Host lab-serv2
     hostname 10.10.0.2
 
 #@host: This server is [red]not[/] reachable directly, only via [green]lab-serv1[/]
-#@host: SSHClick can represent how end-to-end tunels will be established
+#@host: sshmux can represent how end-to-end tunels will be established
 Host server-behind-lab
     hostname 10.30.0.1
     user testuser

@@ -1,6 +1,6 @@
 import click
-from sshclick.sshc import SSH_Config
-from sshclick.sshc import complete_ssh_group_names
+from sshmux.sshm import SSH_Config
+from sshmux.sshm import complete_ssh_group_names
 
 #TODO: Check click.edit for multiline edit option (info, or even params?)
 
@@ -12,8 +12,8 @@ LONG_HELP  = """
 Change/modify group parameters
 
 Command allows to modify current information on the group, like info lines
-and description. To rename group, use command "sshc group rename" command.
-To move hosts between group, use "sshc host set" command.
+and description. To rename group, use command "sshm group rename" command.
+To move hosts between group, use "sshm host set" command.
 
 When modifying group, work can be done on single group only. I didnt find
 any use-case where I would set same description or info lines on multiple
@@ -36,7 +36,7 @@ def cmd(ctx, name, desc, info):
     # Nothing was provided
     if not desc and not info:
         print("Calling set on group without specifying any option is not valid!")
-        print("Run 'sshc group set -h' for help.")
+        print("Run 'sshm group set -h' for help.")
         ctx.exit(1)
 
     if not config.check_group_by_name(name):

@@ -1,7 +1,7 @@
 import click
-from sshclick.globals import DEFAULT_HOST_STYLE, ENABLED_HOST_STYLES
-from sshclick.sshc import SSH_Config
-from sshclick.sshc import complete_styles
+from sshmux.globals import DEFAULT_HOST_STYLE, ENABLED_HOST_STYLES
+from sshmux.sshm import SSH_Config
+from sshmux.sshm import complete_styles
 
 styles_str = ",".join(ENABLED_HOST_STYLES)
 

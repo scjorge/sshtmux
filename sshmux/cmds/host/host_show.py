@@ -1,7 +1,7 @@
-from sshclick.globals import DEFAULT_HOST_STYLE, ENABLED_HOST_STYLES
+from sshmux.globals import DEFAULT_HOST_STYLE, ENABLED_HOST_STYLES
 import click
-from sshclick.sshc import SSH_Config
-from sshclick.sshc import complete_ssh_host_names, complete_styles, generate_graph, trace_jumphosts
+from sshmux.sshm import SSH_Config
+from sshmux.sshm import complete_ssh_host_names, complete_styles, generate_graph, trace_jumphosts
 
 from rich.console import Console
 console = Console()

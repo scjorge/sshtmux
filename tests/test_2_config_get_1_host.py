@@ -1,5 +1,5 @@
 import pytest
-from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
+from sshmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
 #-----------------------------------
 # FILE CONTENT SAMPLES FOR PARSING
@@ -8,7 +8,7 @@ from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
 config1=""
 
 config2="""
-#<<<<< SSH Config file managed by sshclick >>>>>
+#<<<<< SSH Config file managed by sshmux >>>>>
 #@host: testinfo
 host test
     hostname 1.2.3.4

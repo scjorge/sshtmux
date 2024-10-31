@@ -1,6 +1,6 @@
 import click
-from sshclick.sshc import SSH_Config
-from sshclick.sshc import complete_ssh_host_names, expand_names
+from sshmux.sshm import SSH_Config
+from sshmux.sshm import complete_ssh_host_names, expand_names
 
 #------------------------------------------------------------------------------
 # COMMAND: host delete
@@ -16,7 +16,7 @@ to find all hosts that match that pattern, and will expand target host list acco
 If multiple regex matches are defined, results from all individual matches will be combined to target host list (exclusive OR)
 
 \b
-Regex NAMES example command: (sshc host delete r:^test_ r:_test$)
+Regex NAMES example command: (sshm host delete r:^test_ r:_test$)
 -> will delete all hosts which names start with "test_" or end with "_test"
 
 Confirmation dialog will appear to confirm if deletion is ok to continue.

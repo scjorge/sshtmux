@@ -7,12 +7,12 @@ Set Width 900
 Set Height 600
 Set Theme "Elementary"
 
-# Show comment and run SSHClick TUI
+# Show comment and run sshmux TUI
 Sleep 200ms
-Type "# Start interactive TUI for sshc"
+Type "# Start interactive TUI for sshm"
 Enter
 Sleep 2s
-Type "sshc tui"
+Type "sshm tui"
 Enter
 Sleep 5s
 

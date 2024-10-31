@@ -1,7 +1,7 @@
 import click
-from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
-from sshclick.sshc import complete_ssh_group_names, complete_params
-from sshclick.sshc import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
+from sshmux.sshm import SSH_Config, SSH_Group, SSH_Host
+from sshmux.sshm import complete_ssh_group_names, complete_params
+from sshmux.sshm import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
 
 #------------------------------------------------------------------------------
 # COMMAND: host create
@@ -11,7 +11,7 @@ LONG_HELP  = """
 Create new host and save it to config file
 
 Command can be used to create a single HOST definition, and also set definitions within single command.
-Later definitions can be changes with "sshc host set" commands.
+Later definitions can be changes with "sshm host set" commands.
 
 If autocomplete is enabled, command will try to give suggestions for your inputs on definition of GROUP and well known PARAM names.
 """

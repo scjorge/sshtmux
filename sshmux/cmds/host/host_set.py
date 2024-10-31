@@ -1,7 +1,7 @@
 import click
-from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
-from sshclick.sshc import complete_ssh_host_names, complete_ssh_group_names, complete_params, expand_names
-from sshclick.sshc import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
+from sshmux.sshm import SSH_Config, SSH_Group, SSH_Host
+from sshmux.sshm import complete_ssh_host_names, complete_ssh_group_names, complete_params, expand_names
+from sshmux.sshm import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
 
 #------------------------------------------------------------------------------
 # COMMAND: host set
@@ -17,12 +17,12 @@ to find all hosts that match that pattern, and will expand target host list acco
 If multiple regex matches are defined, results from all individual matches will be combined to target host list (exclusive OR)
 
 \b
-Regex NAMES example command: (sshc host set -f -g new r:^test_ r:_test$)
+Regex NAMES example command: (sshm host set -f -g new r:^test_ r:_test$)
 -> will MOVE hosts which names start with "test_" or end with "_test" to
     "new" group
 
 \b
-Set tunnel: (sshc host set test1 -p localforward "8080 localhost:80")
+Set tunnel: (sshm host set test1 -p localforward "8080 localhost:80")
 -> Access on your local port 8080 services from remote local port 80:
 
 
@@ -61,7 +61,7 @@ def cmd(ctx, names, info, parameter, target_group_name, force, yes):
 
     # Nothing was provided
     if not target_group_name and not parameter and not info:
-        print("Calling set without setting anything is not valid on host(s). Run with 'sshc host set -h' for help.")
+        print("Calling set without setting anything is not valid on host(s). Run with 'sshm host set -h' for help.")
         ctx.exit(1)
 
     # For setting stuff, we confirm only if it applies on more hosts

@@ -1,4 +1,4 @@
-from sshclick.sshc import SSH_Config, SSH_Group
+from sshmux.sshm import SSH_Config, SSH_Group
 
 #------------------------------------------------------------------------------
 # Test parsing configuration and add new group then verify rendering output is
@@ -6,7 +6,7 @@ from sshclick.sshc import SSH_Config, SSH_Group
 #------------------------------------------------------------------------------
 config1=""
 config1_modified_lines=[
-    "#<<<<< SSH Config file managed by sshclick >>>>>\n",
+    "#<<<<< SSH Config file managed by sshmux >>>>>\n",
     "#@config: host-style=simple\n",
     "#@config: something=nice\n",
     "\n",

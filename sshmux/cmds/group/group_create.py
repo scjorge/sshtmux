@@ -1,5 +1,5 @@
 import click
-from sshclick.sshc import SSH_Config, SSH_Group
+from sshmux.sshm import SSH_Config, SSH_Group
 
 #------------------------------------------------------------------------------
 # COMMAND: group create

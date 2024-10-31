@@ -3,10 +3,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.padding import Padding
 
-from sshclick.sshc import SSH_Host
-
-from rich import print
-# from rich import inspect
+from sshmux.sshm import SSH_Host
 
 # Fixed width for jump-proxy cell in graph table (Keep value as multiple of 2!)
 MAX_CELL_SIZE = 26

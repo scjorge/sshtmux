@@ -11,7 +11,7 @@ Sleep 200ms
 Type "# List defined hosts in SSH Config file"
 Enter
 Sleep 1s
-Type "sshc hosts"
+Type "sshm hosts"
 Enter
 Sleep 5s
 
@@ -21,7 +21,7 @@ Enter@1ms
 Type "# Filter 'hosts' output based on host name (regex)"
 Enter
 Sleep 1s
-Type "sshc hosts --name lab"
+Type "sshm hosts --name lab"
 Enter
 Sleep 5s
 
@@ -31,7 +31,7 @@ Enter@1ms
 Type "# 'host show' command can visualize connection graphs if 'ProxyJump' is used"
 Enter
 Sleep 1s
-Type "sshc host show lab-serv1 --graph"
+Type "sshm host show lab-serv1 --graph"
 Enter
 Sleep 5s
 
@@ -41,6 +41,6 @@ Enter@1ms
 Type "# Detailed help included in all commands"
 Enter
 Sleep 1s
-Type "sshc -h"
+Type "sshm -h"
 Enter
 Sleep 5s

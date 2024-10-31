@@ -1,5 +1,5 @@
 import click
-from sshclick.sshc import SSH_Config
+from sshmux.sshm import SSH_Config
 
 #------------------------------------------------------------------------------
 # COMMAND: config del

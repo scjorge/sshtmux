@@ -1,4 +1,4 @@
-from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
+from sshmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
 #------------------------------------------------------------------------------
 # Test parsing configuration and add new host then verify rendering output is
@@ -6,7 +6,7 @@ from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
 #------------------------------------------------------------------------------
 config1=""
 config1_modified_lines=[
-    "#<<<<< SSH Config file managed by sshclick >>>>>\n",
+    "#<<<<< SSH Config file managed by sshmux >>>>>\n",
     "\n",
     "#@host: some-host-info\n",
     "Host testnew\n",
@@ -53,7 +53,7 @@ Host test-old
 """
 
 config2_modified_lines=[
-    "#<<<<< SSH Config file managed by sshclick >>>>>\n",
+    "#<<<<< SSH Config file managed by sshmux >>>>>\n",
     "\n",
     "#@host: some-default-info\n",
     "Host defaulthost\n",

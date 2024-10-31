@@ -1,7 +1,8 @@
-import os, subprocess, time
-from typing import Optional
+import os
+import subprocess
+import time
 
-from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
+from sshmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
 from rich.rule import Rule
 from rich.panel import Panel
@@ -157,21 +158,21 @@ class SSHTui(App):
     }
     """
 
-    def __init__(self, sshconf=None):
-        if isinstance(sshconf, SSH_Config):
-            self.sshconf = sshconf
+    def __init__(self, sshmonf=None):
+        if isinstance(sshmonf, SSH_Config):
+            self.sshmonf = sshmonf
         else:
             # USER_SSH_CONFIG = USER_DEMO_CONFIG
-            self.sshconf = SSH_Config(file=os.path.expanduser(USER_SSH_CONFIG)).read().parse()
+            self.sshmonf = SSH_Config(file=os.path.expanduser(USER_SSH_CONFIG)).read().parse()
         super().__init__()
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
         with Container():
-            ssh_tree = Tree(f"SSH Configuration ({len(self.sshconf.groups)} groups)", id="sshtree", data=None)
+            ssh_tree = Tree(f"SSH Configuration ({len(self.sshmonf.groups)} groups)", id="sshtree", data=None)
             ssh_tree.root.expand()
 
-            for group in self.sshconf.groups:
+            for group in self.sshmonf.groups:
                 g = ssh_tree.root.add(f":file_folder: {group.name}", data=group, expand=False)
                 for host in group.hosts + group.patterns:
                     g.add_leaf(host.name, data=host)

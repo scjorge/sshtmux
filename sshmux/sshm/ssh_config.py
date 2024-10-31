@@ -1,12 +1,15 @@
-import re, fnmatch, copy
-from typing import List, Optional, Tuple
-
+import re
+import fnmatch
+import copy
 import logging
-logging.basicConfig(level=logging.INFO)
+from typing import List, Optional, Tuple
 
 from .ssh_host import SSH_Host
 from .ssh_group import SSH_Group
 from .ssh_parameters import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
+
+
+logging.basicConfig(level=logging.INFO)
 
 class SSH_Config:
     """

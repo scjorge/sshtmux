@@ -1,6 +1,6 @@
 import click
 from typing import List
-from sshclick.sshc import SSH_Config, SSH_Host
+from sshmux.sshm import SSH_Config, SSH_Host
 
 from rich.console import Console
 from rich.table import Table
@@ -20,7 +20,7 @@ which pattern parameter for given host would be applied (inherited).
 
 Normal output will try to show only most important information about listed hosts, while if requested,
 VERBOSE option will try to show ALL defined/inherited parameters for all listed hosts.
-Alternatively for details on only single host, use "sshc host show" command.
+Alternatively for details on only single host, use "sshm host show" command.
 
 Host list can be limited with filters, to only show specific hosts that match NAME regex or GROUP regex.
 When both NAME and GROUP regex are defined, output must satisfy both filters.

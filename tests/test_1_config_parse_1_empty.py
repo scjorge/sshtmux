@@ -1,4 +1,4 @@
-from sshclick.sshc import SSH_Config, SSH_Group
+from sshmux.sshm import SSH_Config, SSH_Group
 
 #-----------------------------------
 # FILE CONTENT SAMPLES FOR PARSING
@@ -6,7 +6,7 @@ from sshclick.sshc import SSH_Config, SSH_Group
 # Various of config that should produce "empty config"
 config1=""
 config2="""
-#<<<<< SSH Config file managed by sshclick >>>>>
+#<<<<< SSH Config file managed by sshmux >>>>>
 # something something
 # something lalalala...
 

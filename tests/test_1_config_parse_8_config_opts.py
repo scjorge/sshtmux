@@ -1,11 +1,11 @@
-from sshclick.sshc import SSH_Config, SSH_Group, SSH_Host
+from sshmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
 #------------------------------------------------------------------------------
 # Test parsing groups with group metadata (desc and multi-info)
 # And nested hosts with parameters
 #------------------------------------------------------------------------------
 config1 = """
-#<<<<< SSH Config file managed by sshclick >>>>>
+#<<<<< SSH Config file managed by sshmux >>>>>
 #@config: host-style=simple
 #@config: something=nice
 """
