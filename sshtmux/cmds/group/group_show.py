@@ -1,26 +1,26 @@
-import click
 from typing import List
 
-from sshtmux.sshm import SSH_Config
-from sshtmux.sshm import complete_ssh_group_names
-
-from rich.table import Table
-from rich.panel import Panel
+import click
 from rich import box
 from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
 
-#------------------------------------------------------------------------------
+from sshtmux.sshm import SSH_Config, complete_ssh_group_names
+
+# ------------------------------------------------------------------------------
 # COMMAND: group show
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Shows group details"
-LONG_HELP  = """
+LONG_HELP = """
 Display/Shows details from a group
 
 Currently WIP - command will allow some styles in outputs...
 """
 
 # Parameters help:
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 @click.command(name="show", short_help=SHORT_HELP, help=LONG_HELP)
 @click.argument("name", shell_complete=complete_ssh_group_names)
@@ -52,18 +52,16 @@ def cmd(ctx, name):
         else:
             pattern_list.append(host.name)
 
-
     # New rich formatting
     table = Table(box=box.SQUARE, style="grey35")
     table.add_column("Group Parameter", no_wrap=True)
     table.add_column("Value")
 
-    table.add_row("name",        found_group.name,                   style="white")
-    table.add_row("description", found_group.desc,                   style="grey50")
-    table.add_row("info",        Panel("\n".join(found_group.info)), style="grey50")
-    table.add_row("hosts",       Panel("\n".join(host_list)),         style="white")
-    table.add_row("patterns",    Panel("\n".join(pattern_list)),      style="cyan")
+    table.add_row("name", found_group.name, style="white")
+    table.add_row("description", found_group.desc, style="grey50")
+    table.add_row("info", Panel("\n".join(found_group.info)), style="grey50")
+    table.add_row("hosts", Panel("\n".join(host_list)), style="white")
+    table.add_row("patterns", Panel("\n".join(pattern_list)), style="cyan")
 
     console = Console()
     console.print(table)
-

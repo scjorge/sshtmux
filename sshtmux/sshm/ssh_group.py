@@ -1,11 +1,13 @@
-from typing import List
 from dataclasses import dataclass, field
+from typing import List
 
 from .ssh_host import SSH_Host
 
+
 @dataclass
 class SSH_Group:
-    """ Class for SSH Group config structure """
+    """Class for SSH Group config structure"""
+
     name: str
     desc: str = ""
     info: list = field(default_factory=list)
@@ -16,5 +18,3 @@ class SSH_Group:
 
     def __rich__(self):
         pass
-
-

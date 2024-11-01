@@ -2,11 +2,11 @@ import os.path
 import re
 from typing import List
 
-from ..globals import ENABLED_HOST_STYLES
-from .ssh_parameters import ALL_PARAM_LC_NAMES
-from .ssh_config import SSH_Config, SSH_Host
-
 from rich.console import Console
+
+from ..globals import ENABLED_HOST_STYLES
+from .ssh_config import SSH_Config, SSH_Host
+from .ssh_parameters import ALL_PARAM_LC_NAMES
 
 err = Console(stderr=True)
 

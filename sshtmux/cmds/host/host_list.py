@@ -1,17 +1,19 @@
-import click
 from typing import List
-from sshtmux.sshm import SSH_Config, SSH_Host
 
+import click
+from rich import box
 from rich.console import Console
 from rich.table import Table
-from rich import box
+
+from sshtmux.sshm import SSH_Config, SSH_Host
+
 console = Console()
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # COMMAND: host-list
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "List configured hosts"
-LONG_HELP  = """
+LONG_HELP = """
 List hosts from current configuration
 
 Command allows displaying hosts with various properties, and filtering output list for easier searching.
@@ -27,15 +29,16 @@ When both NAME and GROUP regex are defined, output must satisfy both filters.
 """
 
 # Parameters help:
-GROUP_HELP   = "Filter for host groups (regex)"
-NAME_HELP    = "Filter for host names (regex)"
+GROUP_HELP = "Filter for host groups (regex)"
+NAME_HELP = "Filter for host names (regex)"
 VERBOSE_HELP = "Show verbose info (all parameters)"
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 @click.command(name="list", short_help=SHORT_HELP, help=LONG_HELP)
-@click.option("-g", "--group",  "group_filter", help=GROUP_HELP)
-@click.option("-n", "--name",   "name_filter",  help=NAME_HELP)
-@click.option("-v", "--verbose", is_flag=True,  help=VERBOSE_HELP)
+@click.option("-g", "--group", "group_filter", help=GROUP_HELP)
+@click.option("-n", "--name", "name_filter", help=NAME_HELP)
+@click.option("-v", "--verbose", is_flag=True, help=VERBOSE_HELP)
 @click.pass_context
 def cmd(ctx, group_filter, name_filter, verbose):
     config: SSH_Config = ctx.obj
@@ -46,10 +49,10 @@ def cmd(ctx, group_filter, name_filter, verbose):
     if not filtered_groups:
         print("No host is matching any given filter!")
         ctx.exit(1)
-    
+
     # This lists define host properties and which parameters will be displayed
     host_props = ["name", "group", "type"]
-    params     = ["hostname", "user"]
+    params = ["hostname", "user"]
 
     # If output is verbose, we need to find all parameters, and add them to params list
     if verbose:
@@ -59,13 +62,13 @@ def cmd(ctx, group_filter, name_filter, verbose):
                 flat_config.append(h)
         for host in flat_config:
             for i_params in host.params:
-                if (i_params not in params):
+                if i_params not in params:
                     params.append(i_params)
-    
+
     header = host_props + ([f"param:{p}" for p in params])
     table = Table(*header, box=box.SQUARE, style="gray35")
 
-    # Start adding rows    
+    # Start adding rows
     for group in filtered_groups:
         # Iterate trough hosts and patters
         for host in group.hosts + group.patterns:
@@ -84,15 +87,24 @@ def cmd(ctx, group_filter, name_filter, verbose):
                         for pattern, i_params in host.inherited_params:
                             if table_param in i_params:
                                 if isinstance(i_params[table_param], list):
-                                    table_param = "\n".join([f"{val}  ({pattern})" for val in i_params[table_param]])
+                                    table_param = "\n".join(
+                                        [
+                                            f"{val}  ({pattern})"
+                                            for val in i_params[table_param]
+                                        ]
+                                    )
                                     host_params.append(table_param)
                                 else:
-                                    host_params.append(f"[yellow]{i_params[table_param]}  ({pattern})[/]")
+                                    host_params.append(
+                                        f"[yellow]{i_params[table_param]}  ({pattern})[/]"
+                                    )
                             else:
                                 host_params.append("")
                     else:
                         host_params.append("")
             row = [host.__dict__[prop] for prop in host_props] + host_params
-            table.add_row(*row) if host.type == "normal" else table.add_row(*row, style="cyan")
+            table.add_row(*row) if host.type == "normal" else table.add_row(
+                *row, style="cyan"
+            )
 
     console.print(table)

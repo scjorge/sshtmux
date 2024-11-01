@@ -2,20 +2,18 @@ import os
 import subprocess
 import time
 
+from rich import box
+from rich.panel import Panel
+from rich.rule import Rule
+from rich.table import Table
+from textual.app import App, ComposeResult
+from textual.containers import Container, VerticalScroll
+from textual.widgets import ContentSwitcher, Footer, Header, Label, Static, Tree
+
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
-from rich.rule import Rule
-from rich.panel import Panel
-from rich.table import Table
-from rich import box
-
-from textual.app import App, ComposeResult
-from textual.widgets import Tree, Header, Footer, Static, Label, ContentSwitcher
-from textual.containers import Container, VerticalScroll
-
-
-USER_SSH_CONFIG   = "~/.ssh/config"
-USER_DEMO_CONFIG  = "~/.ssh/config_demo"
+USER_SSH_CONFIG = "~/.ssh/config"
+USER_DEMO_CONFIG = "~/.ssh/config_demo"
 
 
 class SSHGroupDataInfo(Static):
@@ -36,8 +34,8 @@ class SSHGroupDataInfo(Static):
         yield Static(Panel("...empty...", style="grey42"), id="grp_information")
 
     def update(self, group: SSH_Group) -> None:
-        desc: Static = self.query_one("#grp_description") # type: ignore
-        info: Static = self.query_one("#grp_information") # type: ignore
+        desc: Static = self.query_one("#grp_description")  # type: ignore
+        info: Static = self.query_one("#grp_information")  # type: ignore
         desc.update(Panel(group.desc, border_style="grey42"))
         info.update(Panel("\n".join(group.info), border_style="grey42"))
 
@@ -62,13 +60,28 @@ class SSHHostDataInfo(Static):
         yield Static(Panel("...empty...", style="grey42"), id="hst_parameters")
 
     def update(self, host: SSH_Host) -> None:
-        det: Static = self.query_one("#hst_details") # type: ignore
-        info: Static = self.query_one("#hst_information") # type: ignore
-        params: Static = self.query_one("#hst_parameters") # type: ignore
-        det.update(Panel(f"[bold]Group[/b]: {host.group}\n[bold]Type[/b]:  {host.type}", border_style="grey42"))
-        info.update(Panel("\n".join(host.info), border_style="grey42") if host.info else Panel("...empty...", style="grey42"))
+        det: Static = self.query_one("#hst_details")  # type: ignore
+        info: Static = self.query_one("#hst_information")  # type: ignore
+        params: Static = self.query_one("#hst_parameters")  # type: ignore
+        det.update(
+            Panel(
+                f"[bold]Group[/b]: {host.group}\n[bold]Type[/b]:  {host.type}",
+                border_style="grey42",
+            )
+        )
+        info.update(
+            Panel("\n".join(host.info), border_style="grey42")
+            if host.info
+            else Panel("...empty...", style="grey42")
+        )
 
-        param_table = Table(box=box.ROUNDED, style="grey42", show_header=True, show_edge=True, expand=True)
+        param_table = Table(
+            box=box.ROUNDED,
+            style="grey42",
+            show_header=True,
+            show_edge=True,
+            expand=True,
+        )
         param_table.add_column("Param")
         param_table.add_column("Value")
         param_table.add_column("Inherited-from")
@@ -82,11 +95,12 @@ class SSHHostDataInfo(Static):
         for pattern, pattern_params in host.inherited_params:
             for param, value in pattern_params.items():
                 if param not in host.params:
-                    output_value = value if not isinstance(value, list) else "\n".join(value)
+                    output_value = (
+                        value if not isinstance(value, list) else "\n".join(value)
+                    )
                     param_table.add_row(param, output_value, pattern, style="yellow")
 
-        
-        params.update(param_table) # type: ignore
+        params.update(param_table)  # type: ignore
 
 
 class SSHDataView(Static):
@@ -102,8 +116,8 @@ class SSHDataView(Static):
             with VerticalScroll(id="host-view"):
                 yield SSHHostDataInfo()
 
-    def update(self, sshitem = "") -> None:
-        label: Label = self.query_one("#data_view_header") # type: ignore
+    def update(self, sshitem="") -> None:
+        label: Label = self.query_one("#data_view_header")  # type: ignore
         grp = self.query_one(SSHGroupDataInfo)
         hst = self.query_one(SSHHostDataInfo)
 
@@ -166,17 +180,25 @@ class SSHTui(App):
             self.sshmonf = sshmonf
         else:
             # USER_SSH_CONFIG = USER_DEMO_CONFIG
-            self.sshmonf = SSH_Config(file=os.path.expanduser(USER_SSH_CONFIG)).read().parse()
+            self.sshmonf = (
+                SSH_Config(file=os.path.expanduser(USER_SSH_CONFIG)).read().parse()
+            )
         super().__init__()
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
         with Container():
-            self.ssh_tree = Tree(f"SSH Configuration ({len(self.sshmonf.groups)} groups)", id="sshtree", data=None)
+            self.ssh_tree = Tree(
+                f"SSH Configuration ({len(self.sshmonf.groups)} groups)",
+                id="sshtree",
+                data=None,
+            )
             self.ssh_tree.root.expand()
 
             for group in self.sshmonf.groups:
-                g = self.ssh_tree.root.add(f":file_folder: {group.name}", data=group, expand=False)
+                g = self.ssh_tree.root.add(
+                    f":file_folder: {group.name}", data=group, expand=False
+                )
                 for host in group.hosts + group.patterns:
                     g.add_leaf(host.name, data=host)
 
@@ -199,9 +221,14 @@ class SSHTui(App):
 
     def action_connect_ssh(self) -> None:
         # "Connect to" only works on normal hosts
-        if isinstance(self.current_node, SSH_Host) and self.current_node.type == "normal":
+        if (
+            isinstance(self.current_node, SSH_Host)
+            and self.current_node.type == "normal"
+        ):
             # TODO: remove hardcoded timeout option, and load it from config or global "default"
-            self._run_external_cmd_with_args(f"ssh -o ConnectTimeout=5 {self.current_node.name}")
+            self._run_external_cmd_with_args(
+                f"ssh -o ConnectTimeout=5 {self.current_node.name}"
+            )
 
     def action_cursor_down(self) -> None:
         if self.ssh_tree.cursor_line == -1:
@@ -219,9 +246,14 @@ class SSHTui(App):
 
     def action_connect_sftp(self) -> None:
         # "Connect to" only works on normal hosts
-        if isinstance(self.current_node, SSH_Host) and self.current_node.type == "normal":
+        if (
+            isinstance(self.current_node, SSH_Host)
+            and self.current_node.type == "normal"
+        ):
             # TODO: remove hardcoded timeout option, and load it from config or global "default"
-            self._run_external_cmd_with_args(f"sftp -o ConnectTimeout=5 {self.current_node.name}")
+            self._run_external_cmd_with_args(
+                f"sftp -o ConnectTimeout=5 {self.current_node.name}"
+            )
 
     def _run_external_cmd_with_args(self, command):
         # Note this is a hack since textual does not have native/better way
@@ -235,6 +267,7 @@ class SSHTui(App):
             finally:
                 self.refresh()
                 driver.start_application_mode()
+
 
 ## Entry for "ssht" command
 def tui():

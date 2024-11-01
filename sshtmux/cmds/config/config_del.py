@@ -1,14 +1,17 @@
 import click
+
 from sshtmux.sshm import SSH_Config
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # COMMAND: config del
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Delete config option"
 
 # Parameters help:
-HOST_STYLE_HELP  = "Remove host-style from configuration"
-#------------------------------------------------------------------------------
+HOST_STYLE_HELP = "Remove host-style from configuration"
+
+
+# ------------------------------------------------------------------------------
 @click.command(name="del", short_help=SHORT_HELP, help=SHORT_HELP)
 @click.option("--host-style", is_flag=True, help=HOST_STYLE_HELP)
 @click.pass_context
@@ -17,7 +20,7 @@ def cmd(ctx, host_style):
 
     # Deleting host-style trough SSH configuration
     if host_style:
-        if "host-style"  not in config.opts:
+        if "host-style" not in config.opts:
             print("Cannot remove host-style from configuration, as it is not defined!")
             return
         else:
@@ -26,6 +29,5 @@ def cmd(ctx, host_style):
         # Write out modified config
         config.generate_ssh_config().write_out()
         return
-    
+
     print("No option was provided to delete from SSH config options!")
-    

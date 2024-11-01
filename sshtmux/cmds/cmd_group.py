@@ -4,9 +4,9 @@ from .group import (
     group_create,
     group_delete,
     group_list,
+    group_rename,
     group_set,
     group_show,
-    group_rename,
 )
 
 

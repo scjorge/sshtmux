@@ -1,13 +1,12 @@
 import click
 
-from sshtmux.sshm import SSH_Config
-from sshtmux.sshm import complete_ssh_group_names, expand_names
+from sshtmux.sshm import SSH_Config, complete_ssh_group_names, expand_names
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # COMMAND: group delete
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Delete group"
-LONG_HELP  = """
+LONG_HELP = """
 Delete group
 
 Command accepts single or multiple groups names to delete.
@@ -20,12 +19,15 @@ Group deletion will be prompted for confirmation.
 """
 
 # Parameters help:
-YES_HELP   = "Skip confirmation and assume 'yes'. Be careful!"
-#------------------------------------------------------------------------------
+YES_HELP = "Skip confirmation and assume 'yes'. Be careful!"
+# ------------------------------------------------------------------------------
+
 
 @click.command(name="delete", short_help=SHORT_HELP, help=LONG_HELP)
 @click.option("--yes", is_flag=True, help=YES_HELP)
-@click.argument("names", nargs=-1, required=True, shell_complete=complete_ssh_group_names)
+@click.argument(
+    "names", nargs=-1, required=True, shell_complete=complete_ssh_group_names
+)
 @click.pass_context
 def cmd(ctx, names, yes):
     config: SSH_Config = ctx.obj
@@ -36,13 +38,12 @@ def cmd(ctx, names, yes):
     # Deleting requires confirmation
     if not yes:
         print(f"Following groups will be deleted: [{','.join(selected_group_list)}]")
-        if not click.confirm('Are you sure?'):
+        if not click.confirm("Are you sure?"):
             ctx.exit(1)
 
     # When deleting multiple groups, iterate over all of them
     config_updated = False
     for name in selected_group_list:
-
         # Find group by name
         if not config.check_group_by_name(name):
             print(f"Cannot delete group '{name}', it is not defined in configuration!")

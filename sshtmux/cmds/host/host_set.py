@@ -1,13 +1,20 @@
 import click
-from sshtmux.sshm import SSH_Config, SSH_Group
-from sshtmux.sshm import complete_ssh_host_names, complete_ssh_group_names, complete_params, expand_names
-from sshtmux.sshm import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
 
-#------------------------------------------------------------------------------
+from sshtmux.sshm import (
+    PARAMS_WITH_ALLOWED_MULTIPLE_VALUES,
+    SSH_Config,
+    SSH_Group,
+    complete_params,
+    complete_ssh_group_names,
+    complete_ssh_host_names,
+    expand_names,
+)
+
+# ------------------------------------------------------------------------------
 # COMMAND: host set
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Set/Change host configuration"
-LONG_HELP  = """
+LONG_HELP = """
 Set/Change various host definitions and parameters
 
 Command accepts single or multiple host names for modification.
@@ -31,12 +38,12 @@ deletion is ok to continue.
 """
 
 # Parameters help:
-INFO_HELP  = "Set host info, can be set multiple times, or set to empty value to clear it (example: -i '')"
+INFO_HELP = "Set host info, can be set multiple times, or set to empty value to clear it (example: -i '')"
 PARAM_HELP = "Sets parameter for the host, takes 2 values (<sshparam> <value>). To unset/remove parameter from host, set its value to empty string like this (example: -p user '')"
 GROUP_HELP = "Group change for host. Moves one or many hosts from their groups (they can be in different ones) to specified group."
 FORCE_HELP = "Allows during group host group change, to move host(s) to group that does not exist, by creating it automatically, and moving specified hosts to new group."
-YES_HELP   = "Skip confirmation and assume 'yes'. Be careful!"
-#------------------------------------------------------------------------------
+YES_HELP = "Skip confirmation and assume 'yes'. Be careful!"
+# ------------------------------------------------------------------------------
 
 # TODO: parameter autocomplete does not work great with "option" as it cant complete correctly both param and value with
 #       "nargs=2", autocomplete function does not get info which of the two args are "completed" so it will try to autocomplete
@@ -45,13 +52,29 @@ YES_HELP   = "Skip confirmation and assume 'yes'. Be careful!"
 
 # TODO: Check click.edit for multiline edit option (info, or even params?)
 
+
 @click.command(name="set", short_help=SHORT_HELP, help=LONG_HELP)
 @click.option("-i", "--info", multiple=True, help=INFO_HELP)
-@click.option("-p", "--parameter", nargs=2, multiple=True, help=PARAM_HELP, shell_complete=complete_params)
-@click.option("-g", "--group", "target_group_name", help=GROUP_HELP, shell_complete=complete_ssh_group_names)
+@click.option(
+    "-p",
+    "--parameter",
+    nargs=2,
+    multiple=True,
+    help=PARAM_HELP,
+    shell_complete=complete_params,
+)
+@click.option(
+    "-g",
+    "--group",
+    "target_group_name",
+    help=GROUP_HELP,
+    shell_complete=complete_ssh_group_names,
+)
 @click.option("-f", "--force", is_flag=True, help=FORCE_HELP)
 @click.option("--yes", is_flag=True, help=YES_HELP)
-@click.argument("names", nargs=-1, required=True, shell_complete=complete_ssh_host_names)
+@click.argument(
+    "names", nargs=-1, required=True, shell_complete=complete_ssh_host_names
+)
 @click.pass_context
 def cmd(ctx, names, info, parameter, target_group_name, force, yes):
     config: SSH_Config = ctx.obj
@@ -61,31 +84,39 @@ def cmd(ctx, names, info, parameter, target_group_name, force, yes):
 
     # Nothing was provided
     if not target_group_name and not parameter and not info:
-        print("Calling set without setting anything is not valid on host(s). Run with 'sshm host set -h' for help.")
+        print(
+            "Calling set without setting anything is not valid on host(s). Run with 'sshm host set -h' for help."
+        )
         ctx.exit(1)
 
     # For setting stuff, we confirm only if it applies on more hosts
     if not yes:
         if len(selected_hosts_list) > 1:
             print(f"Following hosts will be changed: [{','.join(selected_hosts_list)}]")
-            if not click.confirm('Are you sure?'):
+            if not click.confirm("Are you sure?"):
                 ctx.exit(1)
 
     # When setting stuff on multiple hosts, iterate over them
     for name in selected_hosts_list:
         if not config.check_host_by_name(name):
-            print(f"Cannot set anything on host '{name}' as it is not defined in configuration!")
+            print(
+                f"Cannot set anything on host '{name}' as it is not defined in configuration!"
+            )
             ctx.exit(1)
 
         found_host, found_group = config.get_host_by_name(name)
-        
+
         # Move host to different group
         if target_group_name:
             # Find target group
-            target_group_exists = config.check_group_by_name(target_group_name)    
+            target_group_exists = config.check_group_by_name(target_group_name)
             if not target_group_exists and not force:
-                print(f"Cannot move host '{name}' to group '{target_group_name}' which does not exist!")
-                print("Consider using --force to automatically create target group, or create it manually first.")
+                print(
+                    f"Cannot move host '{name}' to group '{target_group_name}' which does not exist!"
+                )
+                print(
+                    "Consider using --force to automatically create target group, or create it manually first."
+                )
                 ctx.exit(1)
             elif not target_group_exists:
                 target_group = SSH_Group(name=target_group_name)
@@ -95,7 +126,7 @@ def cmd(ctx, names, info, parameter, target_group_name, force, yes):
 
             # Move host to target group
             config.move_host_to_group(found_host, found_group, target_group)
-            
+
         # Update info (appending if value is passed, clearing the list if value is empty)
         if info:
             if len(info[0]) > 0:
@@ -105,14 +136,18 @@ def cmd(ctx, names, info, parameter, target_group_name, force, yes):
 
         # Sets parameters for host
         for param, value in parameter:
-            param = param.lower()            # lowercase keyword/param as they are case insensitive
+            param = (
+                param.lower()
+            )  # lowercase keyword/param as they are case insensitive
             if value:
                 if param in PARAMS_WITH_ALLOWED_MULTIPLE_VALUES:
                     if param not in found_host.params:
                         found_host.params[param] = [value]
                     else:
                         if value in found_host.params[param]:
-                            print(f"Cannot add existing value '{value}' to host parameter '{param}' multiple times!")
+                            print(
+                                f"Cannot add existing value '{value}' to host parameter '{param}' multiple times!"
+                            )
                         else:
                             found_host.params[param].append(value)
                 else:

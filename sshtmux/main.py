@@ -2,13 +2,12 @@ import os.path
 
 import click
 
-from .version import VERSION
-from .sshm import SSH_Config
-from .main_tui import SSHTui
-from .cmds import cmd_group, cmd_host, cmd_config
+from .cmds import cmd_config, cmd_group, cmd_host
 from .cmds.cmd_group import group_list
 from .cmds.cmd_host import host_list
-
+from .main_tui import SSHTui
+from .sshm import SSH_Config
+from .version import VERSION
 
 # Setup click to use both short and long help option
 USER_SSH_CONFIG = "~/.ssh/config"

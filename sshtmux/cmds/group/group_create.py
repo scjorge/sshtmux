@@ -2,11 +2,11 @@ import click
 
 from sshtmux.sshm import SSH_Config, SSH_Group
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # COMMAND: group create
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Create new group"
-LONG_HELP  = """
+LONG_HELP = """
 Create new group
 
 Group is used as visual and searchable separation between hosts.
@@ -16,9 +16,10 @@ after this keyword is considered as part of this group.
 """
 
 # Parameters help:
-DESC_HELP  = "Short description of group"
-INFO_HELP  = "Info line, can be set multiple times"
-#------------------------------------------------------------------------------
+DESC_HELP = "Short description of group"
+INFO_HELP = "Info line, can be set multiple times"
+# ------------------------------------------------------------------------------
+
 
 @click.command(name="create", short_help=SHORT_HELP, help=LONG_HELP)
 @click.option("-d", "--desc", default="", help=DESC_HELP)
@@ -30,7 +31,9 @@ def cmd(ctx, name, desc, info):
 
     # Check if already group exists
     if config.check_group_by_name(name):
-        print(f"Cannot create new group '{name}', as group already exists with this name")
+        print(
+            f"Cannot create new group '{name}', as group already exists with this name"
+        )
         ctx.exit(1)
 
     new_group = SSH_Group(name, desc=desc, info=list(info))

@@ -1,14 +1,14 @@
 import click
-from sshtmux.sshm import SSH_Config
-from sshtmux.sshm import complete_ssh_group_names
 
-#TODO: Check click.edit for multiline edit option (info, or even params?)
+from sshtmux.sshm import SSH_Config, complete_ssh_group_names
 
-#------------------------------------------------------------------------------
+# TODO: Check click.edit for multiline edit option (info, or even params?)
+
+# ------------------------------------------------------------------------------
 # COMMAND: group set
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Change group parameters"
-LONG_HELP  = """
+LONG_HELP = """
 Change/modify group parameters
 
 Command allows to modify current information on the group, like info lines
@@ -21,9 +21,10 @@ groups at the same time... ¯\_(ツ)_/¯
 """
 
 # Parameters help:
-DESC_HELP  = "Short description of group"
-INFO_HELP  = "Info line, can be set multiple times"
-#------------------------------------------------------------------------------
+DESC_HELP = "Short description of group"
+INFO_HELP = "Info line, can be set multiple times"
+# ------------------------------------------------------------------------------
+
 
 @click.command(name="set", short_help=SHORT_HELP, help=LONG_HELP)
 @click.option("-d", "--desc", help=DESC_HELP)

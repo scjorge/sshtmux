@@ -1,18 +1,20 @@
 import click
+
 from sshtmux.globals import DEFAULT_HOST_STYLE, ENABLED_HOST_STYLES
-from sshtmux.sshm import SSH_Config
-from sshtmux.sshm import complete_styles
+from sshtmux.sshm import SSH_Config, complete_styles
 
 styles_str = ",".join(ENABLED_HOST_STYLES)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # COMMAND: config set
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Set config option"
 
 # Parameters help:
-HOST_STYLE_HELP  = f"Set how to display hosts in 'show' command. Available:({styles_str}) (default: {DEFAULT_HOST_STYLE})"
-#------------------------------------------------------------------------------
+HOST_STYLE_HELP = f"Set how to display hosts in 'show' command. Available:({styles_str}) (default: {DEFAULT_HOST_STYLE})"
+
+
+# ------------------------------------------------------------------------------
 @click.command(name="set", short_help=SHORT_HELP, help=SHORT_HELP)
 @click.option("--host-style", help=HOST_STYLE_HELP, shell_complete=complete_styles)
 @click.pass_context
@@ -22,7 +24,9 @@ def cmd(ctx, host_style):
     # Setting host-style trough SSH configuration
     if host_style:
         if host_style not in ENABLED_HOST_STYLES:
-            print(f"Cannot set style '{host_style}', as it is not one of available styles!")
+            print(
+                f"Cannot set style '{host_style}', as it is not one of available styles!"
+            )
             return
         else:
             config.opts["host-style"] = host_style
@@ -30,7 +34,5 @@ def cmd(ctx, host_style):
         # Write out modified config
         config.generate_ssh_config().write_out()
         return
-    
-    print("No option was provided to set into SSH config options!")
 
-        
+    print("No option was provided to set into SSH config options!")

@@ -1,13 +1,19 @@
 import click
-from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
-from sshtmux.sshm import complete_ssh_group_names, complete_params
-from sshtmux.sshm import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
 
-#------------------------------------------------------------------------------
+from sshtmux.sshm import (
+    PARAMS_WITH_ALLOWED_MULTIPLE_VALUES,
+    SSH_Config,
+    SSH_Group,
+    SSH_Host,
+    complete_params,
+    complete_ssh_group_names,
+)
+
+# ------------------------------------------------------------------------------
 # COMMAND: host create
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Create new host"
-LONG_HELP  = """
+LONG_HELP = """
 Create new host and save it to config file
 
 Command can be used to create a single HOST definition, and also set definitions within single command.
@@ -17,16 +23,30 @@ If autocomplete is enabled, command will try to give suggestions for your inputs
 """
 
 # Parameters help:
-INFO_HELP  = "Set host info, can be set multiple times, or set to empty value to clear it (example: -i '')"
+INFO_HELP = "Set host info, can be set multiple times, or set to empty value to clear it (example: -i '')"
 PARAM_HELP = "Sets parameter for the host, takes 2 values (<sshparam> <value>). To unset/remove parameter from host, set its value to empty string like this (example: -p user '')"
 GROUP_HELP = "Defined in which group host will be created, if not specified, 'default' group will be used"
 FORCE_HELP = "Allows during host creation, to create group for host if target group is missing/not yet defined."
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 @click.command(name="create", short_help=SHORT_HELP, help=LONG_HELP)
 @click.option("-i", "--info", multiple=True, help=INFO_HELP)
-@click.option("-p", "--parameter", nargs=2, multiple=True, help=PARAM_HELP, shell_complete=complete_params)
-@click.option("-g", "--group", "target_group_name", help=GROUP_HELP, shell_complete=complete_ssh_group_names)
+@click.option(
+    "-p",
+    "--parameter",
+    nargs=2,
+    multiple=True,
+    help=PARAM_HELP,
+    shell_complete=complete_params,
+)
+@click.option(
+    "-g",
+    "--group",
+    "target_group_name",
+    help=GROUP_HELP,
+    shell_complete=complete_ssh_group_names,
+)
 @click.option("--force", is_flag=True, help=FORCE_HELP)
 @click.argument("name")
 @click.pass_context
@@ -39,12 +59,14 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
     if config.check_host_by_name(name):
         print(f"Cannot create host '{name}' as it already exists in configuration!")
         ctx.exit(1)
-        
+
     # Find group by name where to store config
     target_group_exists = config.check_group_by_name(target_group_name)
 
     if not target_group_exists and not force:
-        print(f"Cannot create host '{name}' in group '{target_group_name}' since the group does not exist")
+        print(
+            f"Cannot create host '{name}' in group '{target_group_name}' since the group does not exist"
+        )
         print("Create group first, or use '--force' option to create it automatically!")
         ctx.exit(1)
         # unreachable, but avoids issues with static checks
@@ -57,7 +79,9 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
 
     # This is patter host
     target_type = "pattern" if "*" in name else "normal"
-    new_host = SSH_Host(name=name, group=target_group_name, type=target_type, info=list(info))
+    new_host = SSH_Host(
+        name=name, group=target_group_name, type=target_type, info=list(info)
+    )
 
     # Add all passed parameters to config
     for param, value in parameter:
@@ -69,7 +93,7 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
         if param in PARAMS_WITH_ALLOWED_MULTIPLE_VALUES:
             # We need to handle host parameter as "list"
             if param not in new_host.params:
-                new_host.params[param] = [ value ]
+                new_host.params[param] = [value]
             else:
                 new_host.params[param].append(value)
         else:

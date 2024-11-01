@@ -3,12 +3,12 @@ import click
 from .host import (
     host_create,
     host_delete,
+    host_install_key,
     host_list,
+    host_rename,
     host_set,
     host_show,
     host_test,
-    host_rename,
-    host_install_key,
 )
 
 

@@ -1,12 +1,12 @@
 import click
-from sshtmux.sshm import SSH_Config
-from sshtmux.sshm import complete_ssh_host_names, expand_names
 
-#------------------------------------------------------------------------------
+from sshtmux.sshm import SSH_Config, complete_ssh_host_names, expand_names
+
+# ------------------------------------------------------------------------------
 # COMMAND: host delete
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SHORT_HELP = "Delete host(s)"
-LONG_HELP  = """
+LONG_HELP = """
 Delete host(s) from configuration
 
 Command accepts single or multiple host names to delete.
@@ -23,23 +23,26 @@ Confirmation dialog will appear to confirm if deletion is ok to continue.
 """
 
 # Parameters help:
-YES_HELP   = "Skip confirmation and assume 'yes'. Be careful!"
-#------------------------------------------------------------------------------
+YES_HELP = "Skip confirmation and assume 'yes'. Be careful!"
+# ------------------------------------------------------------------------------
+
 
 @click.command(name="delete", short_help=SHORT_HELP, help=LONG_HELP)
 @click.option("--yes", is_flag=True, help=YES_HELP)
-@click.argument("names", nargs=-1, required=True, shell_complete=complete_ssh_host_names)
+@click.argument(
+    "names", nargs=-1, required=True, shell_complete=complete_ssh_host_names
+)
 @click.pass_context
 def cmd(ctx, names, yes):
     config: SSH_Config = ctx.obj
 
     selected_hosts_list = expand_names(names, config.get_all_host_names())
     selected_hosts_list.sort()
-    
+
     # Deleting requires confirmation
     if not yes:
         print(f"Following hosts will be deleted: [{','.join(selected_hosts_list)}]")
-        if not click.confirm('Are you sure?'):
+        if not click.confirm("Are you sure?"):
             ctx.exit(1)
 
     # When deleting multiple hosts, iterate over all of them
@@ -49,7 +52,7 @@ def cmd(ctx, names, yes):
             continue
 
         found_host, found_group = config.get_host_by_name(name)
-        
+
         if found_host.type == "normal":
             found_group.hosts.remove(found_host)
         else:

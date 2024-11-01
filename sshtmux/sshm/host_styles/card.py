@@ -1,24 +1,27 @@
+from rich import box
+from rich.panel import Panel
+from rich.table import Table
+
 from ..ssh_host import SSH_Host
 
-from rich.table import Table
-from rich.panel import Panel
-from rich import box
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Render host data in panel with single-card look
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def render(host: SSH_Host):
     out_type = host.type if host.type == "normal" else f"[cyan]{host.type}[/]"
 
-    #// Add Host data information
-    #// -----------------------------------------------------------------------
-    layout_table = Table("", box=box.ROUNDED, style="grey35" ,show_edge=True, show_header=False)
+    # // Add Host data information
+    # // -----------------------------------------------------------------------
+    layout_table = Table(
+        "", box=box.ROUNDED, style="grey35", show_edge=True, show_header=False
+    )
     layout_table.add_row(f"[bright_white]Name [/]:  {host.name}")
     layout_table.add_row(f"[bright_white]Group[/]:  {host.group}")
     layout_table.add_row(f"[bright_white]Type [/]:  {out_type}")
 
-    #// Add Host info panel (if host info exist)
-    #// -----------------------------------------------------------------------
+    # // Add Host info panel (if host info exist)
+    # // -----------------------------------------------------------------------
     if host.info:
         layout_table.add_row("")
         out_info = "\n".join(host.info)
@@ -26,9 +29,15 @@ def render(host: SSH_Host):
 
     layout_table.add_row("")
 
-    #// Prepare table with params and append it to the layout table
-    #// -----------------------------------------------------------------------
-    param_table = Table(box=box.SIMPLE, style="grey35", show_header=True, show_edge=False, pad_edge=False)
+    # // Prepare table with params and append it to the layout table
+    # // -----------------------------------------------------------------------
+    param_table = Table(
+        box=box.SIMPLE,
+        style="grey35",
+        show_header=True,
+        show_edge=False,
+        pad_edge=False,
+    )
     param_table.add_column("Param")
     param_table.add_column("Value")
     param_table.add_column("Inherited-from")
@@ -42,9 +51,11 @@ def render(host: SSH_Host):
     for pattern, pattern_params in host.inherited_params:
         for param, value in pattern_params.items():
             if param not in host.params:
-                output_value = value if not isinstance(value, list) else "\n".join(value)
+                output_value = (
+                    value if not isinstance(value, list) else "\n".join(value)
+                )
                 param_table.add_row(param, output_value, pattern, style="yellow")
 
     layout_table.add_row(param_table)
 
-    return Panel(layout_table, box=box.SIMPLE, padding=(0,0))
+    return Panel(layout_table, box=box.SIMPLE, padding=(0, 0))
