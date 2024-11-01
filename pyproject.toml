@@ -27,15 +27,18 @@ pydantic = "^2.9.2"
 libtmux = "^0.37.0"
 keyring = "^25.5.0"
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.7.1"
+pytest = "^8.3.3"
 
 [tool.poetry.scripts]
 sshm = "sshtmux.main:cli"
 ssht = "sshtmux.main_tui:tui"
 
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.7.1"
-pytest = "^8.3.3"
+[tool.ruff]
+exclude = [
+    "sshtmux/sshm/__init__.py"
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
