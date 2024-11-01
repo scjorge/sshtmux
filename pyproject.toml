@@ -19,13 +19,13 @@ classifiers = [
 
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.1"
 click = "^8.1"
 rich = "^13.3"
-textual = "^0.26"
 pydantic = "^2.9.2"
 libtmux = "^0.37.0"
 keyring = "^25.5.0"
+textual = "^0.85.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.7.1"
