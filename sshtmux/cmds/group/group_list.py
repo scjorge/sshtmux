@@ -3,7 +3,7 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
-from sshtmux.sshtmux import SSH_Config
+from sshtmux.sshm import SSH_Config
 
 # ------------------------------------------------------------------------------
 # COMMAND: group list

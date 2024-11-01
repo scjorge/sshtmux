@@ -200,7 +200,7 @@ class SSH_Config:
         SSHCONFIG_META_SEPARATOR = ": "
 
         # First we lines before we flush them into file
-        lines: List[str] = ["#<<<<< SSH Config file managed by sshclick >>>>>\n"]
+        lines: List[str] = ["#<<<<< SSH Config file managed by sshtmux >>>>>\n"]
 
         # Dump any saved configuration
         for option in self.opts:

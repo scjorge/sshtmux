@@ -1,6 +1,6 @@
 import click
 from typing import List
-from sshtmux.sshtmux import SSH_Config, SSH_Host
+from sshtmux.sshm import SSH_Config, SSH_Host
 
 from rich.console import Console
 from rich.table import Table

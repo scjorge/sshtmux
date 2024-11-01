@@ -1,6 +1,6 @@
 import click
-from sshtmux.sshtmux import SSH_Config
-from sshtmux.sshtmux import complete_ssh_group_names
+from sshtmux.sshm import SSH_Config
+from sshtmux.sshm import complete_ssh_group_names
 
 #TODO: Check click.edit for multiline edit option (info, or even params?)
 

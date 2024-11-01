@@ -1,4 +1,4 @@
-from sshtmux.sshtmux import SSH_Config, SSH_Group
+from sshtmux.sshm import SSH_Config, SSH_Group
 
 #-----------------------------------
 # FILE CONTENT SAMPLES FOR PARSING

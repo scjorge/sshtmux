@@ -1,6 +1,6 @@
 import subprocess
 import click
-from sshtmux.sshtmux import SSH_Config, complete_ssh_host_names
+from sshtmux.sshm import SSH_Config, complete_ssh_host_names
 from rich.pretty import pprint
 
 #------------------------------------------------------------------------------

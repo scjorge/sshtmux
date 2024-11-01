@@ -5,7 +5,7 @@ from .config import config_set, config_del
 #------------------------------------------------------------------------------
 # CONFIG Commands
 #------------------------------------------------------------------------------
-@click.group(name="config", help="Modify SSHClick configuration trough SSH Config")
+@click.group(name="config", help="Modify SSHTMUX configuration trough SSH Config")
 def ssh_config():
     pass
 

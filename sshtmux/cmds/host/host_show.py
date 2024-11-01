@@ -1,7 +1,7 @@
 from sshtmux.globals import DEFAULT_HOST_STYLE, ENABLED_HOST_STYLES
 import click
-from sshtmux.sshtmux import SSH_Config
-from sshtmux.sshtmux import complete_ssh_host_names, complete_styles, generate_graph, trace_jumphosts
+from sshtmux.sshm import SSH_Config
+from sshtmux.sshm import complete_ssh_host_names, complete_styles, generate_graph, trace_jumphosts
 
 from rich.console import Console
 console = Console()

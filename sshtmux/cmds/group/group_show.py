@@ -1,8 +1,8 @@
 import click
 from typing import List
 
-from sshtmux.sshtmux import SSH_Config
-from sshtmux.sshtmux import complete_ssh_group_names
+from sshtmux.sshm import SSH_Config
+from sshtmux.sshm import complete_ssh_group_names
 
 from rich.table import Table
 from rich.panel import Panel

@@ -1,6 +1,6 @@
 import click
 import subprocess
-from sshtmux.sshtmux import SSH_Config, complete_ssh_host_names
+from sshtmux.sshm import SSH_Config, complete_ssh_host_names
 
 #------------------------------------------------------------------------------
 # COMMAND: host test

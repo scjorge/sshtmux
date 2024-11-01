@@ -3,7 +3,7 @@ import os.path
 import click
 
 from .version import VERSION
-from .sshtmux import SSH_Config
+from .sshm import SSH_Config
 from .main_tui import SSHTui
 from .cmds import cmd_group, cmd_host, cmd_config
 from .cmds.cmd_group import group_list
@@ -37,7 +37,7 @@ STDOUT_HELP = "Send changed SSH config to STDOUT instead to original file, can b
     "--sshconfig", default=USER_SSH_CONFIG, envvar="SSHC_SSHCONFIG", help=SSHCONFIG_HELP
 )
 @click.option("--stdout", is_flag=True, envvar="SSHC_STDOUT", help=STDOUT_HELP)
-@click.version_option(VERSION, message="SSHClick (sshm) - Version: %(version)s")
+@click.version_option(VERSION, message="SSHTMUX (sshm) - Version: %(version)s")
 @click.pass_context
 def cli(ctx: click.core.Context, sshconfig: str, stdout: bool):
     ctx.obj = (

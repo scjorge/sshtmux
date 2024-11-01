@@ -2,7 +2,7 @@ import os
 import subprocess
 import time
 
-from sshtmux.sshtmux import SSH_Config, SSH_Group, SSH_Host
+from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
 from rich.rule import Rule
 from rich.panel import Panel
@@ -125,7 +125,7 @@ class SSHDataView(Static):
 
 
 class SSHTui(App):
-    TITLE = "SSHClick"
+    TITLE = "SSHTMUX"
     SUB_TITLE = "Experimental TUI"
 
     BINDINGS = [

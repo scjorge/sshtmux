@@ -65,7 +65,7 @@ class SSH_Host:
             # If current host "print_style" is set to "panels", we will try
             # to import module from "./host_styles/panels.py"
             style = importlib.import_module(
-                f"sshclick.sshc.host_styles.{self.print_style}"
+                f"sshtmux.sshm.host_styles.{self.print_style}"
             )
             return style.render(self)
         except ModuleNotFoundError:

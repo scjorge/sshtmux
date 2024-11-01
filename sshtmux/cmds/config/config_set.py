@@ -1,7 +1,7 @@
 import click
 from sshtmux.globals import DEFAULT_HOST_STYLE, ENABLED_HOST_STYLES
-from sshtmux.sshtmux import SSH_Config
-from sshtmux.sshtmux import complete_styles
+from sshtmux.sshm import SSH_Config
+from sshtmux.sshm import complete_styles
 
 styles_str = ",".join(ENABLED_HOST_STYLES)
 
