@@ -321,8 +321,6 @@ class SSHTui(App):
             g = self.ssh_tree.root.add(
                 f":file_folder: {group.name}", data=group, expand=False
             )
-
-        if len(groups) > 0:
             for host in group.hosts + group.patterns:
                 g.add_leaf(host.name, data=host)
 
