@@ -8,7 +8,7 @@ from rich.rule import Rule
 from rich.table import Table
 from textual.app import App, ComposeResult
 from textual.containers import Container, VerticalScroll
-from textual.widgets import ContentSwitcher, Footer, Header, Label, Static, Tree
+from textual.widgets import ContentSwitcher, Footer, Header, Input, Label, Static, Tree
 
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
@@ -149,6 +149,9 @@ class SSHTui(App):
         ("f", "connect_sftp", "SFTP to host"),
         ("j", "cursor_down"),
         ("k", "cursor_up"),
+        ("?", "search_groups", "Search Groups"),
+        ("/", "search_hosts", "Search Hosts"),
+        (";", "clean_filters", "Clean Filters"),
     ]
 
     CSS = """
@@ -193,17 +196,21 @@ class SSHTui(App):
                 id="sshtree",
                 data=None,
             )
-            self.ssh_tree.root.expand()
-
-            for group in self.sshmonf.groups:
-                g = self.ssh_tree.root.add(
-                    f":file_folder: {group.name}", data=group, expand=False
-                )
-                for host in group.hosts + group.patterns:
-                    g.add_leaf(host.name, data=host)
+            self.generate_tree()
 
             yield self.ssh_tree
             yield SSHDataView()
+
+        self.input_group_search = Input(
+            placeholder="Search Groups...", id="search_groups_input"
+        )
+        self.input_group_search.display = False
+        self.input_hosts_search = Input(
+            placeholder="Search Hosts...", id="search_hosts_input"
+        )
+        self.input_hosts_search.display = False
+        yield self.input_group_search
+        yield self.input_hosts_search
         yield Footer()
 
     def on_mount(self, _) -> None:
@@ -218,6 +225,21 @@ class SSHTui(App):
 
     def action_quit(self) -> None:
         self.exit(0)
+
+    def action_search_groups(self) -> None:
+        self.input_group_search.display = True
+        self.input_group_search.focus()
+
+    def action_search_hosts(self) -> None:
+        self.input_hosts_search.display = True
+        self.input_hosts_search.focus()
+
+    def action_clean_filters(self) -> None:
+        self.input_group_search.value = ""
+        self.input_hosts_search.value = ""
+        tree = self.query_one("#sshtree", Tree)
+        for node in tree.root.children:
+            node.collapse_all()
 
     def action_connect_ssh(self) -> None:
         # "Connect to" only works on normal hosts
@@ -255,6 +277,55 @@ class SSHTui(App):
                 f"sftp -o ConnectTimeout=5 {self.current_node.name}"
             )
 
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        event.input.display = False
+        tree = self.query_one("#sshtree", Tree)
+        tree.focus()
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        filter = event.value
+        tree = self.query_one("#sshtree", Tree)
+        tree.clear()
+        if event.input.id == "search_groups_input":
+            self.generate_tree(filter_groups=filter)
+        elif event.input.id == "search_hosts_input":
+            self.generate_tree(filter_hosts=filter)
+
+        for node in tree.root.children:
+            node.expand()
+            for child in node.children:
+                child.expand()
+        if filter == "":
+            for node in tree.root.children:
+                node.collapse_all()
+
+    def generate_tree(
+        self, *, filter_hosts: str | None = None, filter_groups: str | None = None
+    ):
+        self.ssh_tree.root.expand()
+
+        groups = self.sshmonf.groups
+        if filter_hosts:
+            groups_filtered = []
+            for group in groups:
+                hosts = [h for h in group.hosts if filter_hosts in h.name]
+                if len(hosts) > 0:
+                    group.hosts = hosts
+                    groups_filtered.append(group)
+            groups = groups_filtered
+
+        elif filter_groups:
+            groups = [g for g in groups if filter_groups in g.name]
+
+        for group in groups:
+            g = self.ssh_tree.root.add(
+                f":file_folder: {group.name}", data=group, expand=False
+            )
+
+        if len(groups) > 0:
+            for host in group.hosts + group.patterns:
+                g.add_leaf(host.name, data=host)
+
     def _run_external_cmd_with_args(self, command):
         # Note this is a hack since textual does not have native/better way
         # of running external applications currently, ow within window/widget
@@ -269,6 +340,5 @@ class SSHTui(App):
                 driver.start_application_mode()
 
 
-## Entry for "ssht" command
 def tui():
     SSHTui().run()
