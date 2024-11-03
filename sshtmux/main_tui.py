@@ -151,7 +151,7 @@ class SSHTui(App):
         ("k", "cursor_up"),
         ("?", "search_groups", "Search Groups"),
         ("/", "search_hosts", "Search Hosts"),
-        (";", "clean_filters", "Clean Filters"),
+        ("escape", "clean_filters"),
     ]
 
     CSS = """
@@ -201,19 +201,20 @@ class SSHTui(App):
             yield self.ssh_tree
             yield SSHDataView()
 
-        self.input_group_search = Input(
+        self.input_groups_search = Input(
             placeholder="Search Groups...", id="search_groups_input"
         )
-        self.input_group_search.display = False
+        self.input_groups_search.display = False
         self.input_hosts_search = Input(
             placeholder="Search Hosts...", id="search_hosts_input"
         )
         self.input_hosts_search.display = False
-        yield self.input_group_search
+        yield self.input_groups_search
         yield self.input_hosts_search
         yield Footer()
 
     def on_mount(self, _) -> None:
+        self.ENABLE_COMMAND_PALETTE = False
         self.query_one(Tree).focus()
 
     def on_tree_node_highlighted(self, event):
@@ -227,18 +228,21 @@ class SSHTui(App):
         self.exit(0)
 
     def action_search_groups(self) -> None:
-        self.input_group_search.display = True
-        self.input_group_search.focus()
+        self.input_hosts_search.value = ""
+        self.input_groups_search.display = True
+        self.input_groups_search.focus()
 
     def action_search_hosts(self) -> None:
+        self.input_groups_search.value = ""
         self.input_hosts_search.display = True
         self.input_hosts_search.focus()
 
     def action_clean_filters(self) -> None:
-        self.input_group_search.value = ""
+        self.input_groups_search.value = ""
         self.input_hosts_search.value = ""
-        tree = self.query_one("#sshtree", Tree)
-        for node in tree.root.children:
+        self.input_groups_search.display = False
+        self.input_hosts_search.display = False
+        for node in self.ssh_tree.root.children:
             node.collapse_all()
 
     def action_connect_ssh(self) -> None:
@@ -279,24 +283,22 @@ class SSHTui(App):
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         event.input.display = False
-        tree = self.query_one("#sshtree", Tree)
-        tree.focus()
+        self.ssh_tree.focus()
 
     def on_input_changed(self, event: Input.Changed) -> None:
         filter = event.value
-        tree = self.query_one("#sshtree", Tree)
-        tree.clear()
+        self.ssh_tree.clear()
         if event.input.id == "search_groups_input":
             self.generate_tree(filter_groups=filter)
         elif event.input.id == "search_hosts_input":
             self.generate_tree(filter_hosts=filter)
 
-        for node in tree.root.children:
+        for node in self.ssh_tree.root.children:
             node.expand()
             for child in node.children:
                 child.expand()
         if filter == "":
-            for node in tree.root.children:
+            for node in self.ssh_tree.root.children:
                 node.collapse_all()
 
     def generate_tree(
