@@ -1,6 +1,4 @@
 import os
-import subprocess
-import time
 
 from rich import box
 from rich.panel import Panel
@@ -11,6 +9,7 @@ from textual.containers import Container, VerticalScroll
 from textual.widgets import ContentSwitcher, Footer, Header, Input, Label, Static, Tree
 
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
+from sshtmux.tui import tmux
 
 USER_SSH_CONFIG = "~/.ssh/config"
 USER_DEMO_CONFIG = "~/.ssh/config_demo"
@@ -144,11 +143,15 @@ class SSHTui(App):
 
     BINDINGS = [
         ("q", "quit", "Quit"),
-        ("d", "toggle_dark", "Toggle dark mode"),
-        ("c", "connect_ssh", "SSH to host"),
+        ("t", "attach_tmux", "TMUX"),
+        ("d", "detached_ssh", "Detached SSH"),
+        ("c", "connect_ssh", "Conect SSH"),
         ("f", "connect_sftp", "SFTP to host"),
+        ("m", "toggle_dark"),
         ("j", "cursor_down"),
         ("k", "cursor_up"),
+        ("l", "cursor_expand_all"),
+        ("h", "cursor_collapse_all"),
         ("?", "search_groups", "Search Groups"),
         ("/", "search_hosts", "Search Hosts"),
         ("escape", "clean_filters"),
@@ -245,17 +248,6 @@ class SSHTui(App):
         for node in self.ssh_tree.root.children:
             node.collapse_all()
 
-    def action_connect_ssh(self) -> None:
-        # "Connect to" only works on normal hosts
-        if (
-            isinstance(self.current_node, SSH_Host)
-            and self.current_node.type == "normal"
-        ):
-            # TODO: remove hardcoded timeout option, and load it from config or global "default"
-            self._run_external_cmd_with_args(
-                f"ssh -o ConnectTimeout=5 {self.current_node.name}"
-            )
-
     def action_cursor_down(self) -> None:
         if self.ssh_tree.cursor_line == -1:
             self.ssh_tree.cursor_line = 0
@@ -270,6 +262,39 @@ class SSHTui(App):
             self.ssh_tree.cursor_line -= 1
         self.ssh_tree.scroll_to_line(self.ssh_tree.cursor_line)
 
+    def action_cursor_expand_all(self) -> None:
+        self.ssh_tree.cursor_node.expand_all()
+
+    def action_cursor_collapse_all(self) -> None:
+        self.ssh_tree.cursor_node.collapse_all()
+
+    def action_attach_tmux(self) -> None:
+        attached = self._run_external_func_with_args(tmux.attach)
+        if not attached:
+            self.notify("No Tmux session available", severity="warning")
+
+    def action_connect_ssh(self, attach=True) -> None:
+        if (
+            isinstance(self.current_node, SSH_Host)
+            and self.current_node.type == "normal"
+        ):
+            is_conneted = self._run_external_func_with_args(
+                tmux.create_window,
+                group=self.current_node.group,
+                name=self.current_node.name,
+                attach=attach,
+            )
+            if is_conneted:
+                self.notify(
+                    f"Connected to {self.current_node.group} - {self.current_node.name}",
+                    severity="information",
+                )
+        else:
+            self.notify("Only normal hosts connections are allowed", severity="warning")
+
+    def action_detached_ssh(self) -> None:
+        self.action_connect_ssh(attach=False)
+
     def action_connect_sftp(self) -> None:
         # "Connect to" only works on normal hosts
         if (
@@ -277,7 +302,7 @@ class SSHTui(App):
             and self.current_node.type == "normal"
         ):
             # TODO: remove hardcoded timeout option, and load it from config or global "default"
-            self._run_external_cmd_with_args(
+            self._run_external_func_with_args(
                 f"sftp -o ConnectTimeout=5 {self.current_node.name}"
             )
 
@@ -326,18 +351,16 @@ class SSHTui(App):
             for host in group.hosts + group.patterns:
                 g.add_leaf(host.name, data=host)
 
-    def _run_external_cmd_with_args(self, command):
-        # Note this is a hack since textual does not have native/better way
-        # of running external applications currently, ow within window/widget
+    def _run_external_func_with_args(self, func, **kwargs):
         driver = self._driver
         if driver is not None:
             driver.stop_application_mode()
             try:
-                subprocess.run(command, shell=True)
-                time.sleep(2)
+                result = func(**kwargs)
             finally:
                 self.refresh()
                 driver.start_application_mode()
+        return result
 
 
 def tui():
