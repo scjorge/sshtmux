@@ -5,12 +5,11 @@ import click
 from .cmds import cmd_config, cmd_group, cmd_host
 from .cmds.cmd_group import group_list
 from .cmds.cmd_host import host_list
+from .globals import USER_SSH_CONFIG
 from .main_tui import SSHTui
 from .sshm import SSH_Config
 from .version import VERSION
 
-# Setup click to use both short and long help option
-USER_SSH_CONFIG = "~/.ssh/config"
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 # ------------------------------------------------------------------------------
