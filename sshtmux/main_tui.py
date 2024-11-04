@@ -8,11 +8,9 @@ from textual.app import App, ComposeResult
 from textual.containers import Container, VerticalScroll
 from textual.widgets import ContentSwitcher, Footer, Header, Input, Label, Static, Tree
 
+from sshtmux.globals import USER_SSH_CONFIG
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 from sshtmux.tui import tmux
-
-USER_SSH_CONFIG = "~/.ssh/config"
-USER_DEMO_CONFIG = "~/.ssh/config_demo"
 
 
 class SSHGroupDataInfo(Static):
@@ -185,7 +183,6 @@ class SSHTui(App):
         if isinstance(sshmonf, SSH_Config):
             self.sshmonf = sshmonf
         else:
-            # USER_SSH_CONFIG = USER_DEMO_CONFIG
             self.sshmonf = (
                 SSH_Config(file=os.path.expanduser(USER_SSH_CONFIG)).read().parse()
             )
@@ -266,7 +263,10 @@ class SSHTui(App):
         self.ssh_tree.cursor_node.expand_all()
 
     def action_cursor_collapse_all(self) -> None:
-        self.ssh_tree.cursor_node.collapse_all()
+        if self.ssh_tree.cursor_node.is_collapsed:
+            self.ssh_tree.cursor_node.collapse_all()
+        elif self.ssh_tree.cursor_node.parent:
+            self.ssh_tree.cursor_node.parent.collapse_all()
 
     def action_attach_tmux(self) -> None:
         attached = self._run_external_func_with_args(tmux.attach)
@@ -274,23 +274,24 @@ class SSHTui(App):
             self.notify("No Tmux session available", severity="warning")
 
     def action_connect_ssh(self, attach=True) -> None:
-        if (
+        if not (
             isinstance(self.current_node, SSH_Host)
             and self.current_node.type == "normal"
         ):
-            is_conneted = self._run_external_func_with_args(
-                tmux.create_window,
-                group=self.current_node.group,
-                name=self.current_node.name,
-                attach=attach,
-            )
-            if is_conneted:
-                self.notify(
-                    f"Connected to {self.current_node.group} - {self.current_node.name}",
-                    severity="information",
-                )
-        else:
             self.notify("Only normal hosts connections are allowed", severity="warning")
+            return
+
+        is_conneted = self._run_external_func_with_args(
+            tmux.create_window,
+            group=self.current_node.group,
+            name=self.current_node.name,
+            attach=attach,
+        )
+        if is_conneted:
+            self.notify(
+                f"Connected to {self.current_node.group} - {self.current_node.name}",
+                severity="information",
+            )
 
     def action_detached_ssh(self) -> None:
         self.action_connect_ssh(attach=False)
@@ -357,6 +358,8 @@ class SSHTui(App):
             driver.stop_application_mode()
             try:
                 result = func(**kwargs)
+            except Exception:
+                return None
             finally:
                 self.refresh()
                 driver.start_application_mode()
