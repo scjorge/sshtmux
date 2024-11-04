@@ -1,5 +1,3 @@
-import os
-
 from rich import box
 from rich.panel import Panel
 from rich.rule import Rule
@@ -10,6 +8,11 @@ from textual.widgets import ContentSwitcher, Footer, Header, Input, Label, Stati
 
 from sshtmux.globals import USER_SSH_CONFIG
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
+from sshtmux.tools.messages import (
+    NO_TMUX_SESSIONS_AVAILABLE,
+    NOT_ALLOWED_NESTED_CONNECTIONS,
+    ONLY_NORMAL_HOSTS_ALLOWED,
+)
 from sshtmux.tui import tmux
 
 
@@ -183,9 +186,7 @@ class SSHTui(App):
         if isinstance(sshmonf, SSH_Config):
             self.sshmonf = sshmonf
         else:
-            self.sshmonf = (
-                SSH_Config(file=os.path.expanduser(USER_SSH_CONFIG)).read().parse()
-            )
+            self.sshmonf = SSH_Config(file=USER_SSH_CONFIG).read().parse()
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -271,20 +272,19 @@ class SSHTui(App):
     def action_attach_tmux(self) -> None:
         attached = self._run_external_func_with_args(tmux.attach)
         if not attached:
-            self.notify("No Tmux session available", severity="warning")
+            self.notify(NO_TMUX_SESSIONS_AVAILABLE, severity="warning")
 
     def action_connect_ssh(self, attach=True) -> None:
         if not (
             isinstance(self.current_node, SSH_Host)
             and self.current_node.type == "normal"
         ):
-            self.notify("Only normal hosts connections are allowed", severity="warning")
+            self.notify(ONLY_NORMAL_HOSTS_ALLOWED, severity="warning")
             return
-
         is_conneted = self._run_external_func_with_args(
             tmux.create_window,
-            group=self.current_node.group,
-            name=self.current_node.name,
+            session_name=self.current_node.group,
+            window_name=self.current_node.name,
             attach=attach,
         )
         if is_conneted:
@@ -358,7 +358,9 @@ class SSHTui(App):
             driver.stop_application_mode()
             try:
                 result = func(**kwargs)
-            except Exception:
+            except Exception as e:
+                if "sessions should be nested with care" in str(e):
+                    self.notify(NOT_ALLOWED_NESTED_CONNECTIONS, severity="warning")
                 return None
             finally:
                 self.refresh()
@@ -368,3 +370,6 @@ class SSHTui(App):
 
 def tui():
     SSHTui().run()
+
+
+tui()
