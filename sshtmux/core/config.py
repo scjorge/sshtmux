@@ -34,16 +34,20 @@ class SSH(Base):
     SSH_CONFIG_FILE: str = str(Path(USER_DIR, ".ssh", "config"))
 
 
-class ConfigModel(Base):
+class ConfigModel(BaseModel):
     internal_config: InternalConfig = InternalConfig()
     sshtmux: SSHTMUX = SSHTMUX()
-    tmux: TMUX = TMUX()
     ssh: SSH = SSH()
-
-
-settings = ConfigModel()
+    tmux: TMUX = TMUX()
 
 
 def update_settings(new_settings):
     global settings
     settings = new_settings
+
+
+try:
+    settings = ConfigModel()
+except Exception as e:
+    print(f"Init Settings Failed: {e}")
+    exit(1)
