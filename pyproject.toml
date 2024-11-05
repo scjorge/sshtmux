@@ -26,6 +26,8 @@ pydantic = "^2.9.2"
 libtmux = "^0.37.0"
 keyring = "^25.5.0"
 textual = "^0.85.1"
+toml = "^0.10.2"
+pydantic-settings = "^2.6.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.7.1"

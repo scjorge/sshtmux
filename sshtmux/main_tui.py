@@ -6,7 +6,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Container, VerticalScroll
 from textual.widgets import ContentSwitcher, Footer, Header, Input, Label, Static, Tree
 
-from sshtmux.globals import USER_SSH_CONFIG
+from sshtmux.core.config import settings
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 from sshtmux.tools.messages import (
     NO_TMUX_SESSIONS_AVAILABLE,
@@ -186,7 +186,7 @@ class SSHTui(App):
         if isinstance(sshmonf, SSH_Config):
             self.sshmonf = sshmonf
         else:
-            self.sshmonf = SSH_Config(file=USER_SSH_CONFIG).read().parse()
+            self.sshmonf = SSH_Config(file=settings.ssh.SSH_CONFIG_FILE).read().parse()
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -283,8 +283,7 @@ class SSHTui(App):
             return
         is_conneted = self._run_external_func_with_args(
             tmux.create_window,
-            session_name=self.current_node.group,
-            window_name=self.current_node.name,
+            host=self.current_node,
             attach=attach,
         )
         if is_conneted:
@@ -354,14 +353,18 @@ class SSHTui(App):
 
     def _run_external_func_with_args(self, func, **kwargs):
         driver = self._driver
+        result = None
         if driver is not None:
             driver.stop_application_mode()
             try:
                 result = func(**kwargs)
             except Exception as e:
-                if "sessions should be nested with care" in str(e):
+                if "no server running on" in str(e):
+                    pass
+                elif "sessions should be nested with care" in str(e):
                     self.notify(NOT_ALLOWED_NESTED_CONNECTIONS, severity="warning")
-                return None
+                else:
+                    self.notify(str(e), severity="error")
             finally:
                 self.refresh()
                 driver.start_application_mode()
@@ -372,4 +375,5 @@ def tui():
     SSHTui().run()
 
 
-tui()
+if __name__ == "__main__":
+    tui()

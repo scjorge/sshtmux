@@ -5,7 +5,7 @@ import click
 from .cmds import cmd_config, cmd_group, cmd_host
 from .cmds.cmd_group import group_list
 from .cmds.cmd_host import host_list
-from .globals import USER_SSH_CONFIG
+from .core.config import settings
 from .main_tui import SSHTui
 from .sshm import SSH_Config
 from .version import VERSION
@@ -23,7 +23,7 @@ using this software, as you might accidentally lose some configuration.
 """
 
 # Parameters help:
-SSHCONFIG_HELP = f"Config file (default: {USER_SSH_CONFIG})"
+SSHCONFIG_HELP = f"Config file (default: {settings.ssh.SSH_CONFIG_FILE})"
 STDOUT_HELP = "Send changed SSH config to STDOUT instead to original file, can be enabled with setting ENV variable (export SSHC_STDOUT=1)"
 # ------------------------------------------------------------------------------
 
@@ -32,7 +32,10 @@ STDOUT_HELP = "Send changed SSH config to STDOUT instead to original file, can b
 # we can add "invoke_without_command=True" in a group decorator, to make function runnable directly
 @click.group(context_settings=CONTEXT_SETTINGS, help=MAIN_HELP)
 @click.option(
-    "--sshconfig", default=USER_SSH_CONFIG, envvar="SSHC_SSHCONFIG", help=SSHCONFIG_HELP
+    "--sshconfig",
+    default=settings.ssh.SSH_CONFIG_FILE,
+    envvar="SSHC_SSHCONFIG",
+    help=SSHCONFIG_HELP,
 )
 @click.option("--stdout", is_flag=True, envvar="SSHC_STDOUT", help=STDOUT_HELP)
 @click.version_option(VERSION, message="SSHTMUX (sshm) - Version: %(version)s")
