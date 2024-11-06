@@ -25,7 +25,7 @@ class SSHTMUX(Base):
 
 class TMUX(Base):
     TMUX_CONFIG_FILE: str = str(Path(SSHTMUX_BASEDIR, "tmux.config"))
-    TMUX_SOCKET_NAME: str | None = f"{USER_DIR.name}_sshmm"
+    TMUX_SOCKET_NAME: str | None = f"{USER_DIR.name}_tmux"
     TMUX_SOCKET_PATH: str | None = str(Path(SSHTMUX_BASEDIR, ".tmux.sock"))
     TMUX_TIMEOUT_COMMANDS: int = 10
 
