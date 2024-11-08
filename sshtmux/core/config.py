@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
 USER_DIR = Path.home()
-SSHTMUX_BASEDIR = str(Path(USER_DIR, ".config", "sshtmux"))
+SSHTMUX_BASEDIR = USER_DIR / ".config" / "sshtmux"
 
 
 class Base(BaseSettings):
@@ -14,24 +14,25 @@ class Base(BaseSettings):
 
 
 class InternalConfig(BaseModel):
-    BASE_DIR: str = SSHTMUX_BASEDIR
-    TOML_CONFIG_FILE: str = str(Path(SSHTMUX_BASEDIR, "config.toml"))
+    BASE_DIR: str = str(SSHTMUX_BASEDIR)
+    TOML_CONFIG_FILE: str = str(SSHTMUX_BASEDIR / "config.toml")
 
 
 class SSHTMUX(Base):
-    SSHTMUX_IDENTITY_FILE: str | None = ""
-    SSHTMUX_IDENTITY_KEY: str | SecretStr | None = None
+    SSHTMUX_IDENTITY_KEY: str | None = None
+    SSHTMUX_IDENTITY_FILE: str | None = str(SSHTMUX_BASEDIR / "identity.key")
+    SSHTMUX_IDENTITY_PASSWORDS_FILE: str | None = str(SSHTMUX_BASEDIR / "identity.json")
 
 
 class TMUX(Base):
-    TMUX_CONFIG_FILE: str = str(Path(SSHTMUX_BASEDIR, "tmux.config"))
-    TMUX_SOCKET_NAME: str | None = f"{USER_DIR.name}_tmux"
-    TMUX_SOCKET_PATH: str | None = str(Path(SSHTMUX_BASEDIR, ".tmux.sock"))
+    TMUX_CONFIG_FILE: str = str(SSHTMUX_BASEDIR / "tmux.config")
+    TMUX_SOCKET_NAME: str | None = f"sshtmux_{USER_DIR.name}"
+    TMUX_SOCKET_PATH: str | None = None
     TMUX_TIMEOUT_COMMANDS: int = 10
 
 
 class SSH(Base):
-    SSH_CONFIG_FILE: str = str(Path(USER_DIR, ".ssh", "config"))
+    SSH_CONFIG_FILE: str = str(USER_DIR / ".ssh" / "config")
 
 
 class ConfigModel(BaseModel):

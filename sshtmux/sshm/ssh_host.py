@@ -75,3 +75,6 @@ class SSH_Host:
                     show_locals=False, max_frames=1, suppress=[importlib]
                 )
             return f"SSH_Host style [bright_red]'{self.print_style}'[/] is broken!"
+
+    def __str__(self) -> str:
+        return f"Group: {self.group} - Host: {self.name}"

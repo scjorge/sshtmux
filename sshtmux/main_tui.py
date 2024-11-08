@@ -7,13 +7,14 @@ from textual.containers import Container, VerticalScroll
 from textual.widgets import ContentSwitcher, Footer, Header, Input, Label, Static, Tree
 
 from sshtmux.core.config import settings
+from sshtmux.exceptions import IdentityException, SSHException, TMUXException
+from sshtmux.services.tmux import ConnectionType, Tmux
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 from sshtmux.tools.messages import (
     NO_TMUX_SESSIONS_AVAILABLE,
     NOT_ALLOWED_NESTED_CONNECTIONS,
     ONLY_NORMAL_HOSTS_ALLOWED,
 )
-from sshtmux.tui import tmux
 
 
 class SSHGroupDataInfo(Static):
@@ -151,8 +152,8 @@ class SSHTui(App):
         ("m", "toggle_dark"),
         ("j", "cursor_down"),
         ("k", "cursor_up"),
-        ("l", "cursor_expand_all"),
-        ("h", "cursor_collapse_all"),
+        ("l", "cursor_expand"),
+        ("h", "cursor_collapse"),
         ("?", "search_groups", "Search Groups"),
         ("/", "search_hosts", "Search Hosts"),
         ("escape", "clean_filters"),
@@ -182,6 +183,7 @@ class SSHTui(App):
     """
 
     def __init__(self, sshmonf=None):
+        self.tmux = Tmux()
         self.ssh_tree = None
         if isinstance(sshmonf, SSH_Config):
             self.sshmonf = sshmonf
@@ -260,17 +262,14 @@ class SSHTui(App):
             self.ssh_tree.cursor_line -= 1
         self.ssh_tree.scroll_to_line(self.ssh_tree.cursor_line)
 
-    def action_cursor_expand_all(self) -> None:
-        self.ssh_tree.cursor_node.expand_all()
+    def action_cursor_expand(self) -> None:
+        self.ssh_tree.cursor_node.expand()
 
-    def action_cursor_collapse_all(self) -> None:
-        if self.ssh_tree.cursor_node.is_collapsed:
-            self.ssh_tree.cursor_node.collapse_all()
-        elif self.ssh_tree.cursor_node.parent:
-            self.ssh_tree.cursor_node.parent.collapse_all()
+    def action_cursor_collapse(self) -> None:
+        self.ssh_tree.cursor_node.collapse()
 
     def action_attach_tmux(self) -> None:
-        attached = self._run_external_func_with_args(tmux.attach)
+        attached = self._run_external_func_with_args(self.tmux.attach)
         if not attached:
             self.notify(NO_TMUX_SESSIONS_AVAILABLE, severity="warning")
 
@@ -281,14 +280,18 @@ class SSHTui(App):
         ):
             self.notify(ONLY_NORMAL_HOSTS_ALLOWED, severity="warning")
             return
+
         is_conneted = self._run_external_func_with_args(
-            tmux.create_window,
+            self.tmux.create_window,
+            type_connection=ConnectionType.identity,
             host=self.current_node,
             attach=attach,
+            identity=None,
         )
+
         if is_conneted:
             self.notify(
-                f"Connected to {self.current_node.group} - {self.current_node.name}",
+                f"Connected to:\n\n{self.current_node}",
                 severity="information",
             )
 
@@ -358,13 +361,19 @@ class SSHTui(App):
             driver.stop_application_mode()
             try:
                 result = func(**kwargs)
+            except TMUXException as e:
+                self.notify(str(e), title="Tmux", severity="error")
+            except SSHException as e:
+                self.notify(str(e), title="SSH", severity="error")
+            except IdentityException as e:
+                self.notify(str(e), title="Identity", severity="error")
             except Exception as e:
                 if "no server running on" in str(e):
                     pass
                 elif "sessions should be nested with care" in str(e):
                     self.notify(NOT_ALLOWED_NESTED_CONNECTIONS, severity="warning")
                 else:
-                    self.notify(str(e), severity="error")
+                    self.notify(str(e), title="Internal", severity="error")
             finally:
                 self.refresh()
                 driver.start_application_mode()
