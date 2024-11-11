@@ -47,7 +47,7 @@ FORCE_HELP = "Allows during host creation, to create group for host if target gr
     help=GROUP_HELP,
     shell_complete=complete_ssh_group_names,
 )
-@click.option("--force", is_flag=True, help=FORCE_HELP)
+@click.option("-f", "--force", is_flag=True, help=FORCE_HELP)
 @click.argument("name")
 @click.pass_context
 def cmd(ctx, name, info, parameter, target_group_name, force):
@@ -55,6 +55,8 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
 
     if not target_group_name:
         target_group_name = SSH_Config.DEFAULT_GROUP_NAME
+    else:
+        name = f"{target_group_name}-{name}"
 
     if config.check_host_by_name(name):
         print(f"Cannot create host '{name}' as it already exists in configuration!")
@@ -74,6 +76,15 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
     elif not target_group_exists:
         target_group = SSH_Group(name=target_group_name)
         config.groups.append(target_group)
+
+        # Create group parttern host
+        new_host = SSH_Host(
+            name=f"{target_group_name}-*",
+            group=target_group_name,
+            type="pattern",
+            info=[],
+        )
+        target_group.patterns.append(new_host)
     else:
         target_group = config.get_group_by_name(target_group_name)
 

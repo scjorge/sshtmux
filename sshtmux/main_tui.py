@@ -1,13 +1,27 @@
+from typing import ClassVar
+
 from rich import box
 from rich.panel import Panel
 from rich.rule import Rule
 from rich.table import Table
 from textual.app import App, ComposeResult
+from textual.binding import Binding, BindingType
 from textual.containers import Container, VerticalScroll
-from textual.widgets import ContentSwitcher, Footer, Header, Input, Label, Static, Tree
+from textual.widgets import (
+    ContentSwitcher,
+    Footer,
+    Header,
+    Input,
+    Label,
+    OptionList,
+    Static,
+    Tree,
+)
+from textual.widgets.option_list import Separator
 
 from sshtmux.core.config import settings
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
+from sshtmux.services.identities import PasswordManager
 from sshtmux.services.tmux import ConnectionType, Tmux
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 from sshtmux.tools.messages import (
@@ -139,6 +153,20 @@ class SSHDataView(Static):
             self.query_one(ContentSwitcher).current = "no-view"
 
 
+class CustomOptionList(OptionList):
+    BINDINGS: ClassVar[list[BindingType]] = [
+        Binding("down", "cursor_down", "Down", show=False),
+        Binding("j", "cursor_down", "Down", show=False),
+        Binding("end", "last", "Last", show=False),
+        Binding("enter", "select", "Select", show=False),
+        Binding("home", "first", "First", show=False),
+        Binding("pagedown", "page_down", "Page down", show=False),
+        Binding("pageup", "page_up", "Page up", show=False),
+        Binding("up", "cursor_up", "Up", show=False),
+        Binding("k", "cursor_up", "Up", show=False),
+    ]
+
+
 class SSHTui(App):
     TITLE = "SSHTMUX"
     SUB_TITLE = "Experimental TUI"
@@ -184,11 +212,15 @@ class SSHTui(App):
 
     def __init__(self, sshmonf=None):
         self.tmux = Tmux()
+        self.password_manager = PasswordManager()
+        self.identities = self.password_manager.get_identities()
+        self.attach_connection = False
         self.ssh_tree = None
         if isinstance(sshmonf, SSH_Config):
             self.sshmonf = sshmonf
         else:
             self.sshmonf = SSH_Config(file=settings.ssh.SSH_CONFIG_FILE).read().parse()
+
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -199,7 +231,7 @@ class SSHTui(App):
                 id="sshtree",
                 data=None,
             )
-            self.generate_tree()
+            self._generate_tree()
 
             yield self.ssh_tree
             yield SSHDataView()
@@ -212,13 +244,35 @@ class SSHTui(App):
             placeholder="Search Hosts...", id="search_hosts_input"
         )
         self.input_hosts_search.display = False
+        self.type_password = "Type Password"
+        self.select_identity = CustomOptionList(
+            self.type_password, Separator(), *self.identities, id="select_identity"
+        )
+        self.select_identity.display = False
         yield self.input_groups_search
         yield self.input_hosts_search
+        yield self.select_identity
         yield Footer()
+
+    async def on_option_list_option_selected(
+        self, event: OptionList.OptionSelected
+    ) -> None:
+        value = event.option.prompt
+
+        if not self._is_sshhost():
+            return
+
+        self.ssh_tree.focus()
+        self.select_identity.display = False
+
+        if value == self.type_password:
+            self._start_ssh_connection(ConnectionType.normal, None)
+        elif value:
+            self._start_ssh_connection(ConnectionType.identity, value)
 
     def on_mount(self, _) -> None:
         self.ENABLE_COMMAND_PALETTE = False
-        self.query_one(Tree).focus()
+        self.ssh_tree.focus()
 
     def on_tree_node_highlighted(self, event):
         self.current_node = event.node.data
@@ -245,8 +299,10 @@ class SSHTui(App):
         self.input_hosts_search.value = ""
         self.input_groups_search.display = False
         self.input_hosts_search.display = False
+        self.select_identity.display = False
         for node in self.ssh_tree.root.children:
             node.collapse_all()
+        self.ssh_tree.focus()
 
     def action_cursor_down(self) -> None:
         if self.ssh_tree.cursor_line == -1:
@@ -273,30 +329,19 @@ class SSHTui(App):
         if not attached:
             self.notify(NO_TMUX_SESSIONS_AVAILABLE, severity="warning")
 
-    def action_connect_ssh(self, attach=True) -> None:
-        if not (
-            isinstance(self.current_node, SSH_Host)
-            and self.current_node.type == "normal"
-        ):
-            self.notify(ONLY_NORMAL_HOSTS_ALLOWED, severity="warning")
+    def action_connect_ssh(self, attach=True):
+        if not self._is_sshhost():
             return
 
-        is_conneted = self._run_external_func_with_args(
-            self.tmux.create_window,
-            type_connection=ConnectionType.identity,
-            host=self.current_node,
-            attach=attach,
-            identity=None,
-        )
-
-        if is_conneted:
-            self.notify(
-                f"Connected to:\n\n{self.current_node}",
-                severity="information",
-            )
+        self.atatch_connection = attach
+        if not self.identities:
+            self._start_ssh_connection(ConnectionType.normal, None)
+            return
+        self.select_identity.display = True
+        self.select_identity.focus()
 
     def action_detached_ssh(self) -> None:
-        self.action_connect_ssh(attach=False)
+        self.action_connect_ssh(False)
 
     def action_connect_sftp(self) -> None:
         # "Connect to" only works on normal hosts
@@ -317,9 +362,9 @@ class SSHTui(App):
         filter = event.value
         self.ssh_tree.clear()
         if event.input.id == "search_groups_input":
-            self.generate_tree(filter_groups=filter)
+            self._generate_tree(filter_groups=filter)
         elif event.input.id == "search_hosts_input":
-            self.generate_tree(filter_hosts=filter)
+            self._generate_tree(filter_hosts=filter)
 
         for node in self.ssh_tree.root.children:
             node.expand()
@@ -329,7 +374,7 @@ class SSHTui(App):
             for node in self.ssh_tree.root.children:
                 node.collapse_all()
 
-    def generate_tree(
+    def _generate_tree(
         self, *, filter_hosts: str | None = None, filter_groups: str | None = None
     ):
         self.ssh_tree.root.expand()
@@ -353,6 +398,36 @@ class SSHTui(App):
             )
             for host in group.hosts + group.patterns:
                 g.add_leaf(host.name, data=host)
+
+    def _is_sshhost(self):
+        if not (
+            isinstance(self.current_node, SSH_Host)
+            and self.current_node.type == "normal"
+        ):
+            self.notify(ONLY_NORMAL_HOSTS_ALLOWED, severity="warning")
+            return False
+        return True
+
+    def _start_ssh_connection(self, type_connection, identity):
+        if not self._is_sshhost():
+            return
+
+        if settings.ssh.SSH_CUSTOM_COMMAND:
+            type_connection = ConnectionType.custom
+
+        is_conneted = self._run_external_func_with_args(
+            self.tmux.create_window,
+            type_connection=type_connection,
+            host=self.current_node,
+            attach=self.atatch_connection,
+            identity=identity,
+        )
+
+        if is_conneted:
+            self.notify(
+                f"Connected to:\n\n{self.current_node}",
+                severity="information",
+            )
 
     def _run_external_func_with_args(self, func, **kwargs):
         driver = self._driver

@@ -15,12 +15,13 @@ class Base(BaseSettings):
 
 class InternalConfig(BaseModel):
     BASE_DIR: str = str(SSHTMUX_BASEDIR)
+    BASE_SERVICE: str = "sshtmux"
     TOML_CONFIG_FILE: str = str(SSHTMUX_BASEDIR / "config.toml")
 
 
 class SSHTMUX(Base):
     SSHTMUX_IDENTITY_KEY: str | None = None
-    SSHTMUX_IDENTITY_FILE: str | None = str(SSHTMUX_BASEDIR / "identity.key")
+    SSHTMUX_IDENTITY_KEY_FILE: str | None = str(SSHTMUX_BASEDIR / "identity.key")
     SSHTMUX_IDENTITY_PASSWORDS_FILE: str | None = str(SSHTMUX_BASEDIR / "identity.json")
 
 
@@ -33,6 +34,8 @@ class TMUX(Base):
 
 class SSH(Base):
     SSH_CONFIG_FILE: str = str(USER_DIR / ".ssh" / "config")
+    SSH_CONNECTION_TIMEOUT: int = 10
+    SSH_CUSTOM_COMMAND: str | None = None
 
 
 class ConfigModel(BaseModel):

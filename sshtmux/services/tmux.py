@@ -16,7 +16,8 @@ from sshtmux.sshm import SSH_Host
 class ConnectionAbstract(ABC):
     def __init__(self) -> None:
         super().__init__()
-        self.password_manager = PasswordManager("sshtmux")
+        self.password_manager = PasswordManager()
+        self.ssh_cmd = f"ssh -o ConnectTimeout={settings.ssh.SSH_CONNECTION_TIMEOUT} -o StrictHostKeyChecking=no __host__ && exit"
 
     @abstractmethod
     def start(
@@ -40,7 +41,9 @@ class ConnectionAbstract(ABC):
 
         is_failed = False
         for text in pane_output:
-            text = text.lower()
+            if "ssh -o" in text:
+                continue
+
             if text.startswith("ssh:") or text.startswith(
                 "ssh_exchange_identification:"
             ):
@@ -70,6 +73,30 @@ class ConnectionAbstract(ABC):
             raise SSHException(f"{timeout_mgs} \n\n {host} \n\n {pane_output}")
 
 
+class NormalConnection(ConnectionAbstract):
+    def start(
+        self,
+        window: Window,
+        host: SSH_Host,
+        identity: Union[str, None],
+    ):
+        pane_output = None
+        cmd = self.ssh_cmd.replace("__host__", host.name)
+        window.attached_pane.send_keys(cmd)
+        timeout_start = time.time()
+        password_prompt_found = False
+        while not password_prompt_found:
+            self._check_timeout_reached(timeout_start, pane_output, host, window)
+            pane_output = window.attached_pane.capture_pane()
+            self._check_connections_errors(window, pane_output, host)
+
+            for text in pane_output:
+                if "password:" in text:
+                    password_prompt_found = True
+                    break
+            time.sleep(0.1)
+
+
 class IdentityConnection(ConnectionAbstract):
     def start(
         self,
@@ -78,7 +105,7 @@ class IdentityConnection(ConnectionAbstract):
         identity: Union[str, None],
     ):
         pane_output = None
-        cmd = f"ssh -o StrictHostKeyChecking=no {host.name} && exit"
+        cmd = self.ssh_cmd.replace("__host__", host.name)
         try:
             password = self.password_manager.get_password(identity)
         except IdentityException as e:
@@ -124,10 +151,30 @@ class IdentityConnection(ConnectionAbstract):
             break
 
 
+class CustomConnection(ConnectionAbstract):
+    def start(
+        self,
+        window: Window,
+        host: SSH_Host,
+        identity: Union[str, None],
+    ):
+        cmd = settings.ssh.SSH_CUSTOM_COMMAND.replace("${hostname}", host.name)
+        if identity:
+            try:
+                password = self.password_manager.get_password(identity)
+            except IdentityException as e:
+                window.kill_window()
+                raise e
+            cmd = cmd.replace("${password}", password)
+        else:
+            cmd = cmd.replace("${password}", "")
+        window.attached_pane.send_keys(cmd)
+
+
 class ConnectionType(Enum):
-    normal = None
+    normal = NormalConnection
     identity = IdentityConnection
-    custom = None
+    custom = CustomConnection
 
 
 class Tmux:
@@ -146,25 +193,29 @@ class Tmux:
         identity: Union[str, None] = None,
     ):
         window = None
-        session = self.server.find_where({"session_name": host.group})
+        window_name = host.name
+        session_name = host.group
+        session = self.server.find_where({"session_name": session_name})
         connection: ConnectionAbstract = type_connection.value()
+        if window_name.startswith(session_name):
+            window_name = window_name.replace(f"{session_name}-", "")
 
         if not session:
             self.server.cmd(
-                "new-session", "-d", "-P", "-F#{session_id}", "-s", host.group
+                "new-session", "-d", "-P", "-F#{session_id}", "-s", session_name
             )
-            session = self.server.find_where({"session_name": host.group})
+            session = self.server.find_where({"session_name": session_name})
             if not session:
                 raise TMUXException(f"{host}\n\n Something went wrong to find session!")
 
             if len(session.windows) == 1:
-                window = session.windows[0].rename_window(host.name)
+                window = session.windows[0].rename_window(window_name)
             else:
                 raise TMUXException(
                     f"{host}\n\n Something went wrong to find inicial window!"
                 )
         else:
-            window = session.new_window(window_name=host.name, attach=attach)
+            window = session.new_window(window_name=window_name, attach=attach)
 
         if window:
             connection.start(window, host, identity)

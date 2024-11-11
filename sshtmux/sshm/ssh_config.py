@@ -2,6 +2,7 @@ import copy
 import fnmatch
 import logging
 import re
+from pathlib import Path
 from typing import List, Optional, Tuple
 
 from .ssh_group import SSH_Group
@@ -45,6 +46,10 @@ class SSH_Config:
         """
         Read content of SSH config file
         """
+        if not Path(self.ssh_config_file).exists():
+            print(f"File {self.ssh_config_file} not found! Creating...")
+            Path(self.ssh_config_file).touch()
+
         with open(self.ssh_config_file, "r") as fh:
             self.ssh_config_lines = fh.readlines()
         return self
@@ -303,6 +308,11 @@ class SSH_Config:
         """
         Check if specific group name is present in configuration
         """
+        is_valid_name, message = self.validate_group_name(name)
+        if not is_valid_name:
+            print(message)
+            exit(1)
+
         for group in self.groups:
             if group.name == name:
                 return True
@@ -323,6 +333,11 @@ class SSH_Config:
         """
         Check if specific host name is present in configuration
         """
+        is_valid_name, message = self.validate_host_name(name)
+        if not is_valid_name:
+            print(message)
+            exit(1)
+
         for group in self.groups:
             all_hosts = group.hosts + group.patterns
             for host in all_hosts:
@@ -426,3 +441,44 @@ class SSH_Config:
         else:
             target_group.patterns.append(found_host)
             found_group.patterns.remove(found_host)
+
+    def validate_group_name(self, name):
+        if not (3 <= len(name) <= 50):
+            return False, "The group name must be between 3 and 50 characters."
+
+        if not re.match(r"^[a-zA-Z0-9_-]+$", name):
+            return (
+                False,
+                "The group name can only contain letters, numbers, dashes (-), and underscores (_).",
+            )
+
+        if name[0] in "-_" or name[-1] in "-_":
+            return (
+                False,
+                "The group name cannot start or end with a dash (-) or underscore (_).",
+            )
+
+        return True, "Valid group name."
+
+    def validate_host_name(self, hostname):
+        if not (1 <= len(hostname) <= 253):
+            return False, "The host name must be between 1 and 253 characters."
+
+        if not re.match(r"^[a-zA-Z0-9.\-*]+$", hostname):
+            return (
+                False,
+                "The host name can only contain letters, numbers, hyphens (-), and dot (.)",
+            )
+
+        if hostname[0] == "-" or hostname[-1] == "-":
+            return False, "The host name cannot start or end with a hyphen (-)."
+
+        parts = hostname.split(".")
+        for part in parts:
+            if not (1 <= len(part) <= 63):
+                return (
+                    False,
+                    "Each part of the host name must be between 1 and 63 characters.",
+                )
+
+        return True, "Valid host name."

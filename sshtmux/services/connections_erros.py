@@ -8,6 +8,7 @@ CONNECTIONS_ERRORS = [
     "invalid",
     "disabled",
     "Bad",
+    "Bad configuration",
     "refused",
     "failure",
     "Could not",

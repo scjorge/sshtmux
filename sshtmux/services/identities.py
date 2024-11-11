@@ -9,7 +9,7 @@ from sshtmux.exceptions import IdentityException
 
 class KeyManager:
     def __init__(self):
-        self.key_file = settings.sshtmux.SSHTMUX_IDENTITY_FILE
+        self.key_file = settings.sshtmux.SSHTMUX_IDENTITY_KEY_FILE
         self.key_env = settings.sshtmux.SSHTMUX_IDENTITY_KEY
         if self.key_env and isinstance(self.key_env, str) and len(self.key_env) > 0:
             self.key = self.key_env
@@ -38,7 +38,7 @@ class KeyManager:
 
 
 class PasswordManager:
-    def __init__(self, service):
+    def __init__(self, service=settings.internal_config.BASE_SERVICE):
         self.service = service
         self.key_manager = KeyManager()
         self.password_file = settings.sshtmux.SSHTMUX_IDENTITY_PASSWORDS_FILE
@@ -68,7 +68,7 @@ class PasswordManager:
         with open(self.password_file, "wb") as f:
             f.write(encrypted_data)
 
-    def set_password(self, username, password):
+    def set_password(self, reference, password, is_update=False):
         try:
             identities = self._load_identities()
         except InvalidToken:
@@ -78,27 +78,32 @@ class PasswordManager:
 
         if not identities.get(self.service):
             identities[self.service] = {}
-        identities[self.service][username] = password
+        identity = identities[self.service].get(reference)
+
+        if not is_update:
+            if identity:
+                raise IdentityException("Identity already exists")
+        identities[self.service][reference] = password
 
         self._save_identities(identities)
 
-    def get_password(self, username):
+    def get_password(self, reference):
         identities = self._load_identities()
         users = identities.get(self.service)
         if not users:
             raise IdentityException("No Identities was Found")
-        identity = users.get(username)
+        identity = users.get(reference)
         if not identity:
             raise IdentityException("Identity not Found")
         return identity
 
-    def delete_password(self, username):
+    def delete_password(self, reference):
         identities = self._load_identities()
         if not identities.get(self.service):
             return
 
-        if username in identities[self.service]:
-            del identities[self.service][username]
+        if reference in identities[self.service]:
+            del identities[self.service][reference]
             self._save_identities(identities)
         else:
             raise IdentityException("User not Found")
@@ -106,4 +111,6 @@ class PasswordManager:
     def get_identities(self):
         identities = self._load_identities()
         users = identities.get(self.service)
-        return users.keys()
+        if not users:
+            return []
+        return list(users.keys())
