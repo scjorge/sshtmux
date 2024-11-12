@@ -1,3 +1,5 @@
+import os
+import subprocess
 import time
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -10,6 +12,7 @@ from sshtmux.core.config import settings
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
 from sshtmux.services.connections_erros import CONNECTIONS_ERRORS
 from sshtmux.services.identities import PasswordManager
+from sshtmux.services.snippets import get_snippet
 from sshtmux.sshm import SSH_Host
 
 
@@ -17,7 +20,7 @@ class ConnectionAbstract(ABC):
     def __init__(self) -> None:
         super().__init__()
         self.password_manager = PasswordManager()
-        self.ssh_cmd = f"ssh -o ConnectTimeout={settings.ssh.SSH_CONNECTION_TIMEOUT} -o StrictHostKeyChecking=no __host__ && exit"
+        self.ssh_cmd = settings.ssh.SSH_COMMAND
 
     @abstractmethod
     def start(
@@ -81,7 +84,7 @@ class NormalConnection(ConnectionAbstract):
         identity: Union[str, None],
     ):
         pane_output = None
-        cmd = self.ssh_cmd.replace("__host__", host.name)
+        cmd = self.ssh_cmd.replace("${hostname}", host.name)
         window.attached_pane.send_keys(cmd)
         timeout_start = time.time()
         password_prompt_found = False
@@ -105,7 +108,7 @@ class IdentityConnection(ConnectionAbstract):
         identity: Union[str, None],
     ):
         pane_output = None
-        cmd = self.ssh_cmd.replace("__host__", host.name)
+        cmd = self.ssh_cmd.replace("${hostname}", host.name)
         try:
             password = self.password_manager.get_password(identity)
         except IdentityException as e:
@@ -237,3 +240,27 @@ class Tmux:
                 current_session.attach()
                 return True
         return False
+
+    def execute_snippet_tmux(self, cmd, session_name, window_index, panel_index):
+        session = self.server.find_where({"session_name": session_name})
+        if not session:
+            print("No Tmux session available")
+            return
+        window = session.windows[int(window_index)]
+        panel = window.panes[int(panel_index)]
+        panel.send_keys(cmd)
+
+    def execute_snippet_shell(self, cmd):
+        subprocess.run(cmd, shell=True)
+
+    def execute_snippet(self, session_name, window_index, panel_index):
+        snippet = get_snippet()
+        if not snippet:
+            print("No Snippets found")
+            return
+
+        is_tmux = all([session_name, window_index, panel_index])
+        if is_tmux:
+            self.execute_snippet_tmux(snippet, session_name, window_index, panel_index)
+        else:
+            self.execute_snippet_shell(snippet)

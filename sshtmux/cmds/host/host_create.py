@@ -56,7 +56,8 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
     if not target_group_name:
         target_group_name = SSH_Config.DEFAULT_GROUP_NAME
     else:
-        name = f"{target_group_name}-{name}"
+        if not name.startswith(f"{target_group_name}-"):
+            name = f"{target_group_name}-{name}"
 
     if config.check_host_by_name(name):
         print(f"Cannot create host '{name}' as it already exists in configuration!")

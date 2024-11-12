@@ -286,11 +286,13 @@ class SSHTui(App):
 
     def action_search_groups(self) -> None:
         self.input_hosts_search.value = ""
+        self.input_hosts_search.display = False
         self.input_groups_search.display = True
         self.input_groups_search.focus()
 
     def action_search_hosts(self) -> None:
         self.input_groups_search.value = ""
+        self.input_groups_search.display = False
         self.input_hosts_search.display = True
         self.input_hosts_search.focus()
 

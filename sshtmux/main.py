@@ -2,7 +2,7 @@ import os.path
 
 import click
 
-from .cmds import cmd_config, cmd_group, cmd_host, cmd_identity
+from .cmds import cmd_config, cmd_group, cmd_host, cmd_identity, cmd_snippets
 from .cmds.cmd_group import group_list
 from .cmds.cmd_host import host_list
 from .core.config import settings
@@ -64,6 +64,7 @@ cli.add_command(cmd_host.ssh_host)
 cli.add_command(cmd_group.ssh_group)
 cli.add_command(cmd_config.ssh_config)
 cli.add_command(cmd_identity.generate)
+cli.add_command(cmd_snippets.generate)
 cli.add_command(tui_cmd)
 
 # Top level aliases (groups --> group list, hosts --> host list, etc..)

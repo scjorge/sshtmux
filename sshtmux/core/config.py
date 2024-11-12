@@ -23,6 +23,7 @@ class SSHTMUX(Base):
     SSHTMUX_IDENTITY_KEY: str | None = None
     SSHTMUX_IDENTITY_KEY_FILE: str | None = str(SSHTMUX_BASEDIR / "identity.key")
     SSHTMUX_IDENTITY_PASSWORDS_FILE: str | None = str(SSHTMUX_BASEDIR / "identity.json")
+    SSHTMUX_SNIPPETS_PATH: str | None = str(SSHTMUX_BASEDIR / "snippets")
 
 
 class TMUX(Base):
@@ -34,8 +35,10 @@ class TMUX(Base):
 
 class SSH(Base):
     SSH_CONFIG_FILE: str = str(USER_DIR / ".ssh" / "config")
-    SSH_CONNECTION_TIMEOUT: int = 10
-    SSH_CUSTOM_COMMAND: str | None = None
+    SSH_COMMAND: str = (
+        "ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${hostname} && exit"
+    )
+    SSH_CUSTOM_COMMAND: str | bool = False
 
 
 class ConfigModel(BaseModel):
