@@ -221,7 +221,10 @@ class Tmux:
             window = session.new_window(window_name=window_name, attach=attach)
 
         if window:
-            connection.start(window, host, identity)
+            try:
+                connection.start(window, host, identity)
+            except KeyboardInterrupt as e:
+                raise TMUXException(str(e))
         else:
             raise TMUXException(f"{host}\n\n Something went wrong to find window!")
 
