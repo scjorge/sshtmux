@@ -44,14 +44,6 @@ def init_tmux():
     set -g mouse on
     set-option -g set-clipboard on
 
-    # Copy Selection to clipboard
-    if-shell '[ "$XDG_SESSION_TYPE" = "x11" ]' 'bind-key -T copy-mode MouseDragEnd1Pane send-keys -X copy-pipe "xclip -selection clipboard -i" \\; send-keys C-c'
-    if-shell '[ "$XDG_SESSION_TYPE" = "wayland" ]' 'bind-key -T copy-mode MouseDragEnd1Pane send-keys -X copy-pipe "wl-copy" \\; send-keys C-c'
-
-    # Paste Selection
-    if-shell '[ "$XDG_SESSION_TYPE" = "x11" ]' 'bind-key -n MouseDown3Pane run-shell "xclip -selection clipboard -o | tmux load-buffer - && tmux paste-buffer"'
-    if-shell '[ "$XDG_SESSION_TYPE" = "wayland" ]' 'bind-key -n MouseDown3Pane run-shell "wl-paste -n | tmux load-buffer - && tmux paste-buffer"'
-
     # Key Binds
     bind-key S run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm snippets run -s '#{session_name}' -w '#{window_index}' -p '#{pane_index}' '"
     bind-key -n MouseDown1StatusLeft run-shell "tmux choose-window"
