@@ -36,10 +36,10 @@ class TMUX(Base):
 class SSH(Base):
     SSH_CONFIG_FILE: str = str(USER_DIR / ".ssh" / "config")
     SSH_COMMAND: str = (
-        "ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${hostname} && exit"
+        "ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${hostname}"
     )
     SFTP_COMMAND: str = (
-        "sftp -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${hostname} && exit"
+        "sftp -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${hostname}"
     )
     SSH_CUSTOM_COMMAND: str | bool = False
 
