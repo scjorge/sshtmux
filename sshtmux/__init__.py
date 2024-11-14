@@ -62,6 +62,18 @@ def init_tmux():
     bind-key I run-shell "tmux split-window -h -c '#{pane_current_path}' 'sshm identity run '#{session_name}' '#{window_index}' '#{pane_index}' '"
     bind-key F run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm host run '#{session_name}' '#{window_index}' '#{pane_index}' sftp '"
 
+    bind-key -n M-q select-window -t :-
+    bind-key -n M-w select-window -t :+1
+    bind-key -n M-1 select-window -t 1
+    bind-key -n M-2 select-window -t 2
+    bind-key -n M-3 select-window -t 3
+    bind-key -n M-4 select-window -t 4
+    bind-key -n M-5 select-window -t 5
+    bind-key -n M-6 select-window -t 6
+    bind-key -n M-7 select-window -t 7
+    bind-key -n M-8 select-window -t 8
+    bind-key -n M-9 select-window -t 9
+
     # Copy Mouse Selection to clipboard
     # xclip=X11 | xsel=X11 | wl-cop=Wayland | pbcopy=MacOS
     if-shell 'command -v xclip >/dev/null' 'set-option -g @copy-command "xclip -selection clipboard -i"'
