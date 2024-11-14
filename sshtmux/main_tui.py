@@ -496,7 +496,7 @@ class SSHTui(App):
             except IdentityException as e:
                 self.notify(str(e), title="Identity", severity="error")
             except Exception as e:
-                if "no server running on" in str(e):
+                if "no server running on" in str(e) or "could not find object" in str(e):
                     pass
                 elif "sessions should be nested with care" in str(e):
                     self.notify(NOT_ALLOWED_NESTED_CONNECTIONS, severity="warning")
