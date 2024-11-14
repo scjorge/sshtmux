@@ -9,12 +9,12 @@ from libtmux import Window
 from rich import print
 from rich.prompt import Prompt
 
-from sshtmux.core.config import settings, MULTICOMMNAD_CLI, SFTP_CLI
+from sshtmux.core.config import settings, MULTICOMMNAD_CLI, SFTP_CLI, FAST_CONNECTIONS_GROUP_NAME
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
 from sshtmux.services.connections_erros import CONNECTIONS_ERRORS
 from sshtmux.services.identities import PasswordManager, prompt_identity
 from sshtmux.services.snippets import prompt_snippet
-from sshtmux.sshm import SSH_Host
+from sshtmux.sshm import SSH_Host, SSH_Config
 
 
 class ConnectionAbstract(ABC):
@@ -320,7 +320,10 @@ class Tmux:
             return
 
         window = [w for w in session.windows if str(w.index) == str(window_index)][0]
-        hostname = f"{session_name}-{window.name}"
+        if FAST_CONNECTIONS_GROUP_NAME in session_name or SSH_Config.DEFAULT_GROUP_NAME in session_name:
+            hostname = window.name
+        else:
+            hostname = f"{session_name}-{window.name}"
 
         if cmd_ref == SFTP_CLI:
             cmd = (
