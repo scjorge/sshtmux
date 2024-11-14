@@ -169,7 +169,6 @@ class CustomOptionList(OptionList):
 
 class SSHTui(App):
     TITLE = "SSHTMUX"
-    SUB_TITLE = "Experimental TUI"
 
     BINDINGS = [
         ("q", "quit", "Quit"),
