@@ -5,6 +5,7 @@ from .identity import (
     identity_delete,
     identity_generate,
     identity_list,
+    identity_run,
     identity_update,
 )
 
@@ -23,3 +24,4 @@ generate.add_command(identity_list.cmd)
 generate.add_command(identity_create.cmd)
 generate.add_command(identity_update.cmd)
 generate.add_command(identity_delete.cmd)
+generate.add_command(identity_run.cmd)

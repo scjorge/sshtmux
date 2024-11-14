@@ -2,6 +2,8 @@ import json
 import os
 
 from cryptography.fernet import Fernet, InvalidToken
+from rich.console import Console
+from rich.prompt import Prompt
 
 from sshtmux.core.config import settings
 from sshtmux.exceptions import IdentityException
@@ -114,3 +116,27 @@ class PasswordManager:
         if not users:
             return []
         return list(users.keys())
+
+
+def prompt_identity():
+    console = Console()
+    password_manager = PasswordManager()
+    identities = ["Cancel"] + password_manager.get_identities()
+    identities_idx = [str(index) for index, _ in enumerate(identities)]
+
+    console.print("Identities:", style="bold underline")
+    for idx, option in enumerate(identities):
+        console.print(f"{idx}. {option}")
+
+    choice = Prompt.ask(
+        "Choose Identity:",
+        choices=identities_idx,
+        default=identities_idx[0],
+        show_choices=False,
+    )
+    identity = identities[int(choice)]
+    if identity == identities[0]:
+        return
+
+    password = password_manager.get_password(identity)
+    return password

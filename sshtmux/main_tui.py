@@ -22,7 +22,7 @@ from textual.widgets.option_list import Separator
 from sshtmux.core.config import settings
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
 from sshtmux.services.identities import PasswordManager
-from sshtmux.services.tmux import ConnectionType, Tmux
+from sshtmux.services.tmux import ConnectionProtocol, ConnectionType, Tmux
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 from sshtmux.tools.messages import (
     NO_TMUX_SESSIONS_AVAILABLE,
@@ -215,7 +215,7 @@ class SSHTui(App):
         self.password_manager = PasswordManager()
         self.identities = self.password_manager.get_identities()
         self.attach_connection = False
-        self.ssh_tree = None
+        self.connections_tree = None
         if isinstance(sshmonf, SSH_Config):
             self.sshmonf = sshmonf
         else:
@@ -226,14 +226,14 @@ class SSHTui(App):
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
         with Container():
-            self.ssh_tree = Tree(
+            self.connections_tree = Tree(
                 f"SSH Configuration ({len(self.sshmonf.groups)} groups)",
                 id="sshtree",
                 data=None,
             )
             self._generate_tree()
 
-            yield self.ssh_tree
+            yield self.connections_tree
             yield SSHDataView()
 
         self.input_groups_search = Input(
@@ -257,22 +257,31 @@ class SSHTui(App):
     async def on_option_list_option_selected(
         self, event: OptionList.OptionSelected
     ) -> None:
+        """
+        Manager identity
+        """
         value = event.option.prompt
 
         if not self._is_sshhost():
             return
 
-        self.ssh_tree.focus()
+        self.connections_tree.focus()
         self.select_identity.display = False
 
         if value == self.type_password:
-            self._start_ssh_connection(ConnectionType.normal, None)
+            if self.connection == ConnectionProtocol.ssh:
+                self._start_connection(ConnectionType.normal, None)
+            elif self.connection == ConnectionProtocol.sftp:
+                self._start_connection(ConnectionType.sftp_normal, None)
         elif value:
-            self._start_ssh_connection(ConnectionType.identity, value)
+            if self.connection == ConnectionProtocol.ssh:
+                self._start_connection(ConnectionType.identity, value)
+            elif self.connection == ConnectionProtocol.sftp:
+                self._start_connection(ConnectionType.sftp_identity, value)
 
     def on_mount(self, _) -> None:
         self.ENABLE_COMMAND_PALETTE = False
-        self.ssh_tree.focus()
+        self.connections_tree.focus()
 
     def on_tree_node_highlighted(self, event):
         self.current_node = event.node.data
@@ -302,29 +311,29 @@ class SSHTui(App):
         self.input_groups_search.display = False
         self.input_hosts_search.display = False
         self.select_identity.display = False
-        for node in self.ssh_tree.root.children:
+        for node in self.connections_tree.root.children:
             node.collapse_all()
-        self.ssh_tree.focus()
+        self.connections_tree.focus()
 
     def action_cursor_down(self) -> None:
-        if self.ssh_tree.cursor_line == -1:
-            self.ssh_tree.cursor_line = 0
+        if self.connections_tree.cursor_line == -1:
+            self.connections_tree.cursor_line = 0
         else:
-            self.ssh_tree.cursor_line += 1
-        self.ssh_tree.scroll_to_line(self.ssh_tree.cursor_line)
+            self.connections_tree.cursor_line += 1
+        self.connections_tree.scroll_to_line(self.connections_tree.cursor_line)
 
     def action_cursor_up(self) -> None:
-        if self.ssh_tree.cursor_line == -1:
-            self.ssh_tree.cursor_line = self.ssh_tree.last_line
+        if self.connections_tree.cursor_line == -1:
+            self.connections_tree.cursor_line = self.connections_tree.last_line
         else:
-            self.ssh_tree.cursor_line -= 1
-        self.ssh_tree.scroll_to_line(self.ssh_tree.cursor_line)
+            self.connections_tree.cursor_line -= 1
+        self.connections_tree.scroll_to_line(self.connections_tree.cursor_line)
 
     def action_cursor_expand(self) -> None:
-        self.ssh_tree.cursor_node.expand()
+        self.connections_tree.cursor_node.expand()
 
     def action_cursor_collapse(self) -> None:
-        self.ssh_tree.cursor_node.collapse()
+        self.connections_tree.cursor_node.collapse()
 
     def action_attach_tmux(self) -> None:
         attached = self._run_external_func_with_args(self.tmux.attach)
@@ -335,51 +344,53 @@ class SSHTui(App):
         if not self._is_sshhost():
             return
 
+        self.connection = ConnectionProtocol.ssh
         self.atatch_connection = attach
         if not self.identities:
-            self._start_ssh_connection(ConnectionType.normal, None)
+            self._start_connection(ConnectionType.normal, None)
             return
         self.select_identity.display = True
         self.select_identity.focus()
 
     def action_detached_ssh(self) -> None:
+        self.connection = ConnectionProtocol.ssh
         self.action_connect_ssh(False)
 
     def action_connect_sftp(self) -> None:
-        # "Connect to" only works on normal hosts
-        if (
-            isinstance(self.current_node, SSH_Host)
-            and self.current_node.type == "normal"
-        ):
-            # TODO: remove hardcoded timeout option, and load it from config or global "default"
-            self._run_external_func_with_args(
-                f"sftp -o ConnectTimeout=5 {self.current_node.name}"
-            )
+        self.connection = ConnectionProtocol.sftp
+        self.atatch_connection = True
+        if not self._is_sshhost():
+            return
+        if not self.identities:
+            self._start_connection(ConnectionType.sftp_normal, None)
+            return
+        self.select_identity.display = True
+        self.select_identity.focus()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         event.input.display = False
-        self.ssh_tree.focus()
+        self.connections_tree.focus()
 
     def on_input_changed(self, event: Input.Changed) -> None:
         filter = event.value
-        self.ssh_tree.clear()
+        self.connections_tree.clear()
         if event.input.id == "search_groups_input":
             self._generate_tree(filter_groups=filter)
         elif event.input.id == "search_hosts_input":
             self._generate_tree(filter_hosts=filter)
 
-        for node in self.ssh_tree.root.children:
+        for node in self.connections_tree.root.children:
             node.expand()
             for child in node.children:
                 child.expand()
         if filter == "":
-            for node in self.ssh_tree.root.children:
+            for node in self.connections_tree.root.children:
                 node.collapse_all()
 
     def _generate_tree(
         self, *, filter_hosts: str | None = None, filter_groups: str | None = None
     ):
-        self.ssh_tree.root.expand()
+        self.connections_tree.root.expand()
 
         groups = self.sshmonf.groups
         if filter_hosts:
@@ -395,7 +406,7 @@ class SSHTui(App):
             groups = [g for g in groups if filter_groups in g.name]
 
         for group in groups:
-            g = self.ssh_tree.root.add(
+            g = self.connections_tree.root.add(
                 f":file_folder: {group.name}", data=group, expand=False
             )
             for host in group.hosts + group.patterns:
@@ -410,7 +421,7 @@ class SSHTui(App):
             return False
         return True
 
-    def _start_ssh_connection(self, type_connection, identity):
+    def _start_connection(self, type_connection, identity):
         if not self._is_sshhost():
             return
 

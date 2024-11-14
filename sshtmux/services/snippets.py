@@ -27,19 +27,19 @@ def choose_cmd(path):
         print(f"Empty file: {path}")
         return None
 
-    def navegar(stdscr):
+    def browser(stdscr):
         index = 0
         scroll = 0
-        altura, largura = stdscr.getmaxyx()
+        height, width = stdscr.getmaxyx()
 
         while True:
             stdscr.clear()
             stdscr.addstr("Choose a command\n\n")
 
-            for i in range(scroll, min(scroll + altura - 3, len(lines))):
+            for i in range(scroll, min(scroll + height - 3, len(lines))):
                 line_showed = lines[i].strip()
-                if len(line_showed) > largura - 4:
-                    line_showed = line_showed[: largura - 4]
+                if len(line_showed) > width - 4:
+                    line_showed = line_showed[: width - 4]
 
                 if i == index:
                     stdscr.addstr(f">> {i + 1}: {line_showed}\n", curses.A_REVERSE)
@@ -51,7 +51,7 @@ def choose_cmd(path):
             if key == ord("j") or key == curses.KEY_DOWN:
                 if index < len(lines) - 1:
                     index += 1
-                if index >= scroll + altura - 3:
+                if index >= scroll + height - 3:
                     scroll += 1
             elif key == ord("k") or key == curses.KEY_UP:
                 if index > 0:
@@ -65,7 +65,7 @@ def choose_cmd(path):
             elif key == ord("q"):
                 break
 
-    return curses.wrapper(navegar)
+    return curses.wrapper(browser)
 
 
 def get_snippets_files():
@@ -85,7 +85,7 @@ def _show_menu(options):
         console.print(f"{idx}. {option}")
 
 
-def get_snippet():
+def prompt_snippet():
     cmd = None
     choices, choices_idx = get_snippets_files()
     _show_menu(choices)
@@ -96,12 +96,14 @@ def get_snippet():
         show_choices=False,
     )
     snippet_file = choices[int(choice)]
-    if snippet_file != "Cancel":
-        try:
-            cmd = choose_cmd(
-                f"{settings.sshtmux.SSHTMUX_SNIPPETS_PATH}{os.sep}{snippet_file}"
-            )
-        except Exception as e:
-            print(str(e))
-            sleep(2)
+    if snippet_file == choices[0]:
+        return
+
+    try:
+        cmd = choose_cmd(
+            f"{settings.sshtmux.SSHTMUX_SNIPPETS_PATH}{os.sep}{snippet_file}"
+        )
+    except Exception as e:
+        print(str(e))
+        sleep(2)
     return cmd

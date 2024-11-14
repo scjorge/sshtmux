@@ -11,8 +11,8 @@ from libtmux import Window
 from sshtmux.core.config import settings
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
 from sshtmux.services.connections_erros import CONNECTIONS_ERRORS
-from sshtmux.services.identities import PasswordManager
-from sshtmux.services.snippets import get_snippet
+from sshtmux.services.identities import PasswordManager, prompt_identity
+from sshtmux.services.snippets import prompt_snippet
 from sshtmux.sshm import SSH_Host
 
 
@@ -20,7 +20,7 @@ class ConnectionAbstract(ABC):
     def __init__(self) -> None:
         super().__init__()
         self.password_manager = PasswordManager()
-        self.ssh_cmd = settings.ssh.SSH_COMMAND
+        self.connection_cmd = settings.ssh.SSH_COMMAND
 
     @abstractmethod
     def start(
@@ -44,9 +44,6 @@ class ConnectionAbstract(ABC):
 
         is_failed = False
         for text in pane_output:
-            if "ssh -o" in text:
-                continue
-
             if text.startswith("ssh:") or text.startswith(
                 "ssh_exchange_identification:"
             ):
@@ -59,7 +56,10 @@ class ConnectionAbstract(ABC):
 
             if is_failed:
                 window.kill_window()
-                raise SSHException(f"{host}\n\n Connection Error! {text}")
+                error_msg = (
+                    pane_output[-2] if len(pane_output) >= 2 else str(pane_output)
+                )
+                raise SSHException(f"{host}\n\nConnection Error!\n\n{error_msg}")
 
     def _check_timeout_reached(
         self,
@@ -72,7 +72,10 @@ class ConnectionAbstract(ABC):
             timeout_mgs = f"{host}\n\n Timeout reached!"
             window.kill_window()
             if pane_output and len(pane_output) >= 2:
-                raise SSHException(f"{timeout_mgs} \n\n {pane_output[-2]}")
+                error_msg = (
+                    pane_output[-2] if len(pane_output) >= 2 else str(pane_output)
+                )
+                raise SSHException(f"{timeout_mgs} \n\n {error_msg}")
             raise SSHException(f"{timeout_mgs} \n\n {host} \n\n {pane_output}")
 
 
@@ -84,7 +87,7 @@ class NormalConnection(ConnectionAbstract):
         identity: Union[str, None],
     ):
         pane_output = None
-        cmd = self.ssh_cmd.replace("${hostname}", host.name)
+        cmd = self.connection_cmd.replace("${hostname}", host.name)
         window.attached_pane.send_keys(cmd)
         timeout_start = time.time()
         password_prompt_found = False
@@ -108,7 +111,7 @@ class IdentityConnection(ConnectionAbstract):
         identity: Union[str, None],
     ):
         pane_output = None
-        cmd = self.ssh_cmd.replace("${hostname}", host.name)
+        cmd = self.connection_cmd.replace("${hostname}", host.name)
         try:
             password = self.password_manager.get_password(identity)
         except IdentityException as e:
@@ -161,6 +164,9 @@ class CustomConnection(ConnectionAbstract):
         host: SSH_Host,
         identity: Union[str, None],
     ):
+        if not settings.ssh.SSH_CUSTOM_COMMAND:
+            raise TMUXException("SSH_CUSTOM_COMMAND not set")
+
         cmd = settings.ssh.SSH_CUSTOM_COMMAND.replace("${hostname}", host.name)
         if identity:
             try:
@@ -174,10 +180,29 @@ class CustomConnection(ConnectionAbstract):
         window.attached_pane.send_keys(cmd)
 
 
+class SFTPNormalConnection(NormalConnection):
+    def __init__(self):
+        super().__init__()
+        self.connection_cmd = settings.ssh.SFTP_COMMAND
+
+
+class SFTPIdentityConnection(IdentityConnection):
+    def __init__(self):
+        super().__init__()
+        self.connection_cmd = settings.ssh.SFTP_COMMAND
+
+
+class ConnectionProtocol(Enum):
+    ssh = "SSH"
+    sftp = "SFTP"
+
+
 class ConnectionType(Enum):
     normal = NormalConnection
     identity = IdentityConnection
     custom = CustomConnection
+    sftp_normal = SFTPNormalConnection
+    sftp_identity = SFTPIdentityConnection
 
 
 class Tmux:
@@ -244,26 +269,51 @@ class Tmux:
                 return True
         return False
 
-    def execute_snippet_tmux(self, cmd, session_name, window_index, panel_index):
+    def execute_cmd_tmux(self, cmd, session_name, window_index, panel_index):
         session = self.server.find_where({"session_name": session_name})
         if not session:
             print("No Tmux session available")
             return
-        window = session.windows[int(window_index)]
-        panel = window.panes[int(panel_index)]
+        window = [w for w in session.windows if str(w.index) == str(window_index)][0]
+        panel = [p for p in window.panes if str(p.index) == str(panel_index)][0]
         panel.send_keys(cmd)
 
-    def execute_snippet_shell(self, cmd):
-        subprocess.run(cmd, shell=True)
+    def execute_cmd_shell(self, cmd):
+        cmd = cmd.split()
+        os.execvp(cmd[0], cmd)
 
     def execute_snippet(self, session_name, window_index, panel_index):
-        snippet = get_snippet()
+        snippet = prompt_snippet()
         if not snippet:
             print("No Snippets found")
             return
 
         is_tmux = all([session_name, window_index, panel_index])
         if is_tmux:
-            self.execute_snippet_tmux(snippet, session_name, window_index, panel_index)
+            self.execute_cmd_tmux(snippet, session_name, window_index, panel_index)
         else:
-            self.execute_snippet_shell(snippet)
+            self.execute_cmd_shell(snippet)
+
+    def execute_identity(self, session_name, window_index, panel_index):
+        identity = prompt_identity()
+        if not identity:
+            print("No Identity found")
+            return
+        self.execute_cmd_tmux(identity, session_name, window_index, panel_index)
+
+    def execute_host_cmd(self, session_name, window_index, panel_index, cmd_ref):
+        session = self.server.find_where({"session_name": session_name})
+        if not session:
+            print("No Tmux session available")
+            return
+
+        window = [w for w in session.windows if str(w.index) == str(window_index)][0]
+        hostname = f"{session_name}-{window.name}"
+        cmd = (
+            settings.ssh.SFTP_COMMAND.replace("${hostname}", hostname)
+            .replace("&& exit", "")
+            .replace("; exit", "")
+        )
+
+        if cmd_ref == "sftp":
+            self.execute_cmd_shell(cmd)

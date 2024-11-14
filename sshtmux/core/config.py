@@ -38,6 +38,9 @@ class SSH(Base):
     SSH_COMMAND: str = (
         "ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${hostname} && exit"
     )
+    SFTP_COMMAND: str = (
+        "sftp -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${hostname} && exit"
+    )
     SSH_CUSTOM_COMMAND: str | bool = False
 
 
