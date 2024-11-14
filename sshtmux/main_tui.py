@@ -176,7 +176,8 @@ class SSHTui(App):
         ("t", "attach_tmux", "TMUX"),
         ("d", "detached_ssh", "Detached SSH"),
         ("c", "connect_ssh", "Conect SSH"),
-        ("f", "connect_sftp", "SFTP to host"),
+        ("s", "connect_sftp", "SFTP to host"),
+        ("f", "connect_fast_connections", "Fast Connection"),
         ("m", "toggle_dark"),
         ("j", "cursor_down"),
         ("k", "cursor_up"),
@@ -244,6 +245,10 @@ class SSHTui(App):
             placeholder="Search Hosts...", id="search_hosts_input"
         )
         self.input_hosts_search.display = False
+        self.input_fast_connections = Input(
+            placeholder="user@hostname", id="fast_connections_input"
+        )
+        self.input_fast_connections.display = False
         self.type_password = "Type Password"
         self.select_identity = CustomOptionList(
             self.type_password, Separator(), *self.identities, id="select_identity"
@@ -252,6 +257,7 @@ class SSHTui(App):
         yield self.input_groups_search
         yield self.input_hosts_search
         yield self.select_identity
+        yield self.input_fast_connections
         yield Footer()
 
     async def on_option_list_option_selected(
@@ -305,12 +311,18 @@ class SSHTui(App):
         self.input_hosts_search.display = True
         self.input_hosts_search.focus()
 
+    def action_connect_fast_connections(self) -> None:
+        self.input_fast_connections.display = True
+        self.input_fast_connections.focus()
+
     def action_clean_filters(self) -> None:
         self.input_groups_search.value = ""
         self.input_hosts_search.value = ""
+        self.input_fast_connections.value = ""
         self.input_groups_search.display = False
         self.input_hosts_search.display = False
         self.select_identity.display = False
+        self.input_fast_connections.display = False
         for node in self.connections_tree.root.children:
             node.collapse_all()
         self.connections_tree.focus()
@@ -369,9 +381,18 @@ class SSHTui(App):
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         event.input.display = False
-        self.connections_tree.focus()
+        event_id = event.input.id
+        if event_id == "search_groups_input" or event_id == "search_hosts_input":
+            self.connections_tree.focus()
+        elif event_id == "fast_connections_input":
+            self._fast_connections_input_submit(event)
 
     def on_input_changed(self, event: Input.Changed) -> None:
+        event_id = event.input.id
+        if event_id == "search_groups_input" or event_id == "search_hosts_input":
+            self._search_input_changed(event)
+
+    def _search_input_changed(self, event: Input.Changed):
         filter = event.value
         self.connections_tree.clear()
         if event.input.id == "search_groups_input":
@@ -386,6 +407,22 @@ class SSHTui(App):
         if filter == "":
             for node in self.connections_tree.root.children:
                 node.collapse_all()
+
+    def _fast_connections_input_submit(self, event: Input.Submitted):
+        self.connections_tree.focus()
+        if event.value == "":
+            event.input.display = False
+            return
+
+        host = event.value
+        params = {}
+        session_name = "fast-connections"
+        host_parts = host.split("@")
+        if len(host_parts) >= 2:
+            params["user"] = host_parts[0]
+        self.atatch_connection = True
+        self.current_node = SSH_Host(name=host, params=params, group=session_name)
+        self.action_connect_ssh(attach=True)
 
     def _generate_tree(
         self, *, filter_hosts: str | None = None, filter_groups: str | None = None
