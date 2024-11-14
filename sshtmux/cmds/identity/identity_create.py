@@ -12,7 +12,7 @@ HELP = "Create Identity"
 @click.argument("identity")
 def cmd(identity):
     password_manager = PasswordManager()
-    password = Prompt.ask("Type Password:", password=True)
+    password = Prompt.ask("Type Password", password=True)
     try:
         password_manager.set_password(identity, password)
     except IdentityException as e:
