@@ -5,7 +5,7 @@ from typing import Dict, Tuple
 
 from rich.console import Console
 
-from ..globals import DEFAULT_HOST_STYLE
+from ..core.config import settings
 
 console = Console()
 
@@ -24,7 +24,7 @@ class SSH_Host:
     params: dict = field(default_factory=dict)
 
     inherited_params: list = field(default_factory=list)
-    print_style: str = DEFAULT_HOST_STYLE
+    print_style: str = settings.sshtmux.SSHTMUX_HOST_STYLE
 
     def get_all_params(self) -> Dict[str, str]:
         """

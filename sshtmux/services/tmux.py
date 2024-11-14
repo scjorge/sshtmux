@@ -9,9 +9,8 @@ from libtmux import Window
 from rich import print
 from rich.prompt import Prompt
 
-from sshtmux.core.config import settings
+from sshtmux.core.config import settings, MULTICOMMNAD_CLI, SFTP_CLI
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
-from sshtmux.globals import MULTICOMMNAD_CLI, SFTP_CLI
 from sshtmux.services.connections_erros import CONNECTIONS_ERRORS
 from sshtmux.services.identities import PasswordManager, prompt_identity
 from sshtmux.services.snippets import prompt_snippet

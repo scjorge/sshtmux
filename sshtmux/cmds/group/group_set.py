@@ -14,10 +14,6 @@ Change/modify group parameters
 Command allows to modify current information on the group, like info lines
 and description. To rename group, use command "sshm group rename" command.
 To move hosts between group, use "sshm host set" command.
-
-When modifying group, work can be done on single group only. I didnt find
-any use-case where I would set same description or info lines on multiple
-groups at the same time... ¯\_(ツ)_/¯
 """
 
 # Parameters help:

@@ -19,9 +19,8 @@ from textual.widgets import (
 )
 from textual.widgets.option_list import Separator
 
-from sshtmux.core.config import settings
+from sshtmux.core.config import settings, FAST_CONNECTIONS_GROUP_NAME
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
-from sshtmux.globals import FAST_CONNECTIONS_GROUP_NAME
 from sshtmux.services.identities import PasswordManager
 from sshtmux.services.tmux import ConnectionProtocol, ConnectionType, Tmux
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host

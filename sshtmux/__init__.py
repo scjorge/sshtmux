@@ -3,13 +3,15 @@ from pprint import pprint
 
 import toml
 from pydantic import ValidationError
+from sshtmux.sshm import SSH_Config
 
-from .core.config import ConfigModel, settings, update_settings
-from .globals import (
-    DEFAULT_GROUP_NAME,
+from .core.config import (
     FAST_CONNECTIONS_GROUP_NAME,
     MULTICOMMNAD_CLI,
     SFTP_CLI,
+    ConfigModel,
+    settings,
+    update_settings,
 )
 from .tools.messages import CONFIG_VALIDATION_ERROR
 
@@ -29,9 +31,18 @@ def init_toml_config():
                 load_settings = ConfigModel(**toml_dict)
                 update_settings(load_settings)
             except ValidationError as e:
-                print(CONFIG_VALIDATION_ERROR)
-                pprint(e.json(), indent=4)
-                return
+                print(CONFIG_VALIDATION_ERROR, "\n")
+                for error in e.errors():
+                    msg = error.get("msg")
+                    loc = error.get("loc")
+                    if msg and loc:
+                        if isinstance(loc, tuple) and len(loc) == 2:
+                            loc = loc[1]
+                        print(f"Field: {loc}")
+                        print(f"Error: {msg}")
+                    else:
+                        pprint(error, indent=4)
+                exit(1)
 
     if not Path(toml_file).exists():
         with open(toml_file, "w+t") as file:
@@ -130,7 +141,7 @@ def init_tmux():
         tmux_config.replace("__SFTP_CLI__", SFTP_CLI)
         .replace("__MULTICOMMNAD_CLI__", MULTICOMMNAD_CLI)
         .replace("__FAST_CONNECTIONS_NAME__", FAST_CONNECTIONS_GROUP_NAME)
-        .replace("__DEFAULT_GROUP_NAME__", DEFAULT_GROUP_NAME)
+        .replace("__DEFAULT_GROUP_NAME__", SSH_Config.DEFAULT_GROUP_NAME)
     )
     with open(settings.tmux.TMUX_CONFIG_FILE, "a+t") as file:
         file.write(tmux_config)

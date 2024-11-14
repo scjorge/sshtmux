@@ -4,7 +4,7 @@ from typing import List
 
 from rich.console import Console
 
-from ..globals import ENABLED_HOST_STYLES
+from ..core.config import T_Host_Style
 from .ssh_config import SSH_Config, SSH_Host
 from .ssh_parameters import ALL_PARAM_LC_NAMES
 
@@ -61,7 +61,7 @@ def complete_params(ctx, param, incomplete) -> List[str]:
 
 
 def complete_styles(ctx, param, incomplete) -> List[str]:
-    return [k for k in ENABLED_HOST_STYLES if k.startswith(incomplete)]
+    return [k for k in T_Host_Style.__args__ if k.startswith(incomplete)]
 
 
 # We use this functions to give a tuple of group/host names as input, where some names

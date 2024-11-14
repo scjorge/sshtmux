@@ -17,7 +17,7 @@ LONG_HELP = """
 List hosts from current configuration
 
 Command allows displaying hosts with various properties, and filtering output list for easier searching.
-SSHC will display also usually not visible "INHERITANCE" of parameters trough "PATTERNS", and from
+Will display also usually not visible "INHERITANCE" of parameters trough "PATTERNS", and from
 which pattern parameter for given host would be applied (inherited).
 
 Normal output will try to show only most important information about listed hosts, while if requested,
