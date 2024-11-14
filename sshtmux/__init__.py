@@ -42,6 +42,8 @@ def init_tmux():
     tmux_config = """
     # Base
     set -g default-terminal "screen-256color"
+    set -g visual-activity on
+    set-option -g aggressive-resize on
 
     # Window
     set -g set-titles on
@@ -51,7 +53,7 @@ def init_tmux():
     setw -g pane-base-index 1
     bind '"' split-window -v -c "#{pane_current_path}"
     bind % split-window -h -c "#{pane_current_path}"
-    bind-key -n MouseDown1StatusLeft run-shell "tmux choose-window"
+    bind-key -n MouseDown1StatusLeft choose-window
 
     # Mouse
     set -g mouse on
@@ -62,6 +64,19 @@ def init_tmux():
     bind-key I run-shell "tmux split-window -h -c '#{pane_current_path}' 'sshm identity run '#{session_name}' '#{window_index}' '#{pane_index}' '"
     bind-key F run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm host run '#{session_name}' '#{window_index}' '#{pane_index}' sftp '"
 
+    # Key Binds useful
+    bind-key -n M-s choose-session
+    bind-key -n M-t choose-window
+    bind-key -n M-n swap-window -t :- \\; select-window -t :-
+    bind-key -n M-m swap-window -t :+ \\; select-window -t :+
+    bind-key -n M-Left swap-window -t :- \\; select-window -t :-
+    bind-key -n M-Right swap-window -t :+ \\; select-window -t :+
+    bind-key -n M-f switch -t fast-connections
+    bind-key -n M-d switch -t default
+    bind-key -n M-r switch-client -n
+    bind-key -n M-e switch-client -p
+    bind-key -n M-o switch-client -p
+    bind-key -n M-p switch-client -n
     bind-key -n M-q select-window -t :-
     bind-key -n M-w select-window -t :+1
     bind-key -n M-1 select-window -t 1
