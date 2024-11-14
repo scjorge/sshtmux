@@ -11,6 +11,7 @@ from rich.prompt import Prompt
 
 from sshtmux.core.config import settings
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
+from sshtmux.globals import MULTICOMMNAD_CLI, SFTP_CLI
 from sshtmux.services.connections_erros import CONNECTIONS_ERRORS
 from sshtmux.services.identities import PasswordManager, prompt_identity
 from sshtmux.services.snippets import prompt_snippet
@@ -305,7 +306,9 @@ class Tmux:
         self.execute_cmd_tmux(identity, session_name, window_index, panel_index)
 
     def execute_multi_command(self, session):
-        cmd = Prompt.ask("Type Multi Command")
+        cmd = Prompt.ask("Multi Session Command")
+        if not cmd:
+            return
         for window in session.windows:
             for panel in window.panes:
                 panel.send_keys(cmd)
@@ -320,7 +323,7 @@ class Tmux:
         window = [w for w in session.windows if str(w.index) == str(window_index)][0]
         hostname = f"{session_name}-{window.name}"
 
-        if cmd_ref == "sftp":
+        if cmd_ref == SFTP_CLI:
             cmd = (
                 settings.ssh.SFTP_COMMAND.replace("${hostname}", hostname)
                 .replace("&& exit", "")
@@ -328,5 +331,5 @@ class Tmux:
             )
             self.execute_cmd_shell(cmd)
 
-        if cmd_ref == "multi_command":
+        if cmd_ref == MULTICOMMNAD_CLI:
             self.execute_multi_command(session)

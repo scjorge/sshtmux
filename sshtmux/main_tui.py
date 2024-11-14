@@ -21,6 +21,7 @@ from textual.widgets.option_list import Separator
 
 from sshtmux.core.config import settings
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
+from sshtmux.globals import FAST_CONNECTIONS_GROUP_NAME
 from sshtmux.services.identities import PasswordManager
 from sshtmux.services.tmux import ConnectionProtocol, ConnectionType, Tmux
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
@@ -416,12 +417,15 @@ class SSHTui(App):
 
         host = event.value
         params = {}
-        session_name = "fast-connections"
         host_parts = host.split("@")
         if len(host_parts) >= 2:
             params["user"] = host_parts[0]
         self.atatch_connection = True
-        self.current_node = SSH_Host(name=host, params=params, group=session_name)
+        self.current_node = SSH_Host(
+            name=host,
+            params=params,
+            group=FAST_CONNECTIONS_GROUP_NAME,
+        )
         self.action_connect_ssh(attach=True)
 
     def _generate_tree(

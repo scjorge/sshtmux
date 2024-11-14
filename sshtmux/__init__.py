@@ -5,6 +5,12 @@ import toml
 from pydantic import ValidationError
 
 from .core.config import ConfigModel, settings, update_settings
+from .globals import (
+    DEFAULT_GROUP_NAME,
+    FAST_CONNECTIONS_GROUP_NAME,
+    MULTICOMMNAD_CLI,
+    SFTP_CLI,
+)
 from .tools.messages import CONFIG_VALIDATION_ERROR
 
 Path(settings.internal_config.BASE_DIR).mkdir(parents=True, exist_ok=True)
@@ -62,8 +68,8 @@ def init_tmux():
     # SSHTMUX Key Binds
     bind-key S run-shell "tmux split-window -h -c '#{pane_current_path}' 'sshm snippets run -s '#{session_name}' -w '#{window_index}' -p '#{pane_index}' '"
     bind-key I run-shell "tmux split-window -h -c '#{pane_current_path}' 'sshm identity run '#{session_name}' '#{window_index}' '#{pane_index}' '"
-    bind-key F run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm host run '#{session_name}' '#{window_index}' '#{pane_index}' sftp '"
-    bind-key M run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm host run '#{session_name}' '#{window_index}' '#{pane_index}' multi_command '"
+    bind-key F run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm host run '#{session_name}' '#{window_index}' '#{pane_index}' __SFTP_CLI__ '"
+    bind-key M run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm host run '#{session_name}' '#{window_index}' '#{pane_index}' __MULTICOMMNAD_CLI__ '"
 
     # Key Binds useful
     bind-key -n M-s choose-session
@@ -72,8 +78,8 @@ def init_tmux():
     bind-key -n M-m swap-window -t :+ \\; select-window -t :+
     bind-key -n M-Left swap-window -t :- \\; select-window -t :-
     bind-key -n M-Right swap-window -t :+ \\; select-window -t :+
-    bind-key -n M-f switch -t fast-connections
-    bind-key -n M-d switch -t default
+    bind-key -n M-f switch -t __FAST_CONNECTIONS_NAME__
+    bind-key -n M-d switch -t __DEFAULT_GROUP_NAME__
     bind-key -n M-r switch-client -n
     bind-key -n M-e switch-client -p
     bind-key -n M-o switch-client -p
@@ -120,6 +126,12 @@ def init_tmux():
     set -g pane-border-style fg=colour235
     """
 
+    tmux_config = (
+        tmux_config.replace("__SFTP_CLI__", SFTP_CLI)
+        .replace("__MULTICOMMNAD_CLI__", MULTICOMMNAD_CLI)
+        .replace("__FAST_CONNECTIONS_NAME__", FAST_CONNECTIONS_GROUP_NAME)
+        .replace("__DEFAULT_GROUP_NAME__", DEFAULT_GROUP_NAME)
+    )
     with open(settings.tmux.TMUX_CONFIG_FILE, "a+t") as file:
         file.write(tmux_config)
 
