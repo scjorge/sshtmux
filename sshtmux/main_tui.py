@@ -19,7 +19,7 @@ from textual.widgets import (
 )
 from textual.widgets.option_list import Separator
 
-from sshtmux.core.config import settings, FAST_CONNECTIONS_GROUP_NAME
+from sshtmux.core.config import FAST_CONNECTIONS_GROUP_NAME, settings
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
 from sshtmux.services.identities import PasswordManager
 from sshtmux.services.tmux import ConnectionProtocol, ConnectionType, Tmux
@@ -496,7 +496,11 @@ class SSHTui(App):
             except IdentityException as e:
                 self.notify(str(e), title="Identity", severity="error")
             except Exception as e:
-                if "no server running on" in str(e) or "could not find object" in str(e):
+                known_errors = [
+                    "no server running on",
+                    "could not find object",
+                ]
+                if any(error in str(e).lower() for error in known_errors):
                     pass
                 elif "sessions should be nested with care" in str(e):
                     self.notify(NOT_ALLOWED_NESTED_CONNECTIONS, severity="warning")
