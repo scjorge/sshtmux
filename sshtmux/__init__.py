@@ -63,6 +63,7 @@ def init_tmux():
     bind-key S run-shell "tmux split-window -h -c '#{pane_current_path}' 'sshm snippets run -s '#{session_name}' -w '#{window_index}' -p '#{pane_index}' '"
     bind-key I run-shell "tmux split-window -h -c '#{pane_current_path}' 'sshm identity run '#{session_name}' '#{window_index}' '#{pane_index}' '"
     bind-key F run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm host run '#{session_name}' '#{window_index}' '#{pane_index}' sftp '"
+    bind-key M run-shell "tmux split-window -v -c '#{pane_current_path}' 'sshm host run '#{session_name}' '#{window_index}' '#{pane_index}' multi_command '"
 
     # Key Binds useful
     bind-key -n M-s choose-session

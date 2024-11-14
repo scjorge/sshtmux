@@ -6,6 +6,8 @@ from typing import List, Union
 
 import libtmux
 from libtmux import Window
+from rich import print
+from rich.prompt import Prompt
 
 from sshtmux.core.config import settings
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
@@ -278,6 +280,8 @@ class Tmux:
         panel.send_keys(cmd)
 
     def execute_cmd_shell(self, cmd):
+        if not cmd:
+            return
         cmd = cmd.split()
         os.execvp(cmd[0], cmd)
 
@@ -300,7 +304,14 @@ class Tmux:
             return
         self.execute_cmd_tmux(identity, session_name, window_index, panel_index)
 
+    def execute_multi_command(self, session):
+        cmd = Prompt.ask("Type Multi Command")
+        for window in session.windows:
+            for panel in window.panes:
+                panel.send_keys(cmd)
+
     def execute_host_cmd(self, session_name, window_index, panel_index, cmd_ref):
+        cmd = None
         session = self.server.find_where({"session_name": session_name})
         if not session:
             print("No Tmux session available")
@@ -308,11 +319,14 @@ class Tmux:
 
         window = [w for w in session.windows if str(w.index) == str(window_index)][0]
         hostname = f"{session_name}-{window.name}"
-        cmd = (
-            settings.ssh.SFTP_COMMAND.replace("${hostname}", hostname)
-            .replace("&& exit", "")
-            .replace("; exit", "")
-        )
 
         if cmd_ref == "sftp":
+            cmd = (
+                settings.ssh.SFTP_COMMAND.replace("${hostname}", hostname)
+                .replace("&& exit", "")
+                .replace("; exit", "")
+            )
             self.execute_cmd_shell(cmd)
+
+        if cmd_ref == "multi_command":
+            self.execute_multi_command(session)
