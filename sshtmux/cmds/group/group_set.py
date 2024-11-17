@@ -49,7 +49,7 @@ def cmd(ctx, name, desc, info):
     # Assuming when "clearing" config only single info is given... we check first info
     # and check if it's empty/falsy. If it is non-empty, we check all of values and if
     # they are non empty we append to existing lines.... if first item is empty we clear the info data
-    if info[0]:
+    if info and info[0]:
         for line in info:
             if len(line.strip()) > 0:
                 found_group.info.append(line)

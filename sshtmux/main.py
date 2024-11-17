@@ -1,5 +1,3 @@
-import os.path
-
 import click
 
 from .cmds import cmd_group, cmd_host, cmd_identity, cmd_snippets
@@ -35,11 +33,7 @@ STDOUT_HELP = "Send changed SSH config to STDOUT instead to original file, can b
 @click.version_option(VERSION, message="SSHTMUX (sshm) - Version: %(version)s")
 @click.pass_context
 def cli(ctx: click.core.Context, stdout: bool):
-    ctx.obj = (
-        SSH_Config(file=os.path.expanduser(settings.ssh.SSH_CONFIG_FILE), stdout=stdout)
-        .read()
-        .parse()
-    )
+    ctx.obj = SSH_Config(stdout=stdout).read().parse()
 
 
 TUI_SHORT_HELP = "TUI Interface"

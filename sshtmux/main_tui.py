@@ -219,7 +219,7 @@ class SSHTui(App):
         if isinstance(sshmonf, SSH_Config):
             self.sshmonf = sshmonf
         else:
-            self.sshmonf = SSH_Config(file=settings.ssh.SSH_CONFIG_FILE).read().parse()
+            self.sshmonf = SSH_Config().read().parse()
 
         super().__init__()
 

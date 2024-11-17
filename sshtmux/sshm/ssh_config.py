@@ -1,10 +1,12 @@
 import copy
 import fnmatch
 import logging
+import os
 import re
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+from ..core.config import settings
 from .ssh_group import SSH_Group
 from .ssh_host import SSH_Host
 from .ssh_parameters import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
@@ -22,8 +24,8 @@ class SSH_Config:
 
     DEFAULT_GROUP_NAME: str = "default"
 
-    def __init__(self, file: str, config_lines: List[str] = [], stdout: bool = False):
-        self.ssh_config_file: str = file
+    def __init__(self, config_lines: List[str] = [], stdout: bool = False):
+        self.ssh_config_file: str = os.path.expanduser(settings.ssh.SSH_CONFIG_FILE)
         self.ssh_config_lines: List[str] = config_lines
 
         # configuration representation (array of SSH groups?)

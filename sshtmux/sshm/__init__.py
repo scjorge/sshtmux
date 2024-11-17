@@ -10,4 +10,5 @@ from .sshutils import (
     complete_styles,  # noqa: F401
     expand_names,  # noqa: F401
     trace_jumphosts,  # noqa: F401
+    complete_identities, # noqa: F401
 )

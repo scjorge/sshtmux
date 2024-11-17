@@ -38,14 +38,14 @@ Host test2
 # Tests
 #-----------------------------------
 def test_check_host_bad():
-    config = SSH_Config("none", config1.splitlines())
+    config = SSH_Config( config1.splitlines())
     config.parse()
 
     assert not config.check_host_by_name("test")
 
 
 def test_get_host_exception():
-    config = SSH_Config("none", config1.splitlines())
+    config = SSH_Config( config1.splitlines())
     config.parse()
 
     with pytest.raises(Exception):
@@ -53,7 +53,7 @@ def test_get_host_exception():
 
 
 def test_get_host_ok():
-    config = SSH_Config("none", config2.splitlines())
+    config = SSH_Config( config2.splitlines())
     config.parse()
 
     host, group = config.get_host_by_name("test")
@@ -69,7 +69,7 @@ def test_get_host_ok():
 
 
 def test_get_all_host_names():
-    config = SSH_Config("none", config3.splitlines())
+    config = SSH_Config( config3.splitlines())
     config.parse()
 
     all_names = config.get_all_host_names()
