@@ -1,5 +1,6 @@
 from pathlib import Path
 from pprint import pprint
+from typing import Tuple
 
 import toml
 from pydantic import ValidationError
@@ -37,7 +38,7 @@ def init_toml_config():
                     msg = error.get("msg")
                     loc = error.get("loc")
                     if msg and loc:
-                        if isinstance(loc, tuple) and len(loc) == 2:
+                        if isinstance(loc, Tuple) and len(loc) == 2:
                             loc = loc[1]
                         print(f"Field: {loc}")
                         print(f"Error: {msg}")

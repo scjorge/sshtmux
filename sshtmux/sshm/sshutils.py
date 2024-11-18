@@ -1,13 +1,13 @@
-import os.path
 import re
-from typing import List
+from typing import Dict, List, Tuple
 
+from pydantic import ValidationError
 from rich.console import Console
 
 from ..core.config import T_Host_Style
 from ..services.identities import PasswordManager
 from .ssh_config import SSH_Config, SSH_Host
-from .ssh_parameters import ALL_PARAM_LC_NAMES
+from .ssh_parameters import SSHParams
 
 err = Console(stderr=True)
 
@@ -30,7 +30,7 @@ def complete_ssh_group_names(ctx, param, incomplete) -> List[str]:
 
 
 def complete_params(ctx, param, incomplete) -> List[str]:
-    return [k for k in ALL_PARAM_LC_NAMES if k.startswith(incomplete)]
+    return [k for k in SSHParams.__annotations__.keys() if k.startswith(incomplete)]
 
 
 def complete_styles(ctx, param, incomplete) -> List[str]:
@@ -47,7 +47,7 @@ def complete_identities(ctx, param, incomplete) -> List[str]:
 # can be regexps (with "r:"" prefix), and we evaluate regex based on "all_names" list
 # which we use to create a set of expanded host names; direct ones, and expanded ones from
 # regex processing. Then return final list...
-def expand_names(names: tuple, all_names: list) -> List[str]:
+def expand_names(names: Tuple, all_names: list) -> List[str]:
     selected = set()
 
     for name in names:
@@ -91,12 +91,13 @@ def trace_jumphosts(name: str, config: SSH_Config, ctx, style: str) -> List[SSH_
 
         # Find proxy info if it exists, if not, break the loop
         proxyjump = None
-        if "proxyjump" in found_host.params:
-            proxyjump = found_host.params["proxyjump"]
+        host_params = {k.lower(): v for k, v in found_host.params.items()}
+        if "proxyjump" in host_params:
+            proxyjump = host_params["proxyjump"]
         else:
             for _, params in found_host.inherited_params:
                 for key, value in params.items():
-                    if key == "proxyjump":
+                    if key.lower() == "proxyjump":
                         proxyjump = value
 
         # If there is connected host, we switch "name" and continue the loop
@@ -107,3 +108,38 @@ def trace_jumphosts(name: str, config: SSH_Config, ctx, style: str) -> List[SSH_
             break
 
     return traced_hosts
+
+
+def validate_ssh_params(parameters_input: Tuple[Tuple[str, str]]) -> Dict:
+    parameters = {item[0]: item[1] for item in parameters_input}
+    try:
+        ssh_params = SSHParams(**parameters)
+    except ValidationError as e:
+        print("Cannot validate parameters!")
+        for error in e.errors():
+            loc = error.get("loc")
+            if len(loc) > 0:
+                print(f"{loc[0]} - {error.get('msg')} ")
+            else:
+                print(error.get("msg"))
+        exit(1)
+
+    valid_ssh_params = ssh_params.model_dump(exclude_none=True)
+    return valid_ssh_params
+
+
+def validate_unique_param(
+    host_params: Dict[str, str], new_params: Dict[str, str]
+) -> None:
+    """
+    Remove duplicate Params on SSH config. If there is a keyword in lower case and same with case sensitive.
+    Lower will be removed
+    """
+    host_params_to_delete = []
+    for new_param in new_params:
+        for host_param in host_params:
+            if new_param.lower() == host_param.lower():
+                host_params_to_delete.append(host_param)
+    for param in host_params_to_delete:
+        del host_params[param]
+    {**host_params, **new_params}

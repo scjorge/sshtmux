@@ -210,16 +210,16 @@ class SSHTui(App):
     }
     """
 
-    def __init__(self, sshmonf=None):
+    def __init__(self, sshmconf=None):
         self.tmux = Tmux()
         self.password_manager = PasswordManager()
         self.identities = self.password_manager.get_identities()
         self.attach_connection = False
         self.connections_tree = None
-        if isinstance(sshmonf, SSH_Config):
-            self.sshmonf = sshmonf
+        if isinstance(sshmconf, SSH_Config):
+            self.sshmconf = sshmconf
         else:
-            self.sshmonf = SSH_Config().read().parse()
+            self.sshmconf = SSH_Config().read().parse()
 
         super().__init__()
 
@@ -227,7 +227,7 @@ class SSHTui(App):
         yield Header(show_clock=True)
         with Container():
             self.connections_tree = Tree(
-                f"SSH Configuration ({len(self.sshmonf.groups)} groups)",
+                f"SSH Configuration ({len(self.sshmconf.groups)} groups)",
                 id="sshtree",
                 data=None,
             )
@@ -431,7 +431,7 @@ class SSHTui(App):
     ):
         self.connections_tree.root.expand()
 
-        groups = self.sshmonf.groups
+        groups = self.sshmconf.groups
         if filter_hosts:
             groups_filtered = []
             for group in groups:

@@ -13,7 +13,7 @@ from .identity import (
 # ------------------------------------------------------------------------------
 # Identity Commands
 # ------------------------------------------------------------------------------
-@click.group(name="identity", help="Manager Identities")
+@click.group(name="identity", help="Command group for managing identities")
 def generate():
     pass
 

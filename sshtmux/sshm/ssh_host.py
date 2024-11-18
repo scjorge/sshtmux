@@ -18,7 +18,6 @@ class SSH_Host:
 
     name: str
     group: str
-    password: str = ""
     type: str = "normal"
     info: list = field(default_factory=list)
     params: dict = field(default_factory=dict)

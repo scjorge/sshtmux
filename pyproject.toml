@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "sshtmux"
 homepage = "https://github.com/scjorge/sshtmux"
-version = "0.0.1"
-description = "SSH Config manager"
+version = "0.1.0"
+description = "Powerful SSH terminal manager"
 authors = ["Jorge Silva <jorgesilva.ti@hotmail.com>"]
 license = "MIT"
 readme = "README.md"
