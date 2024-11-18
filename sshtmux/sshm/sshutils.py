@@ -2,19 +2,11 @@ import re
 from typing import Dict, List, Tuple
 
 from pydantic import ValidationError
-from rich.console import Console
 
 from ..core.config import T_Host_Style
 from ..services.identities import PasswordManager
 from .ssh_config import SSH_Config, SSH_Host
 from .ssh_parameters import SSHParams
-
-err = Console(stderr=True)
-
-
-# Make a copy of input dict with all keys as LC and filtered out based on input filter list
-def filter_dict(d: dict, ignored: list = []) -> dict:
-    return {k: v for (k, v) in d.items() if k not in ignored}
 
 
 def complete_ssh_host_names(ctx, param, incomplete) -> List[str]:
