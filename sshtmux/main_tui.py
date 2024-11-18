@@ -19,7 +19,11 @@ from textual.widgets import (
 )
 from textual.widgets.option_list import Separator
 
-from sshtmux.core.config import FAST_CONNECTIONS_GROUP_NAME, settings
+from sshtmux.core.config import (
+    FAST_CONNECTIONS_GROUP_NAME,
+    FAST_SESSIONS_GROUP_NAME,
+    settings,
+)
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
 from sshtmux.services.identities import PasswordManager
 from sshtmux.services.tmux import ConnectionProtocol, ConnectionType, Tmux
@@ -171,20 +175,21 @@ class SSHTui(App):
     TITLE = "SSHTMUX"
 
     BINDINGS = [
-        ("q", "quit", "Quit"),
-        ("t", "attach_tmux", "TMUX"),
-        ("d", "detached_ssh", "Detached SSH"),
-        ("c", "connect_ssh", "Conect SSH"),
-        ("s", "connect_sftp", "SFTP to host"),
-        ("f", "connect_fast_connections", "Fast Connection"),
-        ("m", "toggle_dark"),
-        ("j", "cursor_down"),
-        ("k", "cursor_up"),
-        ("l", "cursor_expand"),
-        ("h", "cursor_collapse"),
-        ("?", "search_groups", "Search Groups"),
-        ("/", "search_hosts", "Search Hosts"),
-        ("escape", "clean_filters"),
+        Binding("q", "quit", "Quit"),
+        Binding("t", "attach_tmux", "TMUX"),
+        Binding("d", "detached_ssh", "Detached SSH"),
+        Binding("c", "connect_ssh", "Conect SSH"),
+        Binding("s", "connect_sftp", "SFTP to host"),
+        Binding("f", "connect_fast_connections", "Fast Connection"),
+        Binding("F", "connect_fast_session", "Fast Session Detached"),
+        Binding("m", "toggle_dark", "Switch background mode", False),
+        Binding("j", "cursor_down", "Cursor Down", False),
+        Binding("k", "cursor_up", "Cursor Up", False),
+        Binding("l", "cursor_expand", "Expand Node Tree", False),
+        Binding("h", "cursor_collapse", "Collapse Node Tree", False),
+        Binding("?", "search_groups", "Search Groups"),
+        Binding("/", "search_hosts", "Search Hosts"),
+        Binding("escape", "clean_filters", "Clear all filters", False),
     ]
 
     CSS = """
@@ -313,6 +318,10 @@ class SSHTui(App):
     def action_connect_fast_connections(self) -> None:
         self.input_fast_connections.display = True
         self.input_fast_connections.focus()
+
+    def action_connect_fast_session(self) -> None:
+        self.current_node.group = FAST_SESSIONS_GROUP_NAME
+        self.action_connect_ssh(attach=False)
 
     def action_clean_filters(self) -> None:
         self.input_groups_search.value = ""

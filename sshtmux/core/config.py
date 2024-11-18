@@ -8,6 +8,7 @@ USER_DIR = Path.home()
 SSHTMUX_BASEDIR = USER_DIR / ".config" / "sshtmux"
 T_Host_Style = Literal["panels", "card", "simple", "table", "table2", "json"]
 FAST_CONNECTIONS_GROUP_NAME = "fast-connections"
+FAST_SESSIONS_GROUP_NAME = "fast-session"
 SFTP_CLI = "sftp"
 MULTICOMMNAD_CLI = "multi_command"
 
