@@ -408,11 +408,11 @@ class SSHTui(App):
             self._generate_tree(filter_groups=filter)
         elif event.input.id == "search_hosts_input":
             self._generate_tree(filter_hosts=filter)
+            for node in self.connections_tree.root.children:
+                node.expand()
+                for child in node.children:
+                    child.expand()
 
-        for node in self.connections_tree.root.children:
-            node.expand()
-            for child in node.children:
-                child.expand()
         if filter == "":
             for node in self.connections_tree.root.children:
                 node.collapse_all()
