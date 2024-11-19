@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 from typing import ClassVar
 
->>>>>>> develop
 from rich import box
 from rich.panel import Panel
 from rich.rule import Rule
@@ -10,11 +7,6 @@ from rich.table import Table
 from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Container, VerticalScroll
-<<<<<<< HEAD
-from textual.widgets import ContentSwitcher, Footer, Header, Input, Label, Static, Tree
-
-from sshtmux.globals import USER_SSH_CONFIG
-=======
 from textual.widgets import (
     ContentSwitcher,
     Footer,
@@ -35,17 +27,12 @@ from sshtmux.core.config import (
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
 from sshtmux.services.identities import PasswordManager
 from sshtmux.services.tmux import ConnectionProtocol, ConnectionType, Tmux
->>>>>>> develop
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 from sshtmux.tools.messages import (
     NO_TMUX_SESSIONS_AVAILABLE,
     NOT_ALLOWED_NESTED_CONNECTIONS,
     ONLY_NORMAL_HOSTS_ALLOWED,
 )
-<<<<<<< HEAD
-from sshtmux.tui import tmux
-=======
->>>>>>> develop
 
 
 class SSHGroupDataInfo(Static):
@@ -188,21 +175,6 @@ class SSHTui(App):
     TITLE = "SSHTMUX"
 
     BINDINGS = [
-<<<<<<< HEAD
-        ("q", "quit", "Quit"),
-        ("t", "attach_tmux", "TMUX"),
-        ("d", "detached_ssh", "Detached SSH"),
-        ("c", "connect_ssh", "Conect SSH"),
-        ("f", "connect_sftp", "SFTP to host"),
-        ("m", "toggle_dark"),
-        ("j", "cursor_down"),
-        ("k", "cursor_up"),
-        ("l", "cursor_expand_all"),
-        ("h", "cursor_collapse_all"),
-        ("?", "search_groups", "Search Groups"),
-        ("/", "search_hosts", "Search Hosts"),
-        ("escape", "clean_filters"),
-=======
         Binding("q", "quit", "Quit"),
         Binding("t", "attach_tmux", "TMUX"),
         Binding("d", "detached_ssh", "Detached SSH"),
@@ -218,7 +190,6 @@ class SSHTui(App):
         Binding("?", "search_groups", "Search Groups"),
         Binding("/", "search_hosts", "Search Hosts"),
         Binding("escape", "clean_filters", "Clear all filters", False),
->>>>>>> develop
     ]
 
     CSS = """
@@ -254,12 +225,8 @@ class SSHTui(App):
         if isinstance(sshmconf, SSH_Config):
             self.sshmconf = sshmconf
         else:
-<<<<<<< HEAD
-            self.sshmonf = SSH_Config(file=USER_SSH_CONFIG).read().parse()
-=======
             self.sshmconf = SSH_Config().read().parse()
 
->>>>>>> develop
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -270,15 +237,9 @@ class SSHTui(App):
                 id="sshtree",
                 data=None,
             )
-<<<<<<< HEAD
-            self.generate_tree()
-
-            yield self.ssh_tree
-=======
             self._generate_tree()
 
             yield self.connections_tree
->>>>>>> develop
             yield SSHDataView()
 
         self.input_groups_search = Input(
@@ -289,10 +250,6 @@ class SSHTui(App):
             placeholder="Search Hosts...", id="search_hosts_input"
         )
         self.input_hosts_search.display = False
-<<<<<<< HEAD
-        yield self.input_groups_search
-        yield self.input_hosts_search
-=======
         self.input_fast_connections = Input(
             placeholder="user@hostname", id="fast_connections_input"
         )
@@ -306,7 +263,6 @@ class SSHTui(App):
         yield self.input_hosts_search
         yield self.select_identity
         yield self.input_fast_connections
->>>>>>> develop
         yield Footer()
 
     async def on_option_list_option_selected(
@@ -336,11 +292,7 @@ class SSHTui(App):
 
     def on_mount(self, _) -> None:
         self.ENABLE_COMMAND_PALETTE = False
-<<<<<<< HEAD
-        self.query_one(Tree).focus()
-=======
         self.connections_tree.focus()
->>>>>>> develop
 
     def on_tree_node_highlighted(self, event):
         self.current_node = event.node.data
@@ -354,27 +306,12 @@ class SSHTui(App):
 
     def action_search_groups(self) -> None:
         self.input_hosts_search.value = ""
-<<<<<<< HEAD
-=======
         self.input_hosts_search.display = False
->>>>>>> develop
         self.input_groups_search.display = True
         self.input_groups_search.focus()
 
     def action_search_hosts(self) -> None:
         self.input_groups_search.value = ""
-<<<<<<< HEAD
-        self.input_hosts_search.display = True
-        self.input_hosts_search.focus()
-
-    def action_clean_filters(self) -> None:
-        self.input_groups_search.value = ""
-        self.input_hosts_search.value = ""
-        self.input_groups_search.display = False
-        self.input_hosts_search.display = False
-        for node in self.ssh_tree.root.children:
-            node.collapse_all()
-=======
         self.input_groups_search.display = False
         self.input_hosts_search.display = True
         self.input_hosts_search.focus()
@@ -398,7 +335,6 @@ class SSHTui(App):
         for node in self.connections_tree.root.children:
             node.collapse_all()
         self.connections_tree.focus()
->>>>>>> develop
 
     def action_cursor_down(self) -> None:
         if self.connections_tree.cursor_line == -1:
@@ -440,42 +376,6 @@ class SSHTui(App):
     def action_detached_ssh(self) -> None:
         self.connection = ConnectionProtocol.ssh
         self.action_connect_ssh(False)
-
-    def action_cursor_expand_all(self) -> None:
-        self.ssh_tree.cursor_node.expand_all()
-
-    def action_cursor_collapse_all(self) -> None:
-        if self.ssh_tree.cursor_node.is_collapsed:
-            self.ssh_tree.cursor_node.collapse_all()
-        elif self.ssh_tree.cursor_node.parent:
-            self.ssh_tree.cursor_node.parent.collapse_all()
-
-    def action_attach_tmux(self) -> None:
-        attached = self._run_external_func_with_args(tmux.attach)
-        if not attached:
-            self.notify(NO_TMUX_SESSIONS_AVAILABLE, severity="warning")
-
-    def action_connect_ssh(self, attach=True) -> None:
-        if not (
-            isinstance(self.current_node, SSH_Host)
-            and self.current_node.type == "normal"
-        ):
-            self.notify(ONLY_NORMAL_HOSTS_ALLOWED, severity="warning")
-            return
-        is_conneted = self._run_external_func_with_args(
-            tmux.create_window,
-            session_name=self.current_node.group,
-            window_name=self.current_node.name,
-            attach=attach,
-        )
-        if is_conneted:
-            self.notify(
-                f"Connected to {self.current_node.group} - {self.current_node.name}",
-                severity="information",
-            )
-
-    def action_detached_ssh(self) -> None:
-        self.action_connect_ssh(attach=False)
 
     def action_connect_sftp(self) -> None:
         self.connection = ConnectionProtocol.sftp
@@ -566,58 +466,6 @@ class SSHTui(App):
             isinstance(self.current_node, SSH_Host)
             and self.current_node.type == "normal"
         ):
-<<<<<<< HEAD
-            # TODO: remove hardcoded timeout option, and load it from config or global "default"
-            self._run_external_func_with_args(
-                f"sftp -o ConnectTimeout=5 {self.current_node.name}"
-            )
-
-    def on_input_submitted(self, event: Input.Submitted) -> None:
-        event.input.display = False
-        self.ssh_tree.focus()
-
-    def on_input_changed(self, event: Input.Changed) -> None:
-        filter = event.value
-        self.ssh_tree.clear()
-        if event.input.id == "search_groups_input":
-            self.generate_tree(filter_groups=filter)
-        elif event.input.id == "search_hosts_input":
-            self.generate_tree(filter_hosts=filter)
-
-        for node in self.ssh_tree.root.children:
-            node.expand()
-            for child in node.children:
-                child.expand()
-        if filter == "":
-            for node in self.ssh_tree.root.children:
-                node.collapse_all()
-
-    def generate_tree(
-        self, *, filter_hosts: str | None = None, filter_groups: str | None = None
-    ):
-        self.ssh_tree.root.expand()
-
-        groups = self.sshmonf.groups
-        if filter_hosts:
-            groups_filtered = []
-            for group in groups:
-                hosts = [h for h in group.hosts if filter_hosts in h.name]
-                if len(hosts) > 0:
-                    group.hosts = hosts
-                    groups_filtered.append(group)
-            groups = groups_filtered
-
-        elif filter_groups:
-            groups = [g for g in groups if filter_groups in g.name]
-
-        for group in groups:
-            g = self.ssh_tree.root.add(
-                f":file_folder: {group.name}", data=group, expand=False
-            )
-            for host in group.hosts + group.patterns:
-                g.add_leaf(host.name, data=host)
-
-=======
             self.notify(ONLY_NORMAL_HOSTS_ALLOWED, severity="warning")
             return False
         return True
@@ -645,7 +493,6 @@ class SSHTui(App):
                 severity="information",
             )
 
->>>>>>> develop
     def _run_external_func_with_args(self, func, **kwargs):
         driver = self._driver
         result = None
@@ -653,12 +500,6 @@ class SSHTui(App):
             driver.stop_application_mode()
             try:
                 result = func(**kwargs)
-<<<<<<< HEAD
-            except Exception as e:
-                if "sessions should be nested with care" in str(e):
-                    self.notify(NOT_ALLOWED_NESTED_CONNECTIONS, severity="warning")
-                return None
-=======
             except TMUXException as e:
                 self.notify(str(e), title="Tmux", severity="error")
             except SSHException as e:
@@ -676,7 +517,6 @@ class SSHTui(App):
                     self.notify(NOT_ALLOWED_NESTED_CONNECTIONS, severity="warning")
                 else:
                     self.notify(str(e), title="Internal", severity="error")
->>>>>>> develop
             finally:
                 self.refresh()
                 driver.start_application_mode()
@@ -687,9 +527,5 @@ def tui():
     SSHTui().run()
 
 
-<<<<<<< HEAD
-tui()
-=======
 if __name__ == "__main__":
     tui()
->>>>>>> develop
