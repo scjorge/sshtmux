@@ -3,7 +3,6 @@ import click
 from .cmds import cmd_group, cmd_host, cmd_identity, cmd_snippets
 from .cmds.cmd_group import group_list
 from .cmds.cmd_host import host_list
-from .globals import USER_SSH_CONFIG
 from .main_tui import SSHTui
 from .sshm import SSH_Config
 from .version import VERSION
