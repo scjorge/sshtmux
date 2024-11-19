@@ -181,7 +181,7 @@ class SSHTui(App):
         Binding("c", "connect_ssh", "Conect SSH"),
         Binding("s", "connect_sftp", "SFTP to host"),
         Binding("f", "connect_fast_connections", "Fast Connection"),
-        Binding("F", "connect_fast_session", "Fast Session Detached"),
+        Binding("F", "connect_fast_session", "Fast Session"),
         Binding("m", "toggle_dark", "Switch background mode", False),
         Binding("j", "cursor_down", "Cursor Down", False),
         Binding("k", "cursor_up", "Cursor Up", False),
@@ -221,6 +221,7 @@ class SSHTui(App):
         self.identities = self.password_manager.get_identities()
         self.attach_connection = False
         self.connections_tree = None
+        self.overwritten_group = None
         if isinstance(sshmconf, SSH_Config):
             self.sshmconf = sshmconf
         else:
@@ -320,8 +321,8 @@ class SSHTui(App):
         self.input_fast_connections.focus()
 
     def action_connect_fast_session(self) -> None:
-        self.current_node.group = FAST_SESSIONS_GROUP_NAME
-        self.action_connect_ssh(attach=False)
+        self.overwritten_group = FAST_SESSIONS_GROUP_NAME
+        self.action_connect_ssh(attach=True)
 
     def action_clean_filters(self) -> None:
         self.input_groups_search.value = ""
@@ -482,7 +483,9 @@ class SSHTui(App):
             host=self.current_node,
             attach=self.atatch_connection,
             identity=identity,
+            overwritten_group=self.overwritten_group,
         )
+        self.overwritten_group = None
 
         if is_conneted:
             self.notify(

@@ -126,12 +126,12 @@ def init_tmux():
     set -g status-left-length 100
     set -g status-right-length 100
     set -g status-left '#[fg=white,bg=colour235,bold] 📚 #S #[default]'
-    set -g status-right '#[fg=white]#{?#{==:#{pane_current_command},ssh},🔒 SSH,#{?#{==:#{pane_current_command},sftp},📂 SFTP,💻 Local}} #[fg=white]📅 %a %d/%b #[fg=white]🕒 %H:%M #[default]'
+    set -g status-right '#[fg=white]#{?#{==:#{pane_current_command},ssh},🔐 SSH,#{?#{==:#{pane_current_command},sftp},📂 SFTP,💻 Local}} #[fg=white]📅 %a %d/%b #[fg=white]🕒 %H:%M #[default]'
 
     # Tabs
     set -g window-status-current-style bg=colour33,fg=white,bold
-    set -g window-status-current-format '#[fg=white,bold] #{?#{==:#{pane_current_command},ssh},🔒,#{?#{==:#{pane_current_command},sftp},📂,💻}} #I #W'
-    set -g window-status-format '#[fg=colour250] #{?#{==:#{pane_current_command},ssh},🔒,#{?#{==:#{pane_current_command},sftp},📂,💻}} #I #W'
+    set -g window-status-current-format '#[fg=white,bold] #{?#{==:#{pane_current_command},ssh},🔐,#{?#{==:#{pane_current_command},sftp},📂,💻}} #I #W'
+    set -g window-status-format '#[fg=colour250] #{?#{==:#{pane_current_command},ssh},🔐,#{?#{==:#{pane_current_command},sftp},📂,💻}} #I #W'
     set -g window-status-style bg=colour235,fg=colour250
 
     # Panes

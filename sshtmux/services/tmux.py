@@ -11,6 +11,7 @@ from rich.prompt import Prompt
 
 from sshtmux.core.config import (
     FAST_CONNECTIONS_GROUP_NAME,
+    FAST_SESSIONS_GROUP_NAME,
     MULTICOMMNAD_CLI,
     SFTP_CLI,
     settings,
@@ -225,12 +226,16 @@ class Tmux:
         host: SSH_Host,
         attach=False,
         identity: Union[str, None] = None,
+        overwritten_group: str = None,
     ):
         window = None
         window_name = host.name
         session_name = host.group
-        session = self.server.find_where({"session_name": session_name})
         connection: ConnectionAbstract = type_connection.value()
+        if overwritten_group:
+            session_name = overwritten_group
+        session = self.server.find_where({"session_name": session_name})
+
         if window_name.startswith(session_name):
             window_name = window_name.replace(f"{session_name}-", "")
 
@@ -270,7 +275,7 @@ class Tmux:
             current_session = sessions[0]
 
             if current_session:
-                current_session.cmd("choose-window")
+                current_session.cmd("choose-session")
                 current_session.attach()
                 return True
         return False
@@ -325,10 +330,11 @@ class Tmux:
             return
 
         window = [w for w in session.windows if str(w.index) == str(window_index)][0]
-        if (
-            FAST_CONNECTIONS_GROUP_NAME in session_name
-            or SSH_Config.DEFAULT_GROUP_NAME in session_name
-        ):
+        if session_name in [
+            FAST_CONNECTIONS_GROUP_NAME,
+            FAST_SESSIONS_GROUP_NAME,
+            SSH_Config.DEFAULT_GROUP_NAME,
+        ]:
             hostname = window.name
         else:
             hostname = f"{session_name}-{window.name}"
