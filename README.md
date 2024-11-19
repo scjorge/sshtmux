@@ -58,7 +58,7 @@ SSHTMux can be used with "show" and "list" commands for hosts, without modifying
 
 **Only commands that modify configuration will edit and rewrite/restructure your SSH Config file. In that case, any added comment or infos that are not in form that SSHTmux understand will be discarded, and configuration will be re-formatted to match SSHTmux style**
 
-![tui](assets/tui.png)
+![tui](https://github.com/scjorge/sshtmux/blob/master/assets/tui.png?raw=true)
 
 ## Why? And who is it for?
 * SSH config is very feature-full with all options SSH client support, why inventing extra layer?
@@ -324,16 +324,16 @@ For security reasons, you can delete the `SSHTMUX_IDENTITY_KEY_FILE` and use `SS
 
 ### CLI
 #### Manager Hosts
-![hosts](assets/hosts.gif)
+![hosts](https://github.com/scjorge/sshtmux/blob/master/assets/hosts.gif?raw=true)
 
 #### Manager Groups
-![groups](assets/groups.gif)
+![groups](https://github.com/scjorge/sshtmux/blob/master/assets/groups.gif?raw=true)
 
 #### Manager Identities
-![identities](assets/identity.gif)
+![identities](https://github.com/scjorge/sshtmux/blob/master/assets/identity.gif?raw=true)
 
 #### Manager Snippets
-![snippets](assets/snippets.gif)
+![snippets](https://github.com/scjorge/sshtmux/blob/master/assets/snippets.gif?raw=true)
 
 
 ### TUI
@@ -380,7 +380,8 @@ Tmux Window -> Host connection
 
 
 #### Tmux Navegation
-![tmux](assets/tmux.gif)
+![tmux](https://github.com/scjorge/sshtmux/blob/master/assets/tmux.gif?raw=true)
+
 
 ## License
 MIT License
