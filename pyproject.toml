@@ -17,6 +17,8 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 
+[tool.poetry.include]
+"assets/*" = "data"
 
 [tool.poetry.dependencies]
 python = "^3.8.1"

@@ -3,7 +3,7 @@ from libtmux.exc import LibTmuxException
 
 from sshtmux.services.tmux import Tmux
 
-HELP = "Prompt Identity on Tmux (Executed just by Tmux)"
+HELP = "Prompt Identity on Tmux (Executed only by Tmux)"
 
 
 @click.command(name="run", short_help=HELP, help=HELP)

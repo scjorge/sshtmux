@@ -306,7 +306,7 @@ class SSHParams(BaseModel):
     @field_validator("Port")
     def validate_port(cls, v):
         SSHParams.is_valid_string_integer(v)
-        if not (PORT_RANGE[0] <= v <= PORT_RANGE[1]):
+        if not (PORT_RANGE[0] <= int(v) <= PORT_RANGE[1]):
             raise ValueError(f"Port must be (1-65535): {v}")
         return v
 
