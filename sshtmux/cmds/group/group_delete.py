@@ -5,7 +5,7 @@ from sshtmux.sshm import SSH_Config, complete_ssh_group_names, expand_names
 # ------------------------------------------------------------------------------
 # COMMAND: group delete
 # ------------------------------------------------------------------------------
-SHORT_HELP = "Delete group"
+SHORT_HELP = "Delete group (Will remove all hosts from group)"
 LONG_HELP = """
 Delete group
 

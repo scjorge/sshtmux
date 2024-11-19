@@ -13,7 +13,7 @@ config1_modified_lines=[
 ]
 
 def test_add_new_group():
-    config = SSH_Config("none", config1.splitlines()).parse()
+    config = SSH_Config( config1.splitlines()).parse()
 
     config.opts["host-style"] = "simple"
     config.opts["something"] = "nice"

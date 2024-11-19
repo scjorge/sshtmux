@@ -15,7 +15,7 @@ config1="""
 
 def test_parse_groups():
     lines = config1.splitlines()
-    config = SSH_Config("none", lines).parse().groups
+    config = SSH_Config(lines).parse().groups
 
     assert config == [
         SSH_Group(name="default", desc="Default group"),
@@ -45,7 +45,7 @@ config2="""
 
 def test_parse_groups_with_meta():
     lines = config2.splitlines()
-    groups = SSH_Config("none", lines).parse().groups
+    groups = SSH_Config(lines).parse().groups
 
     assert groups == [
         SSH_Group(name="default", desc="Default group"),

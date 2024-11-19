@@ -3,12 +3,11 @@ import click
 from .host import (
     host_create,
     host_delete,
-    host_install_key,
     host_list,
     host_rename,
+    host_run,
     host_set,
     host_show,
-    host_test,
 )
 
 
@@ -27,6 +26,5 @@ ssh_host.add_command(host_delete.cmd)
 ssh_host.add_command(host_list.cmd)
 ssh_host.add_command(host_set.cmd)
 ssh_host.add_command(host_show.cmd)
-ssh_host.add_command(host_test.cmd)
 ssh_host.add_command(host_rename.cmd)
-ssh_host.add_command(host_install_key.cmd)
+ssh_host.add_command(host_run.cmd)

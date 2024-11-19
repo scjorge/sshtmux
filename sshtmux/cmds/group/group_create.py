@@ -1,6 +1,6 @@
 import click
 
-from sshtmux.sshm import SSH_Config, SSH_Group
+from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
 # ------------------------------------------------------------------------------
 # COMMAND: group create
@@ -37,6 +37,10 @@ def cmd(ctx, name, desc, info):
         ctx.exit(1)
 
     new_group = SSH_Group(name, desc=desc, info=list(info))
+
+    # Create group parttern host
+    new_host = SSH_Host(name=f"{name}-*", group=name, type="pattern", info=[])
+    new_group.patterns.append(new_host)
 
     # Add new group to config and show newly created group
     config.groups.append(new_group)

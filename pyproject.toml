@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "sshtmux"
 homepage = "https://github.com/scjorge/sshtmux"
-version = "0.0.1"
-description = "SSH Config manager"
+version = "0.1.0"
+description = "Powerful SSH terminal manager"
 authors = ["Jorge Silva <jorgesilva.ti@hotmail.com>"]
 license = "MIT"
 readme = "README.md"
@@ -17,6 +17,8 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 
+[tool.poetry.include]
+"assets/*" = "data"
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
@@ -24,8 +26,10 @@ click = "^8.1"
 rich = "^13.3"
 pydantic = "^2.9.2"
 libtmux = "^0.37.0"
-keyring = "^25.5.0"
 textual = "^0.85.1"
+toml = "^0.10.2"
+pydantic-settings = "^2.6.1"
+cryptography = "^43.0.3"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.7.1"

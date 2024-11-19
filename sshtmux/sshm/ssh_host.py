@@ -5,7 +5,7 @@ from typing import Dict, Tuple
 
 from rich.console import Console
 
-from ..globals import DEFAULT_HOST_STYLE
+from ..core.config import settings
 
 console = Console()
 
@@ -18,13 +18,12 @@ class SSH_Host:
 
     name: str
     group: str
-    password: str = ""
     type: str = "normal"
     info: list = field(default_factory=list)
     params: dict = field(default_factory=dict)
 
     inherited_params: list = field(default_factory=list)
-    print_style: str = DEFAULT_HOST_STYLE
+    print_style: str = settings.sshtmux.SSHTMUX_HOST_STYLE
 
     def get_all_params(self) -> Dict[str, str]:
         """
@@ -75,3 +74,6 @@ class SSH_Host:
                     show_locals=False, max_frames=1, suppress=[importlib]
                 )
             return f"SSH_Host style [bright_red]'{self.print_style}'[/] is broken!"
+
+    def __str__(self) -> str:
+        return f"Group: {self.group} - Host: {self.name}"

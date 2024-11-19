@@ -14,10 +14,6 @@ Change/modify group parameters
 Command allows to modify current information on the group, like info lines
 and description. To rename group, use command "sshm group rename" command.
 To move hosts between group, use "sshm host set" command.
-
-When modifying group, work can be done on single group only. I didnt find
-any use-case where I would set same description or info lines on multiple
-groups at the same time... ¯\_(ツ)_/¯
 """
 
 # Parameters help:
@@ -53,7 +49,7 @@ def cmd(ctx, name, desc, info):
     # Assuming when "clearing" config only single info is given... we check first info
     # and check if it's empty/falsy. If it is non-empty, we check all of values and if
     # they are non empty we append to existing lines.... if first item is empty we clear the info data
-    if info[0]:
+    if info and info[0]:
         for line in info:
             if len(line.strip()) > 0:
                 found_group.info.append(line)

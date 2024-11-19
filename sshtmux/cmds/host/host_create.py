@@ -1,13 +1,13 @@
 import click
 
 from sshtmux.sshm import (
-    PARAMS_WITH_ALLOWED_MULTIPLE_VALUES,
     SSH_Config,
     SSH_Group,
     SSH_Host,
     complete_params,
     complete_ssh_group_names,
 )
+from sshtmux.sshm.sshutils import validate_ssh_params
 
 # ------------------------------------------------------------------------------
 # COMMAND: host create
@@ -24,7 +24,7 @@ If autocomplete is enabled, command will try to give suggestions for your inputs
 
 # Parameters help:
 INFO_HELP = "Set host info, can be set multiple times, or set to empty value to clear it (example: -i '')"
-PARAM_HELP = "Sets parameter for the host, takes 2 values (<sshparam> <value>). To unset/remove parameter from host, set its value to empty string like this (example: -p user '')"
+PARAM_HELP = "Sets parameter for the host, takes 2 values (<sshparam> <value>)."
 GROUP_HELP = "Defined in which group host will be created, if not specified, 'default' group will be used"
 FORCE_HELP = "Allows during host creation, to create group for host if target group is missing/not yet defined."
 # ------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ FORCE_HELP = "Allows during host creation, to create group for host if target gr
     help=GROUP_HELP,
     shell_complete=complete_ssh_group_names,
 )
-@click.option("--force", is_flag=True, help=FORCE_HELP)
+@click.option("-f", "--force", is_flag=True, help=FORCE_HELP)
 @click.argument("name")
 @click.pass_context
 def cmd(ctx, name, info, parameter, target_group_name, force):
@@ -55,6 +55,9 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
 
     if not target_group_name:
         target_group_name = SSH_Config.DEFAULT_GROUP_NAME
+    else:
+        if not name.startswith(f"{target_group_name}-"):
+            name = f"{target_group_name}-{name}"
 
     if config.check_host_by_name(name):
         print(f"Cannot create host '{name}' as it already exists in configuration!")
@@ -74,6 +77,15 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
     elif not target_group_exists:
         target_group = SSH_Group(name=target_group_name)
         config.groups.append(target_group)
+
+        # Create group parttern host
+        new_host = SSH_Host(
+            name=f"{target_group_name}-*",
+            group=target_group_name,
+            type="pattern",
+            info=[],
+        )
+        target_group.patterns.append(new_host)
     else:
         target_group = config.get_group_by_name(target_group_name)
 
@@ -84,21 +96,9 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
     )
 
     # Add all passed parameters to config
-    for param, value in parameter:
-        # parametar keyword will be lowercased as they are case insensitive
-        param = param.lower()
-        if not value or value.isspace():
-            print("Cannot define empty value for parameter during host creation!")
-            ctx.exit(1)
-        if param in PARAMS_WITH_ALLOWED_MULTIPLE_VALUES:
-            # We need to handle host parameter as "list"
-            if param not in new_host.params:
-                new_host.params[param] = [value]
-            else:
-                new_host.params[param].append(value)
-        else:
-            # Simple single keyword
-            new_host.params[param] = value
+    valid_ssh_params = validate_ssh_params(parameter)
+    for param, value in valid_ssh_params.items():
+        new_host.params[param] = value
 
     # Append new host to the group
     if new_host.type == "normal":

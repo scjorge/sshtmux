@@ -1,12 +1,14 @@
 import copy
 import fnmatch
 import logging
+import os
 import re
+from pathlib import Path
 from typing import List, Optional, Tuple
 
+from ..core.config import settings
 from .ssh_group import SSH_Group
 from .ssh_host import SSH_Host
-from .ssh_parameters import PARAMS_WITH_ALLOWED_MULTIPLE_VALUES
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,8 +23,8 @@ class SSH_Config:
 
     DEFAULT_GROUP_NAME: str = "default"
 
-    def __init__(self, file: str, config_lines: List[str] = [], stdout: bool = False):
-        self.ssh_config_file: str = file
+    def __init__(self, config_lines: List[str] = [], stdout: bool = False):
+        self.ssh_config_file: str = os.path.expanduser(settings.ssh.SSH_CONFIG_FILE)
         self.ssh_config_lines: List[str] = config_lines
 
         # configuration representation (array of SSH groups?)
@@ -39,12 +41,15 @@ class SSH_Config:
         self.current_group: str = self.DEFAULT_GROUP_NAME
         self.current_host: Optional[SSH_Host] = None
         self.current_host_info: list = []
-        self.current_host_pass: str = ""
 
     def read(self):
         """
         Read content of SSH config file
         """
+        if not Path(self.ssh_config_file).exists():
+            print(f"File {self.ssh_config_file} not found! Creating...")
+            Path(self.ssh_config_file).touch()
+
         with open(self.ssh_config_file, "r") as fh:
             self.ssh_config_lines = fh.readlines()
         return self
@@ -131,13 +136,6 @@ class SSH_Config:
                     self.current_host_info.append(value)
                     continue
 
-                elif metadata == "password":
-                    logging.debug(
-                        f"META: Host password found '{value}' Caching for next host definition...'"
-                    )
-                    self.current_host_pass = value
-                    continue
-
                 else:
                     logging.warning(
                         f"META: Unhandled metadata '{metadata}' on SSH-config line number: {config_line_index}"
@@ -149,17 +147,14 @@ class SSH_Config:
             match = re.search(r"^(\w+)\s+(.+)$", line)
             if not match:
                 logging.warning(
-                    f"KEYWORD: Incorrect configuration line '{line}' on SSH-config line number {config_line_index}"
+                    f"KEYWORD: Incorrect configuration line '{line}' on SSH-config line number: {config_line_index}"
                 )
                 continue
 
             keyword, value = match.groups()
-            keyword = (
-                keyword.lower()
-            )  # keywords are case insensitive, so we lowercase them
 
             # --- Found "host" keyword, that defines new block, usually followed with name
-            if keyword == "host":
+            if keyword.lower() == "host":
                 self._config_flush_host()
 
                 host_type = "pattern" if "*" in value else "normal"
@@ -167,7 +162,6 @@ class SSH_Config:
 
                 self.current_host = SSH_Host(
                     name=value,
-                    password=self.current_host_pass,
                     group=self.current_group,
                     type=host_type,
                     info=self.current_host_info,
@@ -175,7 +169,6 @@ class SSH_Config:
 
                 # Reset global host info cache when we find new host (from this line, any host comments will apply to next host)
                 self.current_host_info = []
-                self.current_host_pass = ""
                 continue
             else:
                 # any other normal line we just use as it is, wrong or not... :)
@@ -189,15 +182,8 @@ class SSH_Config:
                     logging.debug(
                         f"Config keyword for host '{self.current_host}': {keyword} -> {value}"
                     )
-                    # Save any specific info...
-                    if keyword in PARAMS_WITH_ALLOWED_MULTIPLE_VALUES:
-                        if keyword not in self.current_host.params:
-                            self.current_host.params[keyword] = [value]
-                        else:
-                            self.current_host.params[keyword].append(value)
-                    else:
-                        self.current_host.params[keyword] = value
-                        continue
+                    self.current_host.params[keyword] = value
+                    continue
 
         # Last entries must be flushed manually as there are no new "hosts" to trigger storing parsed data into config struct
         self._config_flush_host()
@@ -303,6 +289,11 @@ class SSH_Config:
         """
         Check if specific group name is present in configuration
         """
+        is_valid_name, message = self.validate_group_name(name)
+        if not is_valid_name:
+            print(message)
+            exit(1)
+
         for group in self.groups:
             if group.name == name:
                 return True
@@ -319,10 +310,16 @@ class SSH_Config:
                 return group
         raise Exception(f"Requested group '{name}' not found in the SSH configuration")
 
-    def check_host_by_name(self, name: str) -> bool:
+    def check_host_by_name(self, name: str, validate_names: bool = True) -> bool:
         """
         Check if specific host name is present in configuration
         """
+        if validate_names:
+            is_valid_name, message = self.validate_host_name(name)
+            if not is_valid_name:
+                print(message)
+                exit(1)
+
         for group in self.groups:
             all_hosts = group.hosts + group.patterns
             for host in all_hosts:
@@ -426,3 +423,44 @@ class SSH_Config:
         else:
             target_group.patterns.append(found_host)
             found_group.patterns.remove(found_host)
+
+    def validate_group_name(self, name):
+        if not (3 <= len(name) <= 50):
+            return False, "The group name must be between 3 and 50 characters."
+
+        if not re.match(r"^[a-zA-Z0-9_-]+$", name):
+            return (
+                False,
+                "The group name can only contain letters, numbers, dashes (-), and underscores (_).",
+            )
+
+        if name[0] in "-_" or name[-1] in "-_":
+            return (
+                False,
+                "The group name cannot start or end with a dash (-) or underscore (_).",
+            )
+
+        return True, "Valid group name."
+
+    def validate_host_name(self, hostname):
+        if not (1 <= len(hostname) <= 253):
+            return False, "The host name must be between 1 and 253 characters."
+
+        if not re.match(r"^[a-zA-Z0-9.\-*]+$", hostname):
+            return (
+                False,
+                "The host name can only contain letters, numbers, hyphens (-), and dot (.)",
+            )
+
+        if hostname[0] == "-" or hostname[-1] == "-":
+            return False, "The host name cannot start or end with a hyphen (-)."
+
+        parts = hostname.split(".")
+        for part in parts:
+            if not (1 <= len(part) <= 63):
+                return (
+                    False,
+                    "Each part of the host name must be between 1 and 63 characters.",
+                )
+
+        return True, "Valid host name."

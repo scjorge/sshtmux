@@ -47,7 +47,7 @@ def cmd(ctx, names, yes):
 
     # When deleting multiple hosts, iterate over all of them
     for name in selected_hosts_list:
-        if not config.check_host_by_name(name):
+        if not config.check_host_by_name(name, False):
             print(f"Cannot delete host '{name}' as it is not defined in configuration!")
             continue
 

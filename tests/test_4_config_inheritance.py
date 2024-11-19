@@ -24,7 +24,7 @@ Host test-*
 """
 
 def test_host_pattern_matching_manual():
-    config = SSH_Config("none", config1.splitlines())
+    config = SSH_Config( config1.splitlines())
     config.parse()
 
     inherited1 = config.find_inherited_params("test-data")
@@ -40,7 +40,7 @@ def test_host_pattern_matching_manual():
 
 
 def test_host_pattern_matching_parsed():
-    config = SSH_Config("none", config1.splitlines())
+    config = SSH_Config( config1.splitlines())
     config.parse()
 
     # Default group is always first
