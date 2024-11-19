@@ -28,12 +28,6 @@ from sshtmux.exceptions import IdentityException, SSHException, TMUXException
 from sshtmux.services.identities import PasswordManager
 from sshtmux.services.tmux import ConnectionProtocol, ConnectionType, Tmux
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
-from sshtmux.tools.messages import (
-    NO_TMUX_SESSIONS_AVAILABLE,
-    NOT_ALLOWED_NESTED_CONNECTIONS,
-    ONLY_NORMAL_HOSTS_ALLOWED,
-)
-
 
 class SSHGroupDataInfo(Static):
     """Widget for SSH Group data"""
@@ -359,7 +353,7 @@ class SSHTui(App):
     def action_attach_tmux(self) -> None:
         attached = self._run_external_func_with_args(self.tmux.attach)
         if not attached:
-            self.notify(NO_TMUX_SESSIONS_AVAILABLE, severity="warning")
+            self.notify("No Tmux session available", severity="warning")
 
     def action_connect_ssh(self, attach=True):
         if not self._is_sshhost():
@@ -466,7 +460,7 @@ class SSHTui(App):
             isinstance(self.current_node, SSH_Host)
             and self.current_node.type == "normal"
         ):
-            self.notify(ONLY_NORMAL_HOSTS_ALLOWED, severity="warning")
+            self.notify("Only normal hosts connections are allowed", severity="warning")
             return False
         return True
 
@@ -514,7 +508,7 @@ class SSHTui(App):
                 if any(error in str(e).lower() for error in known_errors):
                     pass
                 elif "sessions should be nested with care" in str(e):
-                    self.notify(NOT_ALLOWED_NESTED_CONNECTIONS, severity="warning")
+                    self.notify("Connection opened. But nested connections not allowed. Please, call Tmux with `t` key", severity="warning")
                 else:
                     self.notify(str(e), title="Internal", severity="error")
             finally:

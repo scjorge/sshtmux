@@ -15,7 +15,6 @@ from .core.config import (
     settings,
     update_settings,
 )
-from .tools.messages import CONFIG_VALIDATION_ERROR
 
 Path(settings.internal_config.BASE_DIR).mkdir(parents=True, exist_ok=True)
 Path(settings.sshtmux.SSHTMUX_SNIPPETS_PATH).mkdir(parents=True, exist_ok=True)
@@ -33,7 +32,7 @@ def init_toml_config():
                 load_settings = ConfigModel(**toml_dict)
                 update_settings(load_settings)
             except ValidationError as e:
-                print(CONFIG_VALIDATION_ERROR, "\n")
+                print("Invalid config.toml. Detail:", "\n")
                 for error in e.errors():
                     msg = error.get("msg")
                     loc = error.get("loc")
