@@ -5,16 +5,16 @@ from typing import Literal, Optional
 from pydantic import BaseModel, IPvAnyAddress, field_validator, model_validator
 
 CIPHERS = [
-    "3des-cbc"
-    "aes128-cbc"
-    "aes192-cbc"
-    "aes256-cbc"
-    "aes128-ctr"
-    "aes192-ctr"
-    "aes256-ctr"
-    "aes128-gcm@openssh.com"
-    "aes256-gcm@openssh.com"
-    "chacha20-poly1305@openssh.com"
+    "3des-cbc",
+    "aes128-cbc",
+    "aes192-cbc",
+    "aes256-cbc",
+    "aes128-ctr",
+    "aes192-ctr",
+    "aes256-ctr",
+    "aes128-gcm@openssh.com",
+    "aes256-gcm@openssh.com",
+    "chacha20-poly1305@openssh.com",
 ]
 CASIGNATUREALGORITHMS = [
     "+",
@@ -277,7 +277,7 @@ class SSHParams(BaseModel):
     @staticmethod
     def is_valid_string_integer(value: str) -> None:
         if not isinstance(value, str) or value.startswith("0"):
-            raise ValueError(f"Invalid number: {value}")
+            raise ValueError(f"Invalid number. Can not starts with 0: {value}")
         try:
             value = int(value)
         except ValueError:
