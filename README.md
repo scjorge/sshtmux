@@ -64,7 +64,7 @@ SSHTMux can be used with "show" and "list" commands for hosts, without modifying
 
 **Only commands that modify configuration will edit and rewrite/restructure your SSH Config file. In that case, any added comment or infos that are not in form that SSHTmux understand will be discarded, and configuration will be re-formatted to match SSHTmux style**
 
-![tui](https://github.com/scjorge/sshtmux/blob/master/assets/tui.png?raw=true)
+![tui](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/tui.png)
 
 ## Why? And who is it for?
 * SSH config is very feature-full with all options SSH client support, why inventing extra layer?
@@ -330,16 +330,16 @@ TMUX_TIMEOUT_COMMANDS = 10
 
 ### CLI
 #### Manager Hosts
-![managerhosts](https://github.com/scjorge/sshtmux/blob/master/assets/hosts.gif?raw=true)
+![managerhosts](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/hosts.gif)
 
 #### Manager Groups
-![managergroups](https://github.com/scjorge/sshtmux/blob/master/assets/groups.gif?raw=true)
+![managergroups](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/groups.gif)
 
 #### Manager Identities
-![manageridentities](https://github.com/scjorge/sshtmux/blob/master/assets/identity.gif?raw=true)
+![manageridentities](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/identity.gif)
 
 #### Manager Snippets
-![managersnippets](https://github.com/scjorge/sshtmux/blob/master/assets/snippets.gif?raw=true)
+![managersnippets](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/snippets.gif)
 
 
 ### TUI
@@ -386,7 +386,7 @@ So it means that:
 
 
 #### Tmux Navegation
-![tmux](https://github.com/scjorge/sshtmux/blob/master/assets/tmux.gif?raw=true)
+![tmux](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/tmux.gif)
 
 
 ## License
