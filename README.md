@@ -1,10 +1,10 @@
 # SSHTMux - Powerful SSH Terminal Manager
 
 
-[![pypi](https://img.shields.io/pypi/v/sshtmux)](https://pypi.org/project/sshtmux/)
-[![pypi](https://img.shields.io/pypi/pyversions/sshtmux)](https://pypi.org/project/sshtmux/)
+[![pypi](https://img.shields.io/pypi/v/sshtmux)](https://pypi.org/project/sshtmux)
+[![pypi](https://img.shields.io/pypi/pyversions/sshtmux)](https://pypi.org/project/sshtmux)
 [![license](https://img.shields.io/pypi/l/sshtmux)](https://github.com/scjorge/sshtmux/blob/master/LICENSE)
-[![downloads](https://static.pepy.tech/badge/sshtmux/month)](https://pepy.tech/project/sshtmux)
+[![downloads](https://img.shields.io/pypi/dm/sshtmux)](https://pypistats.org/search/sshtmux)
 
 
 ## Links
@@ -324,16 +324,16 @@ For security reasons, you can delete the `SSHTMUX_IDENTITY_KEY_FILE` and use `SS
 
 ### CLI
 #### Manager Hosts
-![hosts](https://github.com/scjorge/sshtmux/blob/master/assets/hosts.gif?raw=true)
+![managerhosts](https://github.com/scjorge/sshtmux/blob/master/assets/hosts.gif?raw=true)
 
 #### Manager Groups
-![groups](https://github.com/scjorge/sshtmux/blob/master/assets/groups.gif?raw=true)
+![managergroups](https://github.com/scjorge/sshtmux/blob/master/assets/groups.gif?raw=true)
 
 #### Manager Identities
-![identities](https://github.com/scjorge/sshtmux/blob/master/assets/identity.gif?raw=true)
+![manageridentities](https://github.com/scjorge/sshtmux/blob/master/assets/identity.gif?raw=true)
 
 #### Manager Snippets
-![snippets](https://github.com/scjorge/sshtmux/blob/master/assets/snippets.gif?raw=true)
+![managersnippets](https://github.com/scjorge/sshtmux/blob/master/assets/snippets.gif?raw=true)
 
 
 ### TUI
