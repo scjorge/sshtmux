@@ -11,6 +11,7 @@ classifiers = [
     "Environment :: Console",
     "Environment :: No Input/Output (Daemon)",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS :: MacOS X",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -27,9 +28,6 @@ classifiers = [
     "Topic :: Security :: Cryptography",
 ]
 
-include = [
-    "assets/*"
-]
 
 [tool.poetry.dependencies]
 python = "^3.9"
