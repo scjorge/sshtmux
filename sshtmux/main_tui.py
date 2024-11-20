@@ -29,6 +29,7 @@ from sshtmux.services.identities import PasswordManager
 from sshtmux.services.tmux import ConnectionProtocol, ConnectionType, Tmux
 from sshtmux.sshm import SSH_Config, SSH_Group, SSH_Host
 
+
 class SSHGroupDataInfo(Static):
     """Widget for SSH Group data"""
 
@@ -508,7 +509,10 @@ class SSHTui(App):
                 if any(error in str(e).lower() for error in known_errors):
                     pass
                 elif "sessions should be nested with care" in str(e):
-                    self.notify("Connection opened. But nested connections not allowed. Please, call Tmux with `t` key", severity="warning")
+                    self.notify(
+                        "Connection opened. But nested connections not allowed. Please, call Tmux with `t` key",
+                        severity="warning",
+                    )
                 else:
                     self.notify(str(e), title="Internal", severity="error")
             finally:
