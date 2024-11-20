@@ -25,7 +25,7 @@ Source Code: https://github.com/scjorge/sshtmux
   - [Uninstall Package](#uninstall-package)
 - [SSH Config structure](#ssh-config-structure-and-important-note-about-comments)
   - [Comment blocks and metadata](#comment-blocks-and-metadata-in-ssh-config)
-- [SSH Config demo](#ssh-config-demo)
+  - [SSH Config demo](#ssh-config-demo)
 - [SSHTmux Config](#sshtmux-config)
   - [SSHTMUX Config Session](#sshtmux-config-session)
   - [SSH Config Session](#ssh-config-session)
@@ -50,7 +50,7 @@ This project is a fork from [SSHClick](https://github.com/karlot/sshclick). Than
 
 Inspired by the idea of ​​a terminal connection manager and powerful software such as [MRemoteNG](https://mremoteng.org/), SSHTMux brings several new features integrating with [Tmux](https://github.com/tmux/tmux)
 
-SSHTmux (sshm) is just a tool designed to work with existing SSH configuration files on your Linux/Windows/WSL terminal environment.  
+SSHTmux (sshm) is just a tool designed to work with existing SSH configuration files on your Linux/Windows/WSL terminal environment.
 It parses your SSH config, and can provide easy commands to list, filter, modify or view specific Host entries.
 Trough additional "metadata" comments it can add abstractions such as "groups" and various information that is both readable in the configuration file, and can be parsed and printed while using the tool.
 
@@ -58,7 +58,8 @@ Integrated with custom Tmux for better experience.
 
 Separates from your machine's native Tmux socket. Each user will have their own independently. it means all settings in this project are separate from the native Tmux on your machine.
 
-⚠️ Backup your SSH config files before using, and test how it works!
+⚠️ Backup your SSH config files before using and test how it works!
+
 SSHTMux can be used with "show" and "list" commands for hosts, without modifying your SSH Config in any way!
 
 **Only commands that modify configuration will edit and rewrite/restructure your SSH Config file. In that case, any added comment or infos that are not in form that SSHTmux understand will be discarded, and configuration will be re-formatted to match SSHTmux style**
@@ -74,7 +75,6 @@ SSHTMux can be used with "show" and "list" commands for hosts, without modifying
 
 ## Features
 SSHTMux has a CLI to manage SSH config File and TUI interface for interacting with SSH Connections.
-- List hosts and groups details.
 - Create hosts with SSH parameters validations.
 - Create Identities (It means save password to used as you need).
 - Create Snippets/Playbooks (Organize many routine commands to execute on one or many hosts).
@@ -84,8 +84,9 @@ SSHTMux has a CLI to manage SSH config File and TUI interface for interacting wi
 - Open a connection in `Fast Session` mode (it helpful to execute a snippet in host from different groups).
 
 ## Requirements
-- Tmux 2.4+
+- Tmux 2.4+ [how to install](https://tmuxcheatsheet.com/how-to-install-tmux/)
 - Python3.9+
+- WSL (For Windows users)
 
 
 ## Installation
@@ -123,7 +124,7 @@ _TAB-TAB auto-completes on commands, options, groups, hosts and parameters_
 
 * __Fish__:
   ```sh
-  echo 'eval "$(_SSHM_COMPLETE=bash_source sshm)"' >> ~/.config/fish/config.fish && source ~/.config/fish/config.fish
+  echo 'eval (env _SSHM_COMPLETE=fish_source sshm)' >> ~/.config/fish/config.fish && source ~/.config/fish/config.fish
   ```
 
 
@@ -195,7 +196,7 @@ Host ...
 If there are no groups defined, then all hosts are considered to be part of "default" group. SSHTmux can be used to move hosts between groups and handle keeping SSH config "tidy" and with consistent format.
 
 
-## SSH Config demo
+#### SSH Config demo
 
 This is config sample file as input (located in ~/.ssh/config):
 
@@ -297,10 +298,10 @@ TMUX_TIMEOUT_COMMANDS = 10
 ```
 
 #### SSHTMUX Config Session
-`SSHTMUX_IDENTITY_KEY_FILE` -> File with a key (Fernet key - 32 url-safe) to decrypted passwords.
-`SSHTMUX_IDENTITY_PASSWORDS_FILE` -> File with all passwords encrypted in json format.
-`SSHTMUX_SNIPPETS_PATH` ->  Directory where SSHTmux will search for files and open in snippets mode.
-`SSHTMUX_HOST_STYLE` = Style used for group or host show commands.
+- `SSHTMUX_IDENTITY_KEY_FILE` -> File with a key (Fernet key - 32 url-safe) to decrypted passwords.
+- `SSHTMUX_IDENTITY_PASSWORDS_FILE` -> File with all passwords encrypted in json format.
+- `SSHTMUX_SNIPPETS_PATH` ->  Directory where SSHTmux will search for files and open in snippets mode.
+- `SSHTMUX_HOST_STYLE` = Style used for group or host show commands.
 
 | Style              | Description                                       |
 |--------------------|---------------------------------------------------|
@@ -311,18 +312,18 @@ TMUX_TIMEOUT_COMMANDS = 10
 | `table2`           | Nested table with separated host SSH params       |
 | `json`             | JSON output, useful for binding with other tools  |
 
-For security reasons, you can delete the `SSHTMUX_IDENTITY_KEY_FILE` and use `SSHTMUX_IDENTITY_KEY` env var with the key
+⚠️ For security reasons, you can remove the `SSHTMUX_IDENTITY_KEY_FILE` line and use `SSHTMUX_IDENTITY_KEY` env var with the key. If you feel more comfortable creating a new key, you can use `sshm identity generate-key` but remember that passwords are encrypted with a symmetric key, so only the same key is used to decrypt.
 
 #### SSH Config Session
-`SSH_CONFIG_FILE` -> Your SSH config file.
-`SSH_COMMAND` -> The command used when open a new SSH connection.
-`SFTP_COMMAND` -> The command used when open a new SFTP connection.
-`SSH_CUSTOM_COMMAND` -> SSHTMUX do some internal negotiations to open connections. If you want to use only the flow of this project and use your own way to connect, SSHTmux will not do anything anymore.
+- `SSH_CONFIG_FILE` -> Your SSH config file.
+- `SSH_COMMAND` -> The command used when open a new SSH connection.
+- `SFTP_COMMAND` -> The command used when open a new SFTP connection.
+- `SSH_CUSTOM_COMMAND` -> SSHTmux do some internal negotiations to open connections. If you want to use only the flow of this project and use your own way to connect, SSHTmux will not do anything anymore.
 
 #### Tmux Config Session
-`TMUX_CONFIG_FILE` -> Your Tmux config file. NOTE: This file is optimized for this project, but you can change if you want
-`TMUX_SOCKET_NAME` -> Socket used by Tmux. Separates from your machine's native socket, so each user will have their own independently
-`TMUX_TIMEOUT_COMMANDS` -> Timeout to execute each command
+- `TMUX_CONFIG_FILE` -> Your Tmux config file. NOTE: This file is optimized for this project, but you can change if you want
+- `TMUX_SOCKET_NAME` -> Socket used by Tmux. Separates from your machine's native socket, so each user will have their own independently
+- `TMUX_TIMEOUT_COMMANDS` -> Timeout to execute each command
 
 
 ## Usage
@@ -365,16 +366,16 @@ SSHTmux uses Tmux to manager connections.
 
 So it means that:
 
-Tmux Session -> Group of hosts
-Tmux Window -> Host connection
+- Tmux Session -> Group of hosts
+- Tmux Window -> Host connection
 
-⚠️ Do not rename Tmux Sessions. Internally, it used to manage commands and key binds.
+⚠️ Do not rename Tmux Sessions. Internally, it used to manage connections, commands and key binds.
 
 #### Tmux Keybinds
 
 | **Action**                         | **Keybind**                                  |
 |------------------------------------|----------------------------------------------|
-| Open Session                       | Tmux host key (`Ctrl + b`) + `Shift + S`     |
+| Open Snippet                       | Tmux host key (`Ctrl + b`) + `Shift + S`     |
 | Open SFTP connection               | Tmux host key (`Ctrl + b`) + `Shift + F`     |
 | Open Identity                      | Tmux host key (`Ctrl + b`) + `Shift + I`     |
 | Open Multi Session Commands        | Tmux host key (`Ctrl + b`) + `Shift + M`     |
