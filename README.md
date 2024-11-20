@@ -6,7 +6,12 @@
 [![license](https://img.shields.io/pypi/l/sshtmux)](https://github.com/scjorge/sshtmux/blob/master/LICENSE)
 [![downloads](https://img.shields.io/pypi/dm/sshtmux)](https://pypistats.org/search/sshtmux)
 
+---
+PyPi: https://pypi.org/project/sshtmux/
 
+Source Code: https://github.com/scjorge/sshtmux
+
+---
 ## Links
 
 - [About](#about)
@@ -80,7 +85,7 @@ SSHTMux has a CLI to manage SSH config File and TUI interface for interacting wi
 
 ## Requirements
 - Tmux 2.4+
-- Python3.8.1+
+- Python3.9+
 
 
 ## Installation
