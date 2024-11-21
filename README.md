@@ -66,6 +66,7 @@ SSHTMux can be used with "show" and "list" commands for hosts, without modifying
 **Only commands that modify configuration will edit and rewrite/restructure your SSH Config file. In that case, any added comment or infos that are not in form that SSHTmux understand will be discarded, and configuration will be re-formatted to match SSHTmux style**
 
 ![tui](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/tui.png)
+![tmux](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/tmux-open.png)
 
 ## Why? And who is it for?
 * SSH config is very feature-full with all options SSH client support, why inventing extra layer?
