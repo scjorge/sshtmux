@@ -437,7 +437,8 @@ class SSH_Config:
                 "The group name can only contain letters, numbers, dashes (-), and underscores (_).",
             )
 
-        if name[0] in "-_" or name[-1] in "-_":
+        block_chars = ["-", ".", "_"]
+        if name[0] in block_chars or name[-1] in block_chars:
             return (
                 False,
                 "The group name cannot start or end with a dash (-) or underscore (_).",
