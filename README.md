@@ -4,7 +4,7 @@
 [![pypi](https://img.shields.io/pypi/v/sshtmux)](https://pypi.org/project/sshtmux)
 [![pypi](https://img.shields.io/pypi/pyversions/sshtmux)](https://pypi.org/project/sshtmux)
 [![license](https://img.shields.io/pypi/l/sshtmux)](https://github.com/scjorge/sshtmux/blob/master/LICENSE)
-![PyPI Downloads](https://static.pepy.tech/badge/sshtmux)
+[![downloads](https://static.pepy.tech/badge/sshtmux)](https://pepy.tech/projects/sshtmux)
 
 ---
 PyPi: https://pypi.org/project/sshtmux/
