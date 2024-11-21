@@ -1,5 +1,10 @@
 # SSHTmux change-log
 
+## Version 0.1.6 (2024-11-20)
+
+- Fix inicial window name on tmux
+- Add mouse info and add keybind info on docs
+
 ## Version 0.1.5 (2024-11-20)
 
 - Fix images links on Readme
