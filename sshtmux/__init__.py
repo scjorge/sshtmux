@@ -9,6 +9,7 @@ from sshtmux.sshm import SSH_Config
 
 from .core.config import (
     FAST_CONNECTIONS_GROUP_NAME,
+    FAST_SESSIONS_NAME,
     MULTICOMMNAD_CLI,
     SFTP_CLI,
     ConfigModel,
@@ -90,8 +91,9 @@ def init_tmux():
     bind-key -n M-m swap-window -t :+ \\; select-window -t :+
     bind-key -n M-Left swap-window -t :- \\; select-window -t :-
     bind-key -n M-Right swap-window -t :+ \\; select-window -t :+
-    bind-key -n M-f switch -t __FAST_CONNECTIONS_NAME__
     bind-key -n M-d switch -t __DEFAULT_GROUP_NAME__
+    bind-key -n M-f switch -t __FAST_CONNECTIONS_NAME__
+    bind-key -n M-g switch -t __FAST_SESSIONS_NAME__
     bind-key -n M-r switch-client -n
     bind-key -n M-e switch-client -p
     bind-key -n M-o switch-client -p
@@ -141,8 +143,9 @@ def init_tmux():
     tmux_config = (
         tmux_config.replace("__SFTP_CLI__", SFTP_CLI)
         .replace("__MULTICOMMNAD_CLI__", MULTICOMMNAD_CLI)
-        .replace("__FAST_CONNECTIONS_NAME__", FAST_CONNECTIONS_GROUP_NAME)
         .replace("__DEFAULT_GROUP_NAME__", SSH_Config.DEFAULT_GROUP_NAME)
+        .replace("__FAST_CONNECTIONS_NAME__", FAST_CONNECTIONS_GROUP_NAME)
+        .replace("__FAST_SESSIONS_NAME__", FAST_SESSIONS_NAME)
     )
     with open(settings.tmux.TMUX_CONFIG_FILE, "a+t") as file:
         file.write(tmux_config)
