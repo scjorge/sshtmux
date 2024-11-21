@@ -1,5 +1,10 @@
 # SSHTmux change-log
 
+## Version 0.1.8 (2024-11-21)
+
+- Makes callable as a module with `python -m sshtmux`
+- Add more info about special available strings when SSH_CUSTOM_COMMAND is used on docs
+
 ## Version 0.1.7 (2024-11-21)
 
 - Add easy switching of tmux prefix in tmux.conf file

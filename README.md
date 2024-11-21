@@ -327,7 +327,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 - `SSH_CONFIG_FILE` -> Your SSH config file.
 - `SSH_COMMAND` -> The command used when open a new SSH connection.
 - `SFTP_COMMAND` -> The command used when open a new SFTP connection.
-- `SSH_CUSTOM_COMMAND` -> SSHTmux do some internal negotiations to open connections. If you want to use only the flow of this project and use your own way to connect, SSHTmux will not do anything anymore.
+- `SSH_CUSTOM_COMMAND` -> SSHTmux do some internal negotiations to open connections. If you want to use only the flow of this project and use your custom command to connect, SSHTmux will not do anything anymore. In this case, you can use special strings to represent the hostname and the password comes from identity. You can use `${hostname}` and `${password}`
 
 #### TMUX Config Session
 - `TMUX_CONFIG_FILE` -> Your Tmux config file. NOTE: This file is optimized for this project, but you can change if you want
