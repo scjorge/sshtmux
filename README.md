@@ -163,7 +163,7 @@ rm -r sshtmux
 
 How SSH config works?
 
-The [ssh_config](https://linux.die.net/man/5/ssh_config) file is a configuration file used by the OpenSSH client to specify custom settings for SSH connections. It allows users to define configurations globally or on a per-host basis, simplifying SSH usage and automating repetitive settings. This file can significantly enhance usability by avoiding the need to repeatedly type options or remember specific configurations.
+The [ssh_config(5)](https://linux.die.net/man/5/ssh_config) file is a configuration file used by the OpenSSH client to specify custom settings for SSH connections. It allows users to define configurations globally or on a per-host basis, simplifying SSH usage and automating repetitive settings. This file can significantly enhance usability by avoiding the need to repeatedly type options or remember specific configurations.
 
 Wildcards are special characters or symbols used to represent one or more characters in a pattern. In the context of SSH configuration (or generally in file systems, programming, and other tools), wildcards allow you to match multiple items without specifying each one explicitly. This is particularly useful for flexible and dynamic matching of hosts in the ssh_config file.
 
@@ -327,7 +327,8 @@ TMUX_TIMEOUT_COMMANDS = 10
 - `SSH_CONFIG_FILE` -> Your SSH config file.
 - `SSH_COMMAND` -> The command used when open a new SSH connection.
 - `SFTP_COMMAND` -> The command used when open a new SFTP connection.
-- `SSH_CUSTOM_COMMAND` -> SSHTmux do some internal negotiations to open connections. If you want to use only the flow of this project and use your custom command to connect, SSHTmux will not do anything anymore. In this case, you can use special strings to represent the hostname and the password comes from identity. You can use `${hostname}` and `${password}`
+- `SSH_VALIDATE_SSHCONFIG` -> Set `false` if you want to disable all [ssh_config(5)](https://linux.die.net/man/5/ssh_config) validations.
+- `SSH_CUSTOM_COMMAND` -> SSHTmux do some internal negotiations to open connections. If you want to use only the flow of this project and use your custom command to connect, SSHTmux will not do anything anymore. In this case, you can use special strings to represent the hostname and the password comes from identity. You can use `${hostname}` and `${passwor`}`
 
 #### TMUX Config Session
 - `TMUX_CONFIG_FILE` -> Your Tmux config file. NOTE: This file is optimized for this project, but you can change if you want
