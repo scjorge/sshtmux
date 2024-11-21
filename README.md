@@ -39,8 +39,9 @@ Source Code: https://github.com/scjorge/sshtmux
   - [TUI](#tui)
     - [Keybinds](#tui-keybinds)
   - [Tmux](#tmux)
-    - [Tmux Navegation](#tmux-navegation)
     - [Keybinds](#tmux-keybinds)
+    - [Mouse](#tmux-mouse)
+    - [Navegation](#tmux-navegation)
 - [License](#license)
 
 
@@ -65,6 +66,7 @@ SSHTMux can be used with "show" and "list" commands for hosts, without modifying
 **Only commands that modify configuration will edit and rewrite/restructure your SSH Config file. In that case, any added comment or infos that are not in form that SSHTmux understand will be discarded, and configuration will be re-formatted to match SSHTmux style**
 
 ![tui](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/tui.png)
+![tmux](https://raw.githubusercontent.com/scjorge/sshtmux/refs/heads/master/assets/tmux-open.png)
 
 ## Why? And who is it for?
 * SSH config is very feature-full with all options SSH client support, why inventing extra layer?
@@ -271,7 +273,7 @@ All app configs and files are save on `~/.config/sshtmux/`
 
 - config.toml (All App, Identity, Snippets, SSH, SFTP and Tmux settings)
 - identity.json (All passwords/Identities encrypted)
-- identity.key (The Key to decrypted identity.json. This Key can be removed from config and set on env var `SSHTMUX_IDENTITY_KEY`)
+- identity.key (The Key to decrypted identity.json. This Key can be removed from config.toml and set on env var `SSHTMUX_IDENTITY_KEY`)
 - snippets (Dir to save all your snippets. Can be a simple text file with your saved commands)
 - tmux.config (A Custom Tmux config for the best experience with this project. Include keybinds and custom commands)
 
@@ -323,8 +325,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 #### Tmux Config Session
 - `TMUX_CONFIG_FILE` -> Your Tmux config file. NOTE: This file is optimized for this project, but you can change if you want
 - `TMUX_SOCKET_NAME` -> Socket used by Tmux. Separates from your machine's native socket, so each user will have their own independently
-- `TMUX_TIMEOUT_COMMANDS` -> Timeout to execute each command
-
+- `TMUX_TIMEOUT_COMMANDS` -> Timeout to execute each SSH or SFTP command. This does not have any effect if you use `SSH_CUSTOM_COMMAND`
 
 ## Usage
 
@@ -343,6 +344,10 @@ TMUX_TIMEOUT_COMMANDS = 10
 
 
 ### TUI
+Open TUI interface for interacting with SSH Configuration.
+
+Open with `sshm tui` or just `ssht` command.
+
 #### TUI Keybinds
 
 | **Action**                                                               | **Keybind** |
@@ -373,16 +378,52 @@ So it means that:
 
 #### Tmux Keybinds
 
-| **Action**                         | **Keybind**                                  |
-|------------------------------------|----------------------------------------------|
-| Open Snippet                       | Tmux host key (`Ctrl + b`) + `Shift + S`     |
-| Open SFTP connection               | Tmux host key (`Ctrl + b`) + `Shift + F`     |
-| Open Identity                      | Tmux host key (`Ctrl + b`) + `Shift + I`     |
-| Open Multi Session Commands        | Tmux host key (`Ctrl + b`) + `Shift + M`     |
-| Jump to tab index connection       | `Alt + (0-9)`                                |
-| Jump to next and preview tab       | `Alt + q`, `Alt + w`                         |
-| Jump to next and preview session   | `Alt + e`, `Alt + r` or `Alt + o`, `Alt + p` |
-| Move tab index                     | `Alt + n`, `Alt + m`                         |
+| **Action**                                | **Keybind**                                  |
+|-------------------------------------------|----------------------------------------------|
+| Open Snippet                              | Tmux host key (`Ctrl + b`) + `Shift + S`     |
+| Open SFTP connection                      | Tmux host key (`Ctrl + b`) + `Shift + F`     |
+| Open Identity                             | Tmux host key (`Ctrl + b`) + `Shift + I`     |
+| Open Multi Session Commands               | Tmux host key (`Ctrl + b`) + `Shift + M`     |
+| Jump to tab index connection              | `Alt + (0-9)`                                |
+| Jump to next and preview tab              | `Alt + q`, `Alt + w`                         |
+| Jump to next and preview session          | `Alt + e`, `Alt + r` or `Alt + o`, `Alt + p` |
+| Move Window/Tab index                     | `Alt + n`, `Alt + m`                         |
+| Choose Session                            | `Alt + s`                                    |
+| Choose Window/Tab                         | `Alt + t`                                    |
+| Shortcut for `Default` session            | `Alt + d`                                    |
+| Shortcut for `Fast Connections` session   | `Alt + f`                                    |
+| Shortcut for `Fast Sessions` session      | `Alt + g`                                    |
+
+#### Tmux Mouse
+The mouse is activated to improve the navigation experience.
+
+SSHTmux copies the mouse selection to OS clipboard like PUTTY does. To do this work correctly, the proper CLI clipboard needs to be installed. 
+
+SSHTmux will find any available option:
+
+| Utility   | Operating System | Interface  | How to Install                        | Notes |
+|-----------|------------------|------------|---------------------------------------|-------|
+| xclip     | Linux            | X11        | `sudo apt install xclip` (Debian/Ubuntu) <br> `sudo yum install xclip` (RHEL/CentOS) | Copies to the system clipboard. Limited support on Wayland without XWayland. |
+| xsel      | Linux            | X11        | `sudo apt install xsel` (Debian/Ubuntu) <br> `sudo yum install xsel` (RHEL/CentOS) | Similar to xclip but more flexible in scripts. Does not work directly on Wayland. |
+| wl-copy   | Linux            | Wayland    | `sudo apt install wl-clipboard` (Debian/Ubuntu) <br> `sudo yum install wl-clipboard` (RHEL/CentOS) | Specific to Wayland. Requires the Wayland compositor to be properly configured. |
+| pbcopy    | macOS            | Cocoa      | Already included in macOS. No installation required. | Works only on macOS. Copies to the native system clipboard. |
+
+<br>
+
+How I know my system and interface?
+
+```
+uname -s
+```
+If `Darwin` you are on macOS, and `pbcopy` is supposed to already be installed.
+
+If `Linux` you can check your interface with:
+
+```
+echo $XDG_SESSION_TYPE
+```
+
+It will return `x11` or `wayland`.
 
 
 #### Tmux Navegation

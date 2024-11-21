@@ -11,7 +11,7 @@ from rich.prompt import Prompt
 
 from sshtmux.core.config import (
     FAST_CONNECTIONS_GROUP_NAME,
-    FAST_SESSIONS_GROUP_NAME,
+    FAST_SESSIONS_NAME,
     MULTICOMMNAD_CLI,
     SFTP_CLI,
     settings,
@@ -332,12 +332,15 @@ class Tmux:
         window = [w for w in session.windows if str(w.index) == str(window_index)][0]
         if session_name in [
             FAST_CONNECTIONS_GROUP_NAME,
-            FAST_SESSIONS_GROUP_NAME,
+            FAST_SESSIONS_NAME,
             SSH_Config.DEFAULT_GROUP_NAME,
         ]:
             hostname = window.name
         else:
-            hostname = f"{session_name}-{window.name}"
+            if not window.name.startswith(f"{session_name}-"):
+                hostname = f"{session_name}-{window.name}"
+            else:
+                hostname = window.name
 
         if cmd_ref == SFTP_CLI:
             cmd = (

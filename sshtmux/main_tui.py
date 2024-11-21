@@ -21,7 +21,7 @@ from textual.widgets.option_list import Separator
 
 from sshtmux.core.config import (
     FAST_CONNECTIONS_GROUP_NAME,
-    FAST_SESSIONS_GROUP_NAME,
+    FAST_SESSIONS_NAME,
     settings,
 )
 from sshtmux.exceptions import IdentityException, SSHException, TMUXException
@@ -316,7 +316,7 @@ class SSHTui(App):
         self.input_fast_connections.focus()
 
     def action_connect_fast_session(self) -> None:
-        self.overwritten_group = FAST_SESSIONS_GROUP_NAME
+        self.overwritten_group = FAST_SESSIONS_NAME
         self.action_connect_ssh(attach=True)
 
     def action_clean_filters(self) -> None:
