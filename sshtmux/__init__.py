@@ -59,6 +59,10 @@ def init_tmux():
         return
 
     tmux_config = """
+    # Prefix
+    set -g prefix C-b
+    unbind C-b
+
     # Base
     set -g default-terminal "screen-256color"
     set -g visual-activity on

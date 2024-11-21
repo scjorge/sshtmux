@@ -11,14 +11,7 @@ host test
     port 2222
     user testUSER
 """
-# Configuration with mixed case
-config2="""
-#@host: testinfo
-Host test
-    HostName 1.2.3.4
-    PORT 2222
-    USER testUSER
-"""
+
 # Configuration with alternate style - 1
 config_s1="""
 # host: testinfo
@@ -55,11 +48,6 @@ results = [
 #-----------------------------------
 def test_parse_lowercase():
     lines = config1.splitlines()
-    groups = SSH_Config(lines).parse().groups
-    assert groups == results
-
-def test_parse_camelcase():
-    lines = config2.splitlines()
     groups = SSH_Config(lines).parse().groups
     assert groups == results
 

@@ -4,7 +4,7 @@
 [![pypi](https://img.shields.io/pypi/v/sshtmux)](https://pypi.org/project/sshtmux)
 [![pypi](https://img.shields.io/pypi/pyversions/sshtmux)](https://pypi.org/project/sshtmux)
 [![license](https://img.shields.io/pypi/l/sshtmux)](https://github.com/scjorge/sshtmux/blob/master/LICENSE)
-[![downloads](https://img.shields.io/pypi/dm/sshtmux)](https://pypistats.org/search/sshtmux)
+[![downloads](https://static.pepy.tech/badge/sshtmux/month)](https://pepy.tech/projects/sshtmux)
 
 ---
 PyPi: https://pypi.org/project/sshtmux/
@@ -29,7 +29,7 @@ Source Code: https://github.com/scjorge/sshtmux
 - [SSHTmux Config](#sshtmux-config)
   - [SSHTMUX Config Session](#sshtmux-config-session)
   - [SSH Config Session](#ssh-config-session)
-  - [Tmux Config Session](#tmux-config-session)
+  - [TMUX Config Session](#tmux-config-session)
 - [Usage](#usage)
   - [CLI](#cli)
     - [Manager Hosts](#manager-hosts)
@@ -51,7 +51,7 @@ This project is a fork from [SSHClick](https://github.com/karlot/sshclick). Than
 
 Inspired by the idea of ​​a terminal connection manager and powerful software such as [MRemoteNG](https://mremoteng.org/), SSHTMux brings several new features integrating with [Tmux](https://github.com/tmux/tmux)
 
-SSHTmux (sshm) is just a tool designed to work with existing SSH configuration files on your Linux/Windows/WSL terminal environment.
+SSHTmux is just a tool designed to work with existing SSH configuration files on your Linux/Windows/WSL terminal environment.
 It parses your SSH config, and can provide easy commands to list, filter, modify or view specific Host entries.
 Trough additional "metadata" comments it can add abstractions such as "groups" and various information that is both readable in the configuration file, and can be parsed and printed while using the tool.
 
@@ -70,14 +70,14 @@ SSHTMux can be used with "show" and "list" commands for hosts, without modifying
 
 ## Why? And who is it for?
 * SSH config is very feature-full with all options SSH client support, why inventing extra layer?
-* Who need something that works fast and great in terminal, and does not require complex setup.
-* Who need quick way to search, group and visualize all hosts inside SSH configuration (especially since it can grow huge)
-* Who need access a lot of SSH or SFTP connections and need a tool to organize and manage them.
-* Who love terminal tools
+* For who needs something that works fast and great in terminal, and does not require complex setup.
+* For who needs quick way to search, group and visualize all hosts inside SSH configuration (especially since it can grow huge)
+* For who needs access a lot of SSH or SFTP connections and need a tool to organize and manage them.
+* For who love terminal tools ❤️
 
 ## Features
 SSHTMux has a CLI to manage SSH config File and TUI interface for interacting with SSH Connections.
-- Create hosts with SSH parameters validations.
+- Create hosts with SSH parameters validations based on [ssh_config(5)](https://linux.die.net/man/5/ssh_config).
 - Create Identities (It means save password to used as you need).
 - Create Snippets/Playbooks (Organize many routine commands to execute on one or many hosts).
 - Fast open a SFTP connection from active SSH Conection.
@@ -161,10 +161,17 @@ rm -r sshtmux
 
 ## SSH Config structure, and important note about comments
 
-SSHTmux when editing and writing to SSH config file must use specific style, and is internally using comments to "organize" configuration itself. This means comments outside of what sshtmux is handling are unsupported and will be lost when SSHTmux modifies a file.)
+How SSH config works?
+
+The [ssh_config](https://linux.die.net/man/5/ssh_config) file is a configuration file used by the OpenSSH client to specify custom settings for SSH connections. It allows users to define configurations globally or on a per-host basis, simplifying SSH usage and automating repetitive settings. This file can significantly enhance usability by avoiding the need to repeatedly type options or remember specific configurations.
+
+Wildcards are special characters or symbols used to represent one or more characters in a pattern. In the context of SSH configuration (or generally in file systems, programming, and other tools), wildcards allow you to match multiple items without specifying each one explicitly. This is particularly useful for flexible and dynamic matching of hosts in the ssh_config file.
+
+SSHTmux uses wildcards to create hosts and manager groups. When you create a group, automatic will create a pattern host with name `group_name-*`. All parameters configured on this host will affect all hosts in this group. That's the reason all hosts are created with the prefix `group_name-`.
 
 
 ### Comment blocks and metadata in SSH Config
+SSHTmux when editing and writing to SSH config file must use specific style, and is internally using comments to "organize" configuration itself. This means comments outside of what sshtmux is handling are unsupported and will be lost when SSHTmux modifies a file.
 
 SSHTmux uses comments to add extra information which it can use to add concept of grouping and extra information to hosts. Special "metadata" lines start with `#@` followed by some of meta-tags like `group`, `desc`, `info`. This are all considered group metadata tags, as they apply on the group level. Note that line separations above and below "group header" are added only for visual aid, they are ignored at parsing, but are included when modifying/generating SSH config file.  
 
@@ -322,7 +329,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 - `SFTP_COMMAND` -> The command used when open a new SFTP connection.
 - `SSH_CUSTOM_COMMAND` -> SSHTmux do some internal negotiations to open connections. If you want to use only the flow of this project and use your own way to connect, SSHTmux will not do anything anymore.
 
-#### Tmux Config Session
+#### TMUX Config Session
 - `TMUX_CONFIG_FILE` -> Your Tmux config file. NOTE: This file is optimized for this project, but you can change if you want
 - `TMUX_SOCKET_NAME` -> Socket used by Tmux. Separates from your machine's native socket, so each user will have their own independently
 - `TMUX_TIMEOUT_COMMANDS` -> Timeout to execute each SSH or SFTP command. This does not have any effect if you use `SSH_CUSTOM_COMMAND`
@@ -367,6 +374,10 @@ Open with `sshm tui` or just `ssht` command.
 
 
 ### Tmux
+Tmux (Terminal Multiplexer) is a powerful command-line tool that allows users to manage multiple terminal sessions within a single window. It enables the creation, organization, and navigation of multiple panes and windows, making it ideal for multitasking and remote work.
+
+See the basic concepts [here](https://github.com/tmux/tmux/wiki/Getting-Started#basic-concepts).
+
 SSHTmux uses Tmux to manager connections.
 
 So it means that:
@@ -378,12 +389,29 @@ So it means that:
 
 #### Tmux Keybinds
 
+The prefix key in Tmux is a special key or key combination that serves as a "command trigger" for all tmux commands.
+
+By default, Tmux uses Ctrl+b (C-b) as the Prefix key.
+
+If you want to change the Prefix key, just change the first line on `~/.config/sshtmux/tmux.config` file at:
+
+```
+# Prefix
+set -g prefix C-b
+```
+
+Then close all your windows and sessions and open again.
+
+You can see all available Tmux key mapping running `tmux list-keys` on your terminal.
+
+---
+SSHTmux custom keybinds
 | **Action**                                | **Keybind**                                  |
 |-------------------------------------------|----------------------------------------------|
-| Open Snippet                              | Tmux host key (`Ctrl + b`) + `Shift + S`     |
-| Open SFTP connection                      | Tmux host key (`Ctrl + b`) + `Shift + F`     |
-| Open Identity                             | Tmux host key (`Ctrl + b`) + `Shift + I`     |
-| Open Multi Session Commands               | Tmux host key (`Ctrl + b`) + `Shift + M`     |
+| Open Snippet                              | Prefix + `Shift + S`                         |
+| Open SFTP connection                      | Prefix + `Shift + F`                         |
+| Open Identity                             | Prefix + `Shift + I`                         |
+| Open Multi Session Commands               | Prefix + `Shift + M`                         |
 | Jump to tab index connection              | `Alt + (0-9)`                                |
 | Jump to next and preview tab              | `Alt + q`, `Alt + w`                         |
 | Jump to next and preview session          | `Alt + e`, `Alt + r` or `Alt + o`, `Alt + p` |
@@ -393,6 +421,16 @@ So it means that:
 | Shortcut for `Default` session            | `Alt + d`                                    |
 | Shortcut for `Fast Connections` session   | `Alt + f`                                    |
 | Shortcut for `Fast Sessions` session      | `Alt + g`                                    |
+
+Helpful Tmux native keybinds
+| **Action**                                | **Keybind**                                  |
+|-------------------------------------------|----------------------------------------------|
+| Detach Tmux (Back to TUI Interface)       | Prefix + `d`                                 |
+| Close Session or active Window            | Prefix + `x`                                 |
+| Split Pane Horizontally	Prefix            | Prefix + `"`                                 |
+| Split Pane Vertically	Prefix              | Prefix + `&`                                 |
+| Jump to tab index connection              | Prefix + `0-9`                               |
+
 
 #### Tmux Mouse
 The mouse is activated to improve the navigation experience.
