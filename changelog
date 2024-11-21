@@ -1,5 +1,10 @@
 # SSHTmux change-log
 
+## Version 0.1.7 (2024-11-21)
+
+- Add easy switching of tmux prefix in tmux.conf file
+- Add more info about how tmux and ssh_config works on docs
+
 ## Version 0.1.6 (2024-11-20)
 
 - Fix inicial window name on tmux
