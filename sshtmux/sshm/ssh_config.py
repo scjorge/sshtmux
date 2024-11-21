@@ -459,9 +459,4 @@ class SSH_Config:
                 "The host name cannot start or end with a hyphen (-) or dot (.)",
             )
 
-        if not re.match(
-            r"^(?![-.])[a-zA-Z0-9_*?]+(?:\.[a-zA-Z0-9_*?]+)*(?<![-.])$", hostname
-        ):
-            return False, "Invalid Host name"
-
         return True, "Valid host name."

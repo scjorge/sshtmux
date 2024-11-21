@@ -1,5 +1,14 @@
 # SSHTmux change-log
 
+## Version 0.1.10 (2024-11-21)
+
+- Fix Host regex
+
+## Version 0.1.9 (2024-11-21)
+
+- Fix Host and Hostname regex
+- Add SSH_VALIDATE_SSHCONFIG config key
+
 ## Version 0.1.8 (2024-11-21)
 
 - Makes callable as a module with `python -m sshtmux`
