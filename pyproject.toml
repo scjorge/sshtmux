@@ -27,7 +27,22 @@ classifiers = [
     "Topic :: Security",
     "Topic :: Security :: Cryptography",
 ]
-
+keywords = [
+    "ssh",
+    "ssh-manager",
+    "sftp",
+    "sftp-manager",
+    "terminal",
+    "command-line",
+    "automation",
+    "remote-access",
+    "networking",
+    "devops",
+    "secure-shell",
+    "tui",
+    "cli",
+    "cli-tool",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
