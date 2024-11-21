@@ -128,7 +128,7 @@ SYSLOGFACILITY = Literal[
     "LOCAL7",
 ]
 PORT_RANGE = (1, 65535)
-SSH_HOSTNAME_REGEX = r"^[a-zA-Z0-9.-]+$"
+SSH_HOSTNAME_REGEX = r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])(\.[a-zA-Z0-9\-]+)*$|^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4})$"
 
 
 class SSHParams(BaseModel):

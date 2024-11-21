@@ -425,6 +425,9 @@ class SSH_Config:
             found_group.patterns.remove(found_host)
 
     def validate_group_name(self, name):
+        if not settings.ssh.SSH_VALIDATE_SSHCONFIG:
+            return True, "Valid group name."
+
         if not (3 <= len(name) <= 50):
             return False, "The group name must be between 3 and 50 characters."
 
@@ -443,24 +446,22 @@ class SSH_Config:
         return True, "Valid group name."
 
     def validate_host_name(self, hostname):
+        if not settings.ssh.SSH_VALIDATE_SSHCONFIG:
+            return True, "Valid host name."
+
         if not (1 <= len(hostname) <= 253):
             return False, "The host name must be between 1 and 253 characters."
 
-        if not re.match(r"^[a-zA-Z0-9.\-*]+$", hostname):
+        block_chars = ["-", "."]
+        if hostname[0] in block_chars or hostname[-1] in block_chars:
             return (
                 False,
-                "The host name can only contain letters, numbers, hyphens (-), and dot (.)",
+                "The host name cannot start or end with a hyphen (-) or dot (.)",
             )
 
-        if hostname[0] == "-" or hostname[-1] == "-":
-            return False, "The host name cannot start or end with a hyphen (-)."
-
-        parts = hostname.split(".")
-        for part in parts:
-            if not (1 <= len(part) <= 63):
-                return (
-                    False,
-                    "Each part of the host name must be between 1 and 63 characters.",
-                )
+        if not re.match(
+            r"^(?![-.])[a-zA-Z0-9_*?]+(?:\.[a-zA-Z0-9_*?]+)*(?<![-.])$", hostname
+        ):
+            return False, "Invalid Host name"
 
         return True, "Valid host name."

@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 
 from pydantic import ValidationError
 
-from ..core.config import T_Host_Style
+from ..core.config import T_Host_Style, settings
 from ..services.identities import PasswordManager
 from .ssh_config import SSH_Config, SSH_Host
 from .ssh_parameters import SSHParams
@@ -104,6 +104,8 @@ def trace_jumphosts(name: str, config: SSH_Config, ctx, style: str) -> List[SSH_
 
 def validate_ssh_params(parameters_input: Tuple[Tuple[str, str]]) -> Dict:
     parameters = {item[0]: item[1] for item in parameters_input}
+    if not settings.ssh.SSH_VALIDATE_SSHCONFIG:
+        return parameters
     try:
         ssh_params = SSHParams(**parameters)
     except ValidationError as e:
