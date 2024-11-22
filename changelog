@@ -1,5 +1,9 @@
 # SSHTmux change-log
 
+## Version 0.1.12 (2024-11-22)
+
+- Fix Filter Hosts on Tui Connections Tree
+
 ## Version 0.1.11 (2024-11-22)
 
 - Fix Host name and Group name validation
