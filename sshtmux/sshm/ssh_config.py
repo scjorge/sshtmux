@@ -22,6 +22,8 @@ class SSH_Config:
     """
 
     DEFAULT_GROUP_NAME: str = "default"
+    GLOBAL_PATTERN_GROUP_NAME: str = "global_pattern"
+    GLOBAL_PATTERN_HOST_NAME: str = "*"
 
     def __init__(self, config_lines: List[str] = [], stdout: bool = False):
         self.ssh_config_file: str = os.path.expanduser(settings.ssh.SSH_CONFIG_FILE)
@@ -31,6 +33,9 @@ class SSH_Config:
         self.groups: List[SSH_Group] = [
             SSH_Group(name=self.DEFAULT_GROUP_NAME, desc="Default group")
         ]
+        self.global_pattern_group = SSH_Group(
+            name=self.GLOBAL_PATTERN_GROUP_NAME, desc="Global pattern"
+        )
 
         # options
         self.stdout: bool = stdout
@@ -41,6 +46,13 @@ class SSH_Config:
         self.current_group: str = self.DEFAULT_GROUP_NAME
         self.current_host: Optional[SSH_Host] = None
         self.current_host_info: list = []
+
+    @property
+    def groups_sorted(self):
+        if self.groups[-1].name == self.GLOBAL_PATTERN_GROUP_NAME:
+            self.groups.insert(0, self.groups.pop(-1))
+        print(self.groups[0])
+        return self.groups
 
     def read(self):
         """
@@ -59,6 +71,12 @@ class SSH_Config:
         Internal function used to flush host configuration while parsing config file
         """
         if self.current_host:
+            if self.current_host.name == "*":
+                if len(self.global_pattern_group.patterns) == 0:
+                    self.current_host.group = self.global_pattern_group.name
+                    self.global_pattern_group.patterns.append(self.current_host)
+                return
+
             if self.current_host.type == "normal":
                 self.groups[self.current_grindex].hosts.append(self.current_host)
             else:
@@ -66,7 +84,19 @@ class SSH_Config:
             # Reset "cache" since we flushed host info
             self.current_host = None
 
-    # TODO: Add ability to separate host parameters with optional "=" sign
+    def _sort_groups(self):
+        base_groups_list = [self.DEFAULT_GROUP_NAME, self.GLOBAL_PATTERN_GROUP_NAME]
+        base_groups = [g for g in self.groups if g.name in base_groups_list]
+        other_groups = [g for g in self.groups if g.name not in base_groups_list]
+
+        other_groups.sort(key=lambda g: g.name)
+
+        self.groups = (
+            [g for g in base_groups if g.name == self.DEFAULT_GROUP_NAME]
+            + other_groups
+            + [g for g in base_groups if g.name == self.GLOBAL_PATTERN_GROUP_NAME]
+        )
+
     def parse(self):
         """
         Parse config lines one by one and generate configuration structure
@@ -93,6 +123,9 @@ class SSH_Config:
                     continue
 
                 metadata, value = match.groups()
+
+                if value == self.GLOBAL_PATTERN_GROUP_NAME:
+                    continue
 
                 if metadata == "config":
                     # Config options are configured as key=value within config line...
@@ -166,7 +199,6 @@ class SSH_Config:
                     type=host_type,
                     info=self.current_host_info,
                 )
-
                 # Reset global host info cache when we find new host (from this line, any host comments will apply to next host)
                 self.current_host_info = []
                 continue
@@ -188,16 +220,16 @@ class SSH_Config:
         # Last entries must be flushed manually as there are no new "hosts" to trigger storing parsed data into config struct
         self._config_flush_host()
 
-        # Second stage, check any inheritances and fill them
-        # start = time.time()
+        if len(self.global_pattern_group.patterns) > 0:
+            self.groups.append(self.global_pattern_group)
         for group in self.groups:
             for host in group.hosts:
                 inherited_params: List[Tuple[str, dict]] = []
                 if host.type == "normal":
                     inherited_params = self.find_inherited_params(host.name)
                     host.inherited_params = inherited_params
-        # end = time.time() - start
-        # print(f"Inheritance check elapsed: {end:0.3f}s")
+
+        self._sort_groups()
         return self
 
     def generate_ssh_config(self):
@@ -213,7 +245,7 @@ class SSH_Config:
         SSHCONFIG_META_SEPARATOR = ": "
 
         # First we lines before we flush them into file
-        lines: List[str] = ["#<<<<< SSH Config file managed by sshtmux >>>>>\n"]
+        lines: List[str] = ["#<<<<< SSH Config file managed by SSHTmux >>>>>\n"]
 
         # Dump any saved configuration
         for option in self.opts:
@@ -225,6 +257,7 @@ class SSH_Config:
         lines.append("\n")
 
         # Render all groups
+        self._sort_groups()
         for group in self.groups:
             # Ship default group as it does not have to be specified
             render_header = False if group.name == self.DEFAULT_GROUP_NAME else True
@@ -289,7 +322,7 @@ class SSH_Config:
         """
         Check if specific group name is present in configuration
         """
-        is_valid_name, message = self.validate_group_name(name)
+        is_valid_name, message = self.validate_name(name)
         if not is_valid_name:
             print(message)
             exit(1)
@@ -315,7 +348,7 @@ class SSH_Config:
         Check if specific host name is present in configuration
         """
         if validate_names:
-            is_valid_name, message = self.validate_host_name(name)
+            is_valid_name, message = self.validate_name(name)
             if not is_valid_name:
                 print(message)
                 exit(1)
@@ -424,39 +457,16 @@ class SSH_Config:
             target_group.patterns.append(found_host)
             found_group.patterns.remove(found_host)
 
-    def validate_group_name(self, name):
+    def validate_name(self, name):
         if not settings.ssh.SSH_VALIDATE_SSHCONFIG:
-            return True, "Valid group name."
+            return True, None
 
         if not (3 <= len(name) <= 50):
-            return False, "The group name must be between 3 and 50 characters."
+            return False, "The name must be between 3 and 50 characters."
 
-        if not re.match(r"^[a-zA-Z0-9_-]+$", name):
+        if not re.match(r"^[a-zA-Z0-9_\-\*]+$", name):
             return (
                 False,
-                "The group name can only contain letters, numbers, dashes (-), and underscores (_).",
+                "The name cannot contain special characters",
             )
-
-        if name[0] in "-_" or name[-1] in "-_":
-            return (
-                False,
-                "The group name cannot start or end with a dash (-) or underscore (_).",
-            )
-
-        return True, "Valid group name."
-
-    def validate_host_name(self, hostname):
-        if not settings.ssh.SSH_VALIDATE_SSHCONFIG:
-            return True, "Valid host name."
-
-        if not (1 <= len(hostname) <= 253):
-            return False, "The host name must be between 1 and 253 characters."
-
-        block_chars = ["-", "."]
-        if hostname[0] in block_chars or hostname[-1] in block_chars:
-            return (
-                False,
-                "The host name cannot start or end with a hyphen (-) or dot (.)",
-            )
-
-        return True, "Valid host name."
+        return True, None

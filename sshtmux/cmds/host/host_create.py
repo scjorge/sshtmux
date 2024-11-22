@@ -54,7 +54,10 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
     config: SSH_Config = ctx.obj
 
     if not target_group_name:
-        target_group_name = SSH_Config.DEFAULT_GROUP_NAME
+        if name == SSH_Config.GLOBAL_PATTERN_HOST_NAME:
+            target_group_name = SSH_Config.GLOBAL_PATTERN_GROUP_NAME
+        else:
+            target_group_name = SSH_Config.DEFAULT_GROUP_NAME
     else:
         if not name.startswith(f"{target_group_name}-"):
             name = f"{target_group_name}-{name}"
@@ -79,13 +82,14 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
         config.groups.append(target_group)
 
         # Create group parttern host
-        new_host = SSH_Host(
-            name=f"{target_group_name}-*",
-            group=target_group_name,
-            type="pattern",
-            info=[],
-        )
-        target_group.patterns.append(new_host)
+        if name != SSH_Config.GLOBAL_PATTERN_HOST_NAME:
+            new_pattern_host = SSH_Host(
+                name=f"{target_group_name}-*",
+                group=target_group_name,
+                type="pattern",
+                info=[],
+            )
+            target_group.patterns.append(new_pattern_host)
     else:
         target_group = config.get_group_by_name(target_group_name)
 

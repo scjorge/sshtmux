@@ -1,5 +1,12 @@
 # SSHTmux change-log
 
+## Version 0.1.11 (2024-11-22)
+
+- Fix Host name and Group name validation
+- Fix the global wildcard `*` location when it is created or set
+- Update escape key on Tui interface
+
+
 ## Version 0.1.10 (2024-11-21)
 
 - Fix Host regex

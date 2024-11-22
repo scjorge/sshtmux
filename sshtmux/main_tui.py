@@ -320,15 +320,11 @@ class SSHTui(App):
         self.action_connect_ssh(attach=True)
 
     def action_clean_filters(self) -> None:
-        self.input_groups_search.value = ""
-        self.input_hosts_search.value = ""
         self.input_fast_connections.value = ""
         self.input_groups_search.display = False
         self.input_hosts_search.display = False
         self.select_identity.display = False
         self.input_fast_connections.display = False
-        for node in self.connections_tree.root.children:
-            node.collapse_all()
         self.connections_tree.focus()
 
     def action_cursor_down(self) -> None:
@@ -436,11 +432,15 @@ class SSHTui(App):
     ):
         self.connections_tree.root.expand()
 
-        groups = self.sshmconf.groups
+        groups = self.sshmconf.groups_sorted
         if filter_hosts:
             groups_filtered = []
             for group in groups:
-                hosts = [h for h in group.hosts if filter_hosts in h.name]
+                hosts = [
+                    h
+                    for h in group.hosts
+                    if filter_hosts in h.name.replace(group.name, "")
+                ]
                 if len(hosts) > 0:
                     group.hosts = hosts
                     groups_filtered.append(group)
