@@ -26,7 +26,7 @@ def cmd(ctx):
     table.add_column("#Patterns", justify="right", style="bright_cyan")
     table.add_column("Desc", style="grey50")
 
-    for group in config.groups:
+    for group in config.groups_sorted:
         table.add_row(
             group.name, str(len(group.hosts)), str(len(group.patterns)), group.desc
         )

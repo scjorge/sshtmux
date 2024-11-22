@@ -436,7 +436,7 @@ class SSHTui(App):
     ):
         self.connections_tree.root.expand()
 
-        groups = self.sshmconf.groups
+        groups = self.sshmconf.groups_sorted
         if filter_hosts:
             groups_filtered = []
             for group in groups:
