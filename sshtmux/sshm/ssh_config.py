@@ -322,7 +322,7 @@ class SSH_Config:
         """
         Check if specific group name is present in configuration
         """
-        is_valid_name, message = self.validate_group_name(name)
+        is_valid_name, message = self.validate_name(name)
         if not is_valid_name:
             print(message)
             exit(1)
@@ -348,7 +348,7 @@ class SSH_Config:
         Check if specific host name is present in configuration
         """
         if validate_names:
-            is_valid_name, message = self.validate_host_name(name)
+            is_valid_name, message = self.validate_name(name)
             if not is_valid_name:
                 print(message)
                 exit(1)
@@ -457,40 +457,16 @@ class SSH_Config:
             target_group.patterns.append(found_host)
             found_group.patterns.remove(found_host)
 
-    def validate_group_name(self, name):
+    def validate_name(self, name):
         if not settings.ssh.SSH_VALIDATE_SSHCONFIG:
-            return True, "Valid group name."
+            return True, None
 
         if not (3 <= len(name) <= 50):
-            return False, "The group name must be between 3 and 50 characters."
+            return False, "The name must be between 3 and 50 characters."
 
-        if not re.match(r"^[a-zA-Z0-9_-]+$", name):
+        if not re.match(r"^[a-zA-Z0-9_\-\*]+$", name):
             return (
                 False,
-                "The group name can only contain letters, numbers, dashes (-), and underscores (_).",
+                "The name cannot contain special characters",
             )
-
-        block_chars = ["-", ".", "_"]
-        if name[0] in block_chars or name[-1] in block_chars:
-            return (
-                False,
-                "The group name cannot start or end with a dash (-) or underscore (_).",
-            )
-
-        return True, "Valid group name."
-
-    def validate_host_name(self, hostname):
-        if not settings.ssh.SSH_VALIDATE_SSHCONFIG:
-            return True, "Valid host name."
-
-        if not (1 <= len(hostname) <= 253):
-            return False, "The host name must be between 1 and 253 characters."
-
-        block_chars = ["-", "."]
-        if hostname[0] in block_chars or hostname[-1] in block_chars:
-            return (
-                False,
-                "The host name cannot start or end with a hyphen (-) or dot (.)",
-            )
-
-        return True, "Valid host name."
+        return True, None
