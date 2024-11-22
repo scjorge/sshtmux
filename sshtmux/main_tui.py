@@ -436,11 +436,7 @@ class SSHTui(App):
         if filter_hosts:
             groups_filtered = []
             for group in groups:
-                hosts = [
-                    h
-                    for h in group.hosts
-                    if filter_hosts in h.name.replace(group.name, "")
-                ]
+                hosts = [h for h in group.hosts if filter_hosts in h.name]
                 if len(hosts) > 0:
                     group.hosts = hosts
                     groups_filtered.append(group)
