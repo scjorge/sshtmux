@@ -167,9 +167,9 @@ The [ssh_config(5)](https://linux.die.net/man/5/ssh_config) file is a configur
 
 Wildcards are special characters or symbols used to represent one or more characters in a pattern. In the context of SSH configuration (or generally in file systems, programming, and other tools), wildcards allow you to match multiple items without specifying each one explicitly. This is particularly useful for flexible and dynamic matching of hosts in the ssh_config file.
 
-SSHTmux uses wildcards to create hosts and manager groups. When you create a group, automatic will create a pattern host with the name `group_name-*`. All parameters configured on this host will affect all hosts in this group. That's the reason all hosts are created with the prefix `group_name-`. If you want to update generic configs on group, use `sshm host set group_name-*`.
+SSHTmux uses wildcards to create hosts and manager groups. When you create a group, automatic will create a pattern host with the name `group_name-*`. All parameters configured on this host will affect all hosts in this group. That's the reason all hosts are created with the prefix `group_name-`. If you want to update generic configs on group, use `sshm host set "group_name-*"`.
 
-If you want to set any config to all hosts, use `*` wildcard with `sshm host <create|set> *`. This host will be on a special group called `global_pattern`.
+If you want to set any config to all hosts, use `*` wildcard with `sshm host <create|set> "*"`. This host will be on a special group called `global_pattern`.
 
 NOTE: The hierarchy in the `~/.ssh/config` is important, the most generic wildcards must be last. But don't worry, SSHTmux will do it for you.
 
