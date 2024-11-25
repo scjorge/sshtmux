@@ -16,5 +16,15 @@ class SSH_Group:
 
     print_style: str = ""
 
+    def deep_filter(self, value: str) -> bool:
+        """
+        Method returns bool value
+        This filter any match value with name, desc ou info
+        """
+        values = [self.name, self.desc] + self.info
+        return any(
+            string_part in item for item in values for string_part in value.split()
+        )
+
     def __rich__(self):
         pass

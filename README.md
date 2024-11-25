@@ -116,7 +116,7 @@ _TAB-TAB auto-completes on commands, options, groups, hosts and parameters_
 
 * __Bash__:
   ```sh
-  echo 'eval "$(_SSHM_COMPLETE=bash_source sshm)"' >> ~/.profile && source ~/.profile
+  echo 'eval "$(_SSHM_COMPLETE=bash_source sshm)"' >> ~/.bashrc && source ~/.bashrc
   ```
   
 * __Zsh__:
@@ -163,7 +163,7 @@ rm -r sshtmux
 
 How SSH config works?
 
-The [ssh_config(5)](https://linux.die.net/man/5/ssh_config) file is a configuration file used by the OpenSSH client to specify custom settings for SSH connections. It allows users to define configurations globally or on a per-host basis, simplifying SSH usage and automating repetitive settings. This file can significantly enhance usability by avoiding the need to repeatedly type options or remember specific configurations.
+The [ssh_config(5)](https://linux.die.net/man/5/ssh_config) file is a configuration file used by the [OpenSSH](https://www.openssh.com/) client to specify custom settings for SSH connections. It allows users to define configurations globally or on a per-host basis, simplifying SSH usage and automating repetitive settings. This file can significantly enhance usability by avoiding the need to repeatedly type options or remember specific configurations.
 
 Wildcards are special characters or symbols used to represent one or more characters in a pattern. In the context of SSH configuration (or generally in file systems, programming, and other tools), wildcards allow you to match multiple items without specifying each one explicitly. This is particularly useful for flexible and dynamic matching of hosts in the ssh_config file.
 
@@ -313,7 +313,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 - `SSHTMUX_IDENTITY_KEY_FILE` -> File with a key (Fernet key - 32 url-safe) to decrypted passwords.
 - `SSHTMUX_IDENTITY_PASSWORDS_FILE` -> File with all passwords encrypted in json format.
 - `SSHTMUX_SNIPPETS_PATH` ->  Directory where SSHTmux will search for files and open in snippets mode.
-- `SSHTMUX_HOST_STYLE` = Style used for group or host show commands.
+- `SSHTMUX_HOST_STYLE` -> Style used for group or host show commands.
 
 | Style              | Description                                       |
 |--------------------|---------------------------------------------------|
@@ -331,7 +331,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 - `SSH_COMMAND` -> The command used when open a new SSH connection.
 - `SFTP_COMMAND` -> The command used when open a new SFTP connection.
 - `SSH_VALIDATE_SSHCONFIG` -> Set `false` if you want to disable all [ssh_config(5)](https://linux.die.net/man/5/ssh_config) validations.
-- `SSH_CUSTOM_COMMAND` -> SSHTmux do some internal negotiations to open connections. If you want to use only the flow of this project and use your custom command to connect, SSHTmux will not do anything anymore. In this case, you can use special strings to represent the hostname and the password comes from identity. You can use `${hostname}` and `${passwor`}`
+- `SSH_CUSTOM_COMMAND` -> SSHTmux do some internal negotiations to open connections. If you want to use only the flow of this project and use your custom command to connect, SSHTmux will not do anything anymore. In this case, you can use special strings to represent the hostname and the password comes from identity. You can use `${hostname}` and `${password}`
 
 #### TMUX Config Session
 - `TMUX_CONFIG_FILE` -> Your Tmux config file. NOTE: This file is optimized for this project, but you can change if you want

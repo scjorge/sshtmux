@@ -55,6 +55,18 @@ class SSH_Host:
         except socket.error:
             return ("", True)
 
+    def deep_filter(self, value: str) -> bool:
+        """
+        Method returns bool value
+        This filter any match value with name, paramters ou info
+        """
+        values = (
+            list(self.get_all_params().values()) + self.info + [self.name, self.group]
+        )
+        return any(
+            string_part in item for item in values for string_part in value.split()
+        )
+
     # Method for interaction with printing the object via Rich library
     # Each supported style should be located in defined folder (by default under "host_styles")
     # Each module must have "render" function, and return "rich renderable" object
@@ -76,4 +88,4 @@ class SSH_Host:
             return f"SSH_Host style [bright_red]'{self.print_style}'[/] is broken!"
 
     def __str__(self) -> str:
-        return f"Group: {self.group} - Host: {self.name}"
+        return f"Host: {self.name} - Group: {self.group}"

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "sshtmux"
 homepage = "https://github.com/scjorge/sshtmux"
-version = "0.1.12"
+version = "0.1.13"
 description = "Powerful SSH terminal manager"
 authors = ["Jorge Silva <jorgesilva.ti@hotmail.com>"]
 license = "MIT"

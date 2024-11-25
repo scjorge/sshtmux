@@ -76,7 +76,7 @@ def init_tmux():
     setw -g pane-base-index 1
     bind '"' split-window -v -c "#{pane_current_path}"
     bind % split-window -h -c "#{pane_current_path}"
-    bind-key -n MouseDown1StatusLeft choose-window
+    bind-key -n MouseDown1StatusLeft choose-session
 
     # Mouse
     set -g mouse on
