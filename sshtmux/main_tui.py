@@ -436,14 +436,14 @@ class SSHTui(App):
         if filter_hosts:
             groups_filtered = []
             for group in groups:
-                hosts = [h for h in group.hosts if filter_hosts in h.name]
+                hosts = [h for h in group.hosts if h.deep_filter(filter_hosts)]
                 if len(hosts) > 0:
                     group.hosts = hosts
                     groups_filtered.append(group)
             groups = groups_filtered
 
         elif filter_groups:
-            groups = [g for g in groups if filter_groups in g.name]
+            groups = [g for g in groups if g.deep_filter(filter_groups)]
 
         for group in groups:
             g = self.connections_tree.root.add(
