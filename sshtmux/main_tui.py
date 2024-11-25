@@ -1,4 +1,5 @@
 from typing import ClassVar
+from copy import deepcopy
 
 from rich import box
 from rich.panel import Panel
@@ -405,6 +406,7 @@ class SSHTui(App):
                     child.expand()
 
         if filter == "":
+            self._generate_tree()
             for node in self.connections_tree.root.children:
                 node.collapse_all()
 
@@ -432,7 +434,7 @@ class SSHTui(App):
     ):
         self.connections_tree.root.expand()
 
-        groups = self.sshmconf.groups_sorted
+        groups = deepcopy(self.sshmconf.groups_sorted)
         if filter_hosts:
             groups_filtered = []
             for group in groups:

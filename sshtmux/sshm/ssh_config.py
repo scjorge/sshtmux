@@ -96,6 +96,8 @@ class SSH_Config:
             + other_groups
             + [g for g in base_groups if g.name == self.GLOBAL_PATTERN_GROUP_NAME]
         )
+        for group in self.groups:
+            group.hosts.sort(key=lambda h: h.name)
 
     def parse(self):
         """
