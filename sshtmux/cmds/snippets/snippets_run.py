@@ -1,5 +1,4 @@
 import click
-from libtmux.exc import LibTmuxException
 
 from sshtmux.services.tmux import Tmux
 
@@ -14,5 +13,6 @@ def cmd(session_name, window_index, panel_index):
     tmux = Tmux()
     try:
         tmux.execute_snippet(session_name, window_index, panel_index)
-    except LibTmuxException as e:
+    except Exception as e:
         print(str(e))
+        exit(1)

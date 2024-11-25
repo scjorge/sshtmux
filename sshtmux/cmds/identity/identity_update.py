@@ -18,6 +18,6 @@ def cmd(identity):
         password_manager.set_password(identity, password, True)
     except IdentityException as e:
         print(str(e))
-        return
+        exit(1)
 
     print(f"Identity {identity} updated")

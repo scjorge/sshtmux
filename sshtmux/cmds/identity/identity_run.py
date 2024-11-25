@@ -16,3 +16,4 @@ def cmd(session_name, window_index, panel_index):
         tmux.execute_identity(session_name, window_index, panel_index)
     except LibTmuxException as e:
         print(str(e))
+        exit(1)

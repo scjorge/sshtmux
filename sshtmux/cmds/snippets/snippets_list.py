@@ -1,5 +1,4 @@
 import click
-from libtmux.exc import LibTmuxException
 from rich import box
 from rich.console import Console
 from rich.table import Table
