@@ -17,14 +17,14 @@ def choose_cmd(path):
         with open(path, "r") as arquivo:
             lines = arquivo.readlines()
     except FileNotFoundError:
-        print("File not found")
+        console.print("File not found")
         exit(1)
     except Exception as e:
-        print(f"Error to open file {path}: {e}")
+        console.print(f"Error to open file {path}: {e}")
         exit(1)
 
     if not lines:
-        print(f"Empty file: {path}")
+        console.print(f"Empty file: {path}")
         return None
 
     def browser(stdscr):

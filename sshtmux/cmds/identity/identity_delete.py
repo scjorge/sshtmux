@@ -14,7 +14,7 @@ def cmd(identity):
     try:
         password_manager.delete_password(identity)
     except IdentityException as e:
-        print(str(e))
+        click.echo(str(e))
         exit(1)
 
-    print(f"Identity {identity} deleted")
+    click.echo(f"Identity {identity} deleted")

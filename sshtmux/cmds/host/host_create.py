@@ -63,17 +63,17 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
             name = f"{target_group_name}-{name}"
 
     if config.check_host_by_name(name):
-        print(f"Cannot create host '{name}' as it already exists in configuration!")
+        click.echo(f"Cannot create host '{name}' as it already exists in configuration!")
         ctx.exit(1)
 
     # Find group by name where to store config
     target_group_exists = config.check_group_by_name(target_group_name)
 
     if not target_group_exists and not force:
-        print(
+        click.echo(
             f"Cannot create host '{name}' in group '{target_group_name}' since the group does not exist"
         )
-        print("Create group first, or use '--force' option to create it automatically!")
+        click.echo("Create group first, or use '--force' option to create it automatically!")
         ctx.exit(1)
         # unreachable, but avoids issues with static checks
         exit(1)
@@ -114,4 +114,4 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
     config.generate_ssh_config().write_out()
 
     if not config.stdout:
-        print(f"Created host: {name}")
+        click.echo(f"Created host: {name}")

@@ -14,5 +14,5 @@ def cmd(session_name, window_index, panel_index):
     try:
         tmux.execute_snippet(session_name, window_index, panel_index)
     except Exception as e:
-        print(str(e))
+        click.echo(str(e))
         exit(1)

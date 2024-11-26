@@ -14,7 +14,7 @@ def cmd():
         password_manager = PasswordManager()
         identies = password_manager.get_identities()
     except Exception as e:
-        print(str(e))
+        click.echo(str(e))
         exit(1)
 
     console = Console()

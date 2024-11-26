@@ -2,6 +2,7 @@ import re
 from typing import Dict, List, Tuple
 
 from pydantic import ValidationError
+from rich import print
 
 from ..core.config import T_Host_Style, settings
 from ..services.identities import PasswordManager

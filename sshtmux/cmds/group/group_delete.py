@@ -37,7 +37,7 @@ def cmd(ctx, names, yes):
 
     # Deleting requires confirmation
     if not yes:
-        print(f"Following groups will be deleted: [{','.join(selected_group_list)}]")
+        click.echo(f"Following groups will be deleted: [{','.join(selected_group_list)}]")
         if not click.confirm("Are you sure?"):
             ctx.exit(1)
 
@@ -45,14 +45,14 @@ def cmd(ctx, names, yes):
     config_updated = False
     for name in selected_group_list:
         if not config.check_group_by_name(name):
-            print(f"Cannot delete group '{name}', it is not defined in configuration!")
+            click.echo(f"Cannot delete group '{name}', it is not defined in configuration!")
             continue
 
         config.groups.remove(config.get_group_by_name(name))
         config_updated = True
 
         if not config.stdout:
-            print(f"Deleted group: {name}")
+            click.echo(f"Deleted group: {name}")
 
     # ReWrite config only when config was actually changed
     if config_updated:

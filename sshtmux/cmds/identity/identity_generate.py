@@ -19,4 +19,4 @@ def cmd():
 
     {key}
     """
-    print(output)
+    click.echo(output)

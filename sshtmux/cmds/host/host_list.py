@@ -47,7 +47,7 @@ def cmd(ctx, group_filter, name_filter, verbose):
     filtered_groups = config.filter_config(group_filter, name_filter)
 
     if not filtered_groups:
-        print("No host is matching any given filter!")
+        click.echo("No host is matching any given filter!")
         ctx.exit(1)
 
     # This lists define host properties and which parameters will be displayed

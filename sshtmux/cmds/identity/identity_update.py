@@ -1,5 +1,4 @@
 import click
-from rich import print
 from rich.prompt import Prompt
 
 from sshtmux.exceptions import IdentityException
@@ -17,7 +16,7 @@ def cmd(identity):
     try:
         password_manager.set_password(identity, password, True)
     except IdentityException as e:
-        print(str(e))
+        click.echo(str(e))
         exit(1)
 
-    print(f"Identity {identity} updated")
+    click.echo(f"Identity {identity} updated")

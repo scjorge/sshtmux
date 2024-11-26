@@ -2,8 +2,6 @@ import click
 
 from sshtmux.sshm import SSH_Config, complete_ssh_group_names
 
-# TODO: Check click.edit for multiline edit option (info, or even params?)
-
 # ------------------------------------------------------------------------------
 # COMMAND: group set
 # ------------------------------------------------------------------------------
@@ -32,12 +30,12 @@ def cmd(ctx, name, desc, info):
 
     # Nothing was provided
     if not desc and not info:
-        print("Calling set on group without specifying any option is not valid!")
-        print("Run 'sshm group set -h' for help.")
+        click.echo("Calling set on group without specifying any option is not valid!")
+        click.echo("Run 'sshm group set -h' for help.")
         ctx.exit(1)
 
     if not config.check_group_by_name(name):
-        print(f"Cannot modify group '{name}', it is not defined in configuration!")
+        click.echo(f"Cannot modify group '{name}', it is not defined in configuration!")
         ctx.exit(1)
 
     found_group = config.get_group_by_name(name)
@@ -59,4 +57,4 @@ def cmd(ctx, name, desc, info):
     config.generate_ssh_config().write_out()
 
     if not config.stdout:
-        print(f"Modified group: {name}")
+        click.echo(f"Modified group: {name}")
