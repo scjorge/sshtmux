@@ -1,6 +1,5 @@
 from copy import deepcopy
 from typing import ClassVar
-from copy import deepcopy
 
 from rich import box
 from rich.panel import Panel
