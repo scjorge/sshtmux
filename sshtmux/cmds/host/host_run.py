@@ -16,4 +16,5 @@ def cmd(session_name, window_index, panel_index, cmd_ref):
     try:
         tmux.execute_host_cmd(session_name, window_index, panel_index, cmd_ref)
     except LibTmuxException as e:
-        print(str(e))
+        click.echo(str(e))
+        exit(1)

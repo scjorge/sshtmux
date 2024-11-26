@@ -19,10 +19,10 @@ def cmd(ctx, name, new_name):
     config: SSH_Config = ctx.obj
 
     if not config.check_host_by_name(name):
-        print(f"Cannot rename host '{name}' as it is not defined in configuration!")
+        click.echo(f"Cannot rename host '{name}' as it is not defined in configuration!")
         ctx.exit(1)
     if config.check_host_by_name(new_name):
-        print(
+        click.echo(
             f"Cannot rename host '{name}' to '{new_name}' as new name is already used!"
         )
         ctx.exit(1)
@@ -31,4 +31,4 @@ def cmd(ctx, name, new_name):
     config.generate_ssh_config().write_out()
 
     if not config.stdout:
-        print(f"Renamed host: {name} -> {new_name}")
+        click.echo(f"Renamed host: {name} -> {new_name}")

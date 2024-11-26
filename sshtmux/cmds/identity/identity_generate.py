@@ -1,4 +1,5 @@
 import click
+from rich import print
 
 from sshtmux.services.identities import KeyManager
 
@@ -9,11 +10,11 @@ HELP = "Generate a Fernet key - 32 url-safe"
 def cmd():
     key = KeyManager.generate_key().decode()
     output = f"""
-    Be careful, when saving identities using a key, you cannot recover passwords without the key.
-    If you have saved passwords and are using the ~/.config/sshtmux/identity.key file, you can configure the key of this file in the env var 'SSHTMUX_IDENTITY_KEY'.
-    Otherwise you can use a new key belowS
+    [bold yellow]Warning[/bold yellow]: When saving identities using a key, you cannot recover passwords without the corresponding key.
+    If you have already saved passwords and are using the [u]~/.config/sshtmux/identity.key[/u] file, you can configure this key by setting the [u]SSHTMUX_IDENTITY_KEY[/u] environment variable.
+    Otherwise, you can generate a new key below.
 
-    Set the env var SSHTMUX_IDENTITY_KEY
+    Set the environment variable [u]SSHTMUX_IDENTITY_KEY[/u].
 
     Your key:
 

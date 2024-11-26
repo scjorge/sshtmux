@@ -59,7 +59,7 @@ def cmd(ctx, name, info, parameter, remove_parameter, target_group_name, force):
     config: SSH_Config = ctx.obj
 
     if not config.check_host_by_name(name, False):
-        print(
+        click.echo(
             f"Cannot set anything on host '{name}' as it is not defined in configuration!"
         )
         ctx.exit(1)
@@ -69,10 +69,10 @@ def cmd(ctx, name, info, parameter, remove_parameter, target_group_name, force):
     if target_group_name:
         target_group_exists = config.check_group_by_name(target_group_name)
         if not target_group_exists and not force:
-            print(
+            click.echo(
                 f"Cannot move host '{name}' to group '{target_group_name}' which does not exist!"
             )
-            print(
+            click.echo(
                 "Consider using --force to automatically create target group, or create it manually first."
             )
             ctx.exit(1)
@@ -100,9 +100,9 @@ def cmd(ctx, name, info, parameter, remove_parameter, target_group_name, force):
         try:
             del found_host.params[param]
         except KeyError:
-            print(f"Parameter: {param} not found to be removed. Ignoring...")
+            click.echo(f"Parameter: {param} not found to be removed. Ignoring...")
 
     if not config.stdout:
-        print(f"Modified host: {name}")
+        click.echo(f"Modified host: {name}")
 
     config.generate_ssh_config().write_out()

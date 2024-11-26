@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Literal
 
+import click
+
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
@@ -67,5 +69,5 @@ def update_settings(new_settings):
 try:
     settings = ConfigModel()
 except Exception as e:
-    print(f"Init Settings Failed: {e}")
+    click.echo(f"Init Settings Failed: {e}")
     exit(1)

@@ -121,7 +121,7 @@ _TAB-TAB auto-completes on commands, options, groups, hosts and parameters_
   
 * __Zsh__:
   ```sh
-  echo 'eval "$(_SSHM_COMPLETE=bash_source sshm)"' >> ~/.zshrc && source ~/.zshrc
+  echo 'eval "$(_SSHM_COMPLETE=zsh_source sshm)"' >> ~/.zshrc && source ~/.zshrc
   ```
 
 * __Fish__:
@@ -310,7 +310,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 ```
 
 #### SSHTMUX Config Session
-- `SSHTMUX_IDENTITY_KEY_FILE` -> File with a key (Fernet key - 32 url-safe) to decrypted passwords.
+- `SSHTMUX_IDENTITY_KEY_FILE` -> File with a symmetric key (Fernet key - 32 url-safe) to encrypt/decrypted passwords.
 - `SSHTMUX_IDENTITY_PASSWORDS_FILE` -> File with all passwords encrypted in json format.
 - `SSHTMUX_SNIPPETS_PATH` ->  Directory where SSHTmux will search for files and open in snippets mode.
 - `SSHTMUX_HOST_STYLE` -> Style used for group or host show commands.
@@ -324,7 +324,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 | `table2`           | Nested table with separated host SSH params       |
 | `json`             | JSON output, useful for binding with other tools  |
 
-⚠️ For security reasons, you can remove the `SSHTMUX_IDENTITY_KEY_FILE` line and use `SSHTMUX_IDENTITY_KEY` env var with the key. If you feel more comfortable creating a new key, you can use `sshm identity generate-key` but remember that passwords are encrypted with a symmetric key, so only the same key is used to decrypt.
+⚠️ For security reasons, you can remove the `SSHTMUX_IDENTITY_KEY_FILE` line and use `SSHTMUX_IDENTITY_KEY` env var with the key. If you feel more comfortable creating a new key, you can use `sshm identity generate-key`. However, remember that passwords are encrypted with a symmetric key, so only the same key can decrypt them.
 
 #### SSH Config Session
 - `SSH_CONFIG_FILE` -> Your SSH config file.

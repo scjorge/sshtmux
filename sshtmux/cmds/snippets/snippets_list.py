@@ -1,5 +1,4 @@
 import click
-from libtmux.exc import LibTmuxException
 from rich import box
 from rich.console import Console
 from rich.table import Table
@@ -7,7 +6,6 @@ from rich.table import Table
 from sshtmux.services.snippets import get_snippets_files
 
 HELP = "List Snippets"
-
 
 @click.command(name="list", short_help=HELP, help=HELP)
 def cmd():

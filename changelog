@@ -1,5 +1,10 @@
 # SSHTmux change-log
 
+## Version 0.1.14 (2024-11-26)
+
+- Fix exceptions and cli system status code
+- Change default python print output to click or rich output
+
 ## Version 0.1.13 (2024-11-25)
 
 - Add filters by name, info and parameters when filtering by hosts

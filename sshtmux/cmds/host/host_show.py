@@ -57,7 +57,7 @@ def cmd(ctx: click.core.Context, name: str, style: str, graph: bool):
             style = settings.sshtmux.SSHTMUX_HOST_STYLE
 
     if not config.check_host_by_name(name):
-        print(
+        click.echo(
             f"Cannot get info for host '{name}' as it is not defined in configuration!"
         )
         ctx.exit(1)

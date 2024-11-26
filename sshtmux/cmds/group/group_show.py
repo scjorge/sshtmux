@@ -29,7 +29,7 @@ def cmd(ctx, name):
     config: SSH_Config = ctx.obj
 
     if not config.check_group_by_name(name):
-        print(f"Cannot show group '{name}', it is not defined in configuration!")
+        click.echo(f"Cannot show group '{name}', it is not defined in configuration!")
         ctx.exit(1)
 
     found_group = config.get_group_by_name(name)

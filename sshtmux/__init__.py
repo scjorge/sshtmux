@@ -2,6 +2,7 @@ from pathlib import Path
 from pprint import pprint
 from typing import Tuple
 
+import click
 import toml
 from pydantic import ValidationError
 
@@ -33,15 +34,15 @@ def init_toml_config():
                 load_settings = ConfigModel(**toml_dict)
                 update_settings(load_settings)
             except ValidationError as e:
-                print("Invalid config.toml. Detail:", "\n")
+                click.echo("Invalid config.toml. Detail:", "\n")
                 for error in e.errors():
                     msg = error.get("msg")
                     loc = error.get("loc")
                     if msg and loc:
                         if isinstance(loc, Tuple) and len(loc) == 2:
                             loc = loc[1]
-                        print(f"Field: {loc}")
-                        print(f"Error: {msg}")
+                        click.echo(f"Field: {loc}")
+                        click.echo(f"Error: {msg}")
                     else:
                         pprint(error, indent=4)
                 exit(1)

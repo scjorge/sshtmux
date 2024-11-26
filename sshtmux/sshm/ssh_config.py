@@ -6,6 +6,8 @@ import re
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+from rich import print
+
 from ..core.config import settings
 from .ssh_group import SSH_Group
 from .ssh_host import SSH_Host
