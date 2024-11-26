@@ -1,5 +1,9 @@
 # SSHTmux change-log
 
+## Version 0.1.15 (2024-11-26)
+
+- Update install instructions and license
+
 ## Version 0.1.14 (2024-11-26)
 
 - Fix exceptions and cli system status code
