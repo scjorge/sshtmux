@@ -324,7 +324,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 | `table2`           | Nested table with separated host SSH params       |
 | `json`             | JSON output, useful for binding with other tools  |
 
-⚠️ For security reasons, you can remove the `SSHTMUX_IDENTITY_KEY_FILE` line and use `SSHTMUX_IDENTITY_KEY` env var with the key. If you feel more comfortable creating a new key, you can use `sshm identity generate-key` but remember that passwords are encrypted with a symmetric key, so only the same key is used to decrypt.
+⚠️ For security reasons, you can remove the `SSHTMUX_IDENTITY_KEY_FILE` line and use `SSHTMUX_IDENTITY_KEY` env var with the key. If you feel more comfortable creating a new key, you can use `sshm identity generate-key`. However, remember that passwords are encrypted with a symmetric key, so only the same key can decrypt them.
 
 #### SSH Config Session
 - `SSH_CONFIG_FILE` -> Your SSH config file.
