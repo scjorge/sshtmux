@@ -121,7 +121,7 @@ _TAB-TAB auto-completes on commands, options, groups, hosts and parameters_
   
 * __Zsh__:
   ```sh
-  echo 'eval "$(_SSHM_COMPLETE=bash_source sshm)"' >> ~/.zshrc && source ~/.zshrc
+  echo 'eval "$(_SSHM_COMPLETE=zsh_source sshm)"' >> ~/.zshrc && source ~/.zshrc
   ```
 
 * __Fish__:
