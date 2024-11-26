@@ -310,7 +310,7 @@ TMUX_TIMEOUT_COMMANDS = 10
 ```
 
 #### SSHTMUX Config Session
-- `SSHTMUX_IDENTITY_KEY_FILE` -> File with a key (Fernet key - 32 url-safe) to decrypted passwords.
+- `SSHTMUX_IDENTITY_KEY_FILE` -> File with a symmetric key (Fernet key - 32 url-safe) to encrypt/decrypted passwords.
 - `SSHTMUX_IDENTITY_PASSWORDS_FILE` -> File with all passwords encrypted in json format.
 - `SSHTMUX_SNIPPETS_PATH` ->  Directory where SSHTmux will search for files and open in snippets mode.
 - `SSHTMUX_HOST_STYLE` -> Style used for group or host show commands.
