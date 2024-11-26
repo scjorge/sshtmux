@@ -7,6 +7,7 @@ from sshtmux.services.snippets import get_snippets_files
 
 HELP = "List Snippets"
 
+
 @click.command(name="list", short_help=HELP, help=HELP)
 def cmd():
     console = Console()

@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Literal
 
 import click
-
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
