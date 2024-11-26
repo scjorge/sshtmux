@@ -41,14 +41,18 @@ def cmd(ctx, names, yes):
 
     # Deleting requires confirmation
     if not yes:
-        click.echo(f"Following hosts will be deleted: [{','.join(selected_hosts_list)}]")
+        click.echo(
+            f"Following hosts will be deleted: [{','.join(selected_hosts_list)}]"
+        )
         if not click.confirm("Are you sure?"):
             ctx.exit(1)
 
     # When deleting multiple hosts, iterate over all of them
     for name in selected_hosts_list:
         if not config.check_host_by_name(name, False):
-            click.echo(f"Cannot delete host '{name}' as it is not defined in configuration!")
+            click.echo(
+                f"Cannot delete host '{name}' as it is not defined in configuration!"
+            )
             continue
 
         found_host, found_group = config.get_host_by_name(name)

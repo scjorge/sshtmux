@@ -19,7 +19,9 @@ def cmd(ctx, name, new_name):
     config: SSH_Config = ctx.obj
 
     if not config.check_host_by_name(name):
-        click.echo(f"Cannot rename host '{name}' as it is not defined in configuration!")
+        click.echo(
+            f"Cannot rename host '{name}' as it is not defined in configuration!"
+        )
         ctx.exit(1)
     if config.check_host_by_name(new_name):
         click.echo(

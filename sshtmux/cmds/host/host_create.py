@@ -63,7 +63,9 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
             name = f"{target_group_name}-{name}"
 
     if config.check_host_by_name(name):
-        click.echo(f"Cannot create host '{name}' as it already exists in configuration!")
+        click.echo(
+            f"Cannot create host '{name}' as it already exists in configuration!"
+        )
         ctx.exit(1)
 
     # Find group by name where to store config
@@ -73,7 +75,9 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
         click.echo(
             f"Cannot create host '{name}' in group '{target_group_name}' since the group does not exist"
         )
-        click.echo("Create group first, or use '--force' option to create it automatically!")
+        click.echo(
+            "Create group first, or use '--force' option to create it automatically!"
+        )
         ctx.exit(1)
         # unreachable, but avoids issues with static checks
         exit(1)
