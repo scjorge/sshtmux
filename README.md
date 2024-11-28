@@ -42,7 +42,7 @@ Source Code: https://github.com/scjorge/sshtmux
     - [Keybinds](#tmux-keybinds)
     - [Mouse](#tmux-mouse)
     - [Navegation](#tmux-navegation)
-- [Changelog](./changelog)
+- [Changelog](./changelog.md)
 - [License](#license)
 
 
