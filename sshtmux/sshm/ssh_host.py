@@ -1,7 +1,7 @@
 import importlib
 import socket
 from dataclasses import dataclass, field
-from typing import Dict, Tuple
+from typing import Dict, Literal, Tuple
 
 from rich.console import Console
 
@@ -18,7 +18,9 @@ class SSH_Host:
 
     name: str
     group: str
-    type: str = "normal"
+    type: Literal["normal", "match", "pattern", "global_pattern", "global_match"] = (
+        "normal"
+    )
     info: list = field(default_factory=list)
     params: dict = field(default_factory=dict)
 

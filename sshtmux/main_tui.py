@@ -451,7 +451,7 @@ class SSHTui(App):
             g = self.connections_tree.root.add(
                 f":file_folder: {group.name}", data=group, expand=False
             )
-            for host in group.hosts + group.patterns:
+            for host in group.all_hosts:
                 g.add_leaf(host.name, data=host)
 
     def _is_sshhost(self):

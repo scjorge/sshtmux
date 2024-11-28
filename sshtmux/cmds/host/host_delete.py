@@ -38,6 +38,7 @@ def cmd(ctx, names, yes):
 
     selected_hosts_list = expand_names(names, config.get_all_host_names())
     selected_hosts_list.sort()
+    selected_hosts_list = [n.strip() for n in selected_hosts_list]
 
     # Deleting requires confirmation
     if not yes:
@@ -59,6 +60,8 @@ def cmd(ctx, names, yes):
 
         if found_host.type == "normal":
             found_group.hosts.remove(found_host)
+        elif found_host.type == "match" or found_host.type == "global_match":
+            found_group.matches.remove(found_host)
         else:
             found_group.patterns.remove(found_host)
 

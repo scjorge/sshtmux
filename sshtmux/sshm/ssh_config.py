@@ -25,22 +25,19 @@ class SSH_Config:
 
     DEFAULT_GROUP_NAME: str = "default"
     GLOBAL_PATTERN_GROUP_NAME: str = "global_pattern"
+    GLOBAL_MATCHES_GROUP_NAME: str = "global_matches"
     GLOBAL_PATTERN_HOST_NAME: str = "*"
 
     def __init__(self, config_lines: List[str] = [], stdout: bool = False):
         self.ssh_config_file: str = os.path.expanduser(settings.ssh.SSH_CONFIG_FILE)
         self.ssh_config_lines: List[str] = config_lines
-
-        # configuration representation (array of SSH groups?)
-        self.groups: List[SSH_Group] = [
-            SSH_Group(name=self.DEFAULT_GROUP_NAME, desc="Default group")
-        ]
-        self.global_pattern_group = SSH_Group(
-            name=self.GLOBAL_PATTERN_GROUP_NAME, desc="Global pattern"
-        )
-
-        # options
         self.stdout: bool = stdout
+
+        self.groups: List[SSH_Group] = [
+            SSH_Group(name=self.DEFAULT_GROUP_NAME, desc="Default group"),
+            SSH_Group(name=self.GLOBAL_PATTERN_GROUP_NAME, desc="Global pattern"),
+        ]
+        self.global_pattern_group = self.groups[1]
         self.opts: dict = {}
 
         # parsing "cache" info
@@ -51,9 +48,15 @@ class SSH_Config:
 
     @property
     def groups_sorted(self):
-        if self.groups[-1].name == self.GLOBAL_PATTERN_GROUP_NAME:
+        global_parttern_group = self.groups[-1]
+        if (
+            len(global_parttern_group.patterns) == 0
+            and len(global_parttern_group.matches) == 0
+        ):
+            self.groups.remove(global_parttern_group)
+            return self.groups
+        if global_parttern_group.name == self.GLOBAL_PATTERN_GROUP_NAME:
             self.groups.insert(0, self.groups.pop(-1))
-        print(self.groups[0])
         return self.groups
 
     def read(self):
@@ -72,19 +75,22 @@ class SSH_Config:
         """
         Internal function used to flush host configuration while parsing config file
         """
-        if self.current_host:
-            if self.current_host.name == "*":
-                if len(self.global_pattern_group.patterns) == 0:
-                    self.current_host.group = self.global_pattern_group.name
-                    self.global_pattern_group.patterns.append(self.current_host)
-                return
+        if not self.current_host:
+            return
 
-            if self.current_host.type == "normal":
-                self.groups[self.current_grindex].hosts.append(self.current_host)
-            else:
-                self.groups[self.current_grindex].patterns.append(self.current_host)
-            # Reset "cache" since we flushed host info
-            self.current_host = None
+        if self.current_host.type == "normal":
+            self.groups[self.current_grindex].hosts.append(self.current_host)
+        elif self.current_host.type == "pattern":
+            self.groups[self.current_grindex].patterns.append(self.current_host)
+        elif self.current_host.type == "match":
+            self.groups[self.current_grindex].matches.append(self.current_host)
+        elif self.current_host.type == "global_pattern":
+            self.global_pattern_group.patterns.append(self.current_host)
+        elif self.current_host.type == "global_match":
+            self.global_pattern_group.matches.append(self.current_host)
+
+        # Reset "cache" since we flushed host info
+        self.current_host = None
 
     def _sort_groups(self):
         base_groups_list = [self.DEFAULT_GROUP_NAME, self.GLOBAL_PATTERN_GROUP_NAME]
@@ -127,8 +133,11 @@ class SSH_Config:
                     continue
 
                 metadata, value = match.groups()
-
-                if value == self.GLOBAL_PATTERN_GROUP_NAME:
+                if (
+                    value == self.global_pattern_group.name
+                    or value == self.global_pattern_group.desc
+                ):
+                    self.current_group = self.GLOBAL_PATTERN_GROUP_NAME
                     continue
 
                 if metadata == "config":
@@ -146,7 +155,6 @@ class SSH_Config:
 
                     logging.debug(f"META: Starting new group: {value}")
                     self.groups.append(SSH_Group(name=value))
-
                     self.current_grindex = len(self.groups) - 1
                     self.current_group = value
                     logging.debug(f"META: Group index set to: {self.current_grindex}")
@@ -189,17 +197,35 @@ class SSH_Config:
                 continue
 
             keyword, value = match.groups()
+            keyword_lower = keyword.lower()
 
             # --- Found "host" keyword, that defines new block, usually followed with name
-            if keyword.lower() == "host":
+            if keyword_lower == "host" or keyword_lower == "match":
                 self._config_flush_host()
 
-                host_type = "pattern" if "*" in value else "normal"
+                group = self.current_group
+                if keyword_lower == "match" and (
+                    group == self.DEFAULT_GROUP_NAME
+                    or group == self.GLOBAL_PATTERN_GROUP_NAME
+                ):
+                    host_type = "global_match"
+                    group = self.GLOBAL_PATTERN_GROUP_NAME
+                elif keyword_lower == "match":
+                    host_type = "match"
+                elif value == "*":
+                    host_type = "global_pattern"
+                    group = self.GLOBAL_PATTERN_GROUP_NAME
+                elif "*" in value:
+                    host_type = "pattern"
+                    group = self.GLOBAL_PATTERN_GROUP_NAME
+                else:
+                    host_type = "normal"
+
                 logging.debug(f"Host '{value}' is '{host_type}' type!")
 
                 self.current_host = SSH_Host(
                     name=value,
-                    group=self.current_group,
+                    group=group,
                     type=host_type,
                     info=self.current_host_info,
                 )
@@ -224,14 +250,10 @@ class SSH_Config:
         # Last entries must be flushed manually as there are no new "hosts" to trigger storing parsed data into config struct
         self._config_flush_host()
 
-        if len(self.global_pattern_group.patterns) > 0:
-            self.groups.append(self.global_pattern_group)
         for group in self.groups:
             for host in group.hosts:
-                inherited_params: List[Tuple[str, dict]] = []
                 if host.type == "normal":
-                    inherited_params = self.find_inherited_params(host.name)
-                    host.inherited_params = inherited_params
+                    host.inherited_params = self.find_inherited_params(host.name)
 
         self._sort_groups()
         return self
@@ -263,6 +285,11 @@ class SSH_Config:
         # Render all groups
         self._sort_groups()
         for group in self.groups:
+            if group.name == self.GLOBAL_PATTERN_GROUP_NAME and (
+                len(group.patterns) == 0 and len(group.matches) == 0
+            ):
+                continue
+
             # Ship default group as it does not have to be specified
             render_header = False if group.name == self.DEFAULT_GROUP_NAME else True
 
@@ -271,6 +298,7 @@ class SSH_Config:
                 lines.append("\n")
                 # Start header line for the group with known metadata
                 lines.append(f"#{'-'*79}\n")  # add horizontal decoration line
+
                 lines.append(
                     f"#{SSHCONFIG_META_PREFIX}group{SSHCONFIG_META_SEPARATOR}{group.name}\n"
                 )
@@ -285,7 +313,7 @@ class SSH_Config:
                 lines.append(f"#{'-'*79}\n")  # add horizontal decoration line
 
             # Append hosts and patterns items from group
-            for host in group.hosts + group.patterns:
+            for host in group.all_hosts:
                 # If there is host-info assigned to host, add it before adding "host" definition
                 for host_info in host.info:
                     lines.append(
@@ -293,7 +321,12 @@ class SSH_Config:
                     )
 
                 # Add "host" line definition
-                lines.append(f"Host {host.name}\n")
+                if host.type == "match" or host.type == "global_match":
+                    keyword = "Match"
+                else:
+                    keyword = "Host"
+
+                lines.append(f"{keyword} {host.name}\n")
 
                 # Add all assigned host params
                 for token, value in host.params.items():
@@ -358,7 +391,7 @@ class SSH_Config:
                 exit(1)
 
         for group in self.groups:
-            all_hosts = group.hosts + group.patterns
+            all_hosts = group.all_hosts
             for host in all_hosts:
                 if host.name == name:
                     return True
@@ -371,7 +404,7 @@ class SSH_Config:
         function will either return ('None','None') or will throw exception
         """
         for group in self.groups:
-            all_hosts = group.hosts + group.patterns
+            all_hosts = group.all_hosts
             for host in all_hosts:
                 if host.name == name:
                     return host, group
@@ -384,7 +417,7 @@ class SSH_Config:
         """
         all_hosts: List[str] = []
         for group in self.groups:
-            for host in group.hosts + group.patterns:
+            for host in group.all_hosts:
                 all_hosts.append(host.name)
         return all_hosts
 
@@ -434,7 +467,7 @@ class SSH_Config:
                 group_copy.patterns = []
                 include_group = False
 
-                for host in group.hosts + group.patterns:
+                for host in group.all_hosts:
                     match = re.search(name_filter, host.name)
                     if match:
                         include_group = True
@@ -457,6 +490,9 @@ class SSH_Config:
         if found_host.type == "normal":
             target_group.hosts.append(found_host)
             found_group.hosts.remove(found_host)
+        if found_host.type == "match":
+            target_group.matches.append(found_host)
+            found_group.matches.remove(found_host)
         else:
             target_group.patterns.append(found_host)
             found_group.patterns.remove(found_host)
@@ -468,9 +504,9 @@ class SSH_Config:
         if not (3 <= len(name) <= 50):
             return False, "The name must be between 3 and 50 characters."
 
-        if not re.match(r"^[a-zA-Z0-9_\-\*]+$", name):
+        if not re.match(r"^[a-zA-Z0-9_\%\.\-\*]+$", name):
             return (
                 False,
-                "The name cannot contain special characters",
+                "The name cannot contain special characters. Except (%), (.), (-), (*)",
             )
         return True, None

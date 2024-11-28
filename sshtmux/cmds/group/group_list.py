@@ -24,11 +24,16 @@ def cmd(ctx):
     table.add_column("Name", style="white")
     table.add_column("#Hosts", justify="right", style="bright_yellow")
     table.add_column("#Patterns", justify="right", style="bright_cyan")
+    table.add_column("#Matches", justify="right", style="bright_cyan")
     table.add_column("Desc", style="grey50")
 
     for group in config.groups_sorted:
         table.add_row(
-            group.name, str(len(group.hosts)), str(len(group.patterns)), group.desc
+            group.name,
+            str(len(group.hosts)),
+            str(len(group.patterns)),
+            str(len(group.matches)),
+            group.desc,
         )
 
     console = Console()
