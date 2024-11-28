@@ -27,6 +27,7 @@ INFO_HELP = "Set host info, can be set multiple times, or set to empty value to 
 PARAM_HELP = "Sets parameter for the host, takes 2 values (<sshparam> <value>)."
 GROUP_HELP = "Defined in which group host will be created, if not specified, 'default' group will be used"
 FORCE_HELP = "Allows during host creation, to create group for host if target group is missing/not yet defined."
+MATCH_HELP = "If you are creating a Match host. (example: sshm host create 'Match User developer' -m -p PasswordAuthentication yes)"
 # ------------------------------------------------------------------------------
 
 
@@ -48,10 +49,12 @@ FORCE_HELP = "Allows during host creation, to create group for host if target gr
     shell_complete=complete_ssh_group_names,
 )
 @click.option("-f", "--force", is_flag=True, help=FORCE_HELP)
+@click.option("-m", "--match", is_flag=True, help=MATCH_HELP)
 @click.argument("name")
 @click.pass_context
-def cmd(ctx, name, info, parameter, target_group_name, force):
+def cmd(ctx, name, info, parameter, target_group_name, force, match):
     config: SSH_Config = ctx.obj
+    match_host = match
 
     if not target_group_name:
         if name == SSH_Config.GLOBAL_PATTERN_HOST_NAME:
@@ -59,10 +62,14 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
         else:
             target_group_name = SSH_Config.DEFAULT_GROUP_NAME
     else:
-        if not name.startswith(f"{target_group_name}-"):
+        if not name.startswith(f"{target_group_name}-") and not match_host:
             name = f"{target_group_name}-{name}"
 
-    if config.check_host_by_name(name):
+    validate_names = True
+    if match_host or name == "*":
+        validate_names = False
+
+    if config.check_host_by_name(name, validate_names=validate_names):
         click.echo(
             f"Cannot create host '{name}' as it already exists in configuration!"
         )
@@ -99,8 +106,17 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
 
     # This is patter host
     target_type = "pattern" if "*" in name else "normal"
+    if match_host and target_group.name == SSH_Config.DEFAULT_GROUP_NAME:
+        target_type = "global_match"
+        target_group = config.global_pattern_group
+    elif match_host:
+        target_type = "match"
+
     new_host = SSH_Host(
-        name=name, group=target_group_name, type=target_type, info=list(info)
+        name=name,
+        group=target_group.name,
+        type=target_type,
+        info=list(info),
     )
 
     # Add all passed parameters to config
@@ -111,6 +127,11 @@ def cmd(ctx, name, info, parameter, target_group_name, force):
     # Append new host to the group
     if new_host.type == "normal":
         target_group.hosts.append(new_host)
+    elif new_host.type == "match":
+        target_group.matches.append(new_host)
+    elif new_host.type == "global_match":
+        target_group.matches.append(new_host)
+        new_host.group = SSH_Config.GLOBAL_PATTERN_HOST_NAME
     else:
         target_group.patterns.append(new_host)
 

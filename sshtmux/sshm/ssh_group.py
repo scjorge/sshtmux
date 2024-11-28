@@ -13,8 +13,13 @@ class SSH_Group:
     info: list = field(default_factory=list)
     hosts: List[SSH_Host] = field(default_factory=list)
     patterns: List[SSH_Host] = field(default_factory=list)
+    matches: List[SSH_Host] = field(default_factory=list)
 
     print_style: str = ""
+
+    @property
+    def all_hosts(self):
+        return self.hosts + self.patterns + self.matches
 
     def deep_filter(self, value: str) -> bool:
         """

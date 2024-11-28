@@ -58,7 +58,7 @@ def cmd(ctx, group_filter, name_filter, verbose):
     if verbose:
         flat_config: List[SSH_Host] = []
         for group in filtered_groups:
-            for h in group.hosts + group.patterns:
+            for h in group.all_hosts:
                 flat_config.append(h)
         for host in flat_config:
             for i_params in host.params:
@@ -71,7 +71,7 @@ def cmd(ctx, group_filter, name_filter, verbose):
     # Start adding rows
     for group in filtered_groups:
         # Iterate trough hosts and patters
-        for host in group.hosts + group.patterns:
+        for host in group.all_hosts:
             host_params = []
             # Go trough list of all params we know are available across current host list
             for table_param in params:
