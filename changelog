@@ -1,5 +1,10 @@
 # SSHTmux change-log
 
+## Version 0.2.0(2024-11-28)
+
+- Add support to Match hosts type
+- Fix creation of global pattern
+
 ## Version 0.1.15 (2024-11-26)
 
 - Update install instructions and license
