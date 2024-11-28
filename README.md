@@ -102,7 +102,7 @@ It is preferable to not use system python version, try it on virtual venv first.
 
 - (OR) from source using pip
     ```sh
-    git clone https://github.com/karlot/sshtmux
+    git clone https://github.com/scjorge/sshtmux
     cd sshtmux
     pip install .
     ```
